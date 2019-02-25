@@ -10,11 +10,12 @@ module.exports = {
   parallel: undefined,
 
   css: {
-    modules: true
+    modules: true,
+    sourceMap: process.env.NODE_ENV !== 'production',
   },
 
   pwa: {
     name: 'voxpop',
-    themeColor: '#000000'
-  }
+    themeColor: '#10132B',
+  },
 };
