@@ -1,5 +1,22 @@
 # voxpop
 
+## Development environment prerequisites
+
+Linux users
+
+- Node.js
+- Yarn/npm
+
+Windows users
+
+- Ramda
+- Node-gyp
+- node-pre-gyp
+- @vue/cli
+- Build-tools
+- Node.js
+- Yarn/npm
+
 ## Project setup
 ```
 yarn install

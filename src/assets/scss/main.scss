@@ -1,0 +1,79 @@
+/*!
+ * Bootstrap v4.3.1 (https://getbootstrap.com/)
+ * Copyright 2011-2019 The Bootstrap Authors
+ * Copyright 2011-2019 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+//@import "partials/functions";
+@import "~bootstrap/scss/functions";
+
+@import "partials/variables";
+@import "~bootstrap/scss/variables";
+
+//@import "partials/mixins";
+@import "~bootstrap/scss/mixins";
+
+//@import "~bootstrap/scss/root";
+@import "~bootstrap/scss/reboot";
+@import "~bootstrap/scss/type";
+@import "~bootstrap/scss/images";
+@import "~bootstrap/scss/code";
+@import "~bootstrap/scss/grid";
+@import "~bootstrap/scss/tables";
+@import "~bootstrap/scss/forms";
+@import "~bootstrap/scss/buttons";
+@import "~bootstrap/scss/transitions";
+@import "~bootstrap/scss/dropdown";  // requires popper
+@import "~bootstrap/scss/button-group";
+@import "~bootstrap/scss/input-group";
+@import "~bootstrap/scss/custom-forms";
+@import "~bootstrap/scss/nav";
+@import "~bootstrap/scss/navbar";
+@import "~bootstrap/scss/card";
+@import "~bootstrap/scss/breadcrumb";
+@import "~bootstrap/scss/pagination";
+@import "~bootstrap/scss/badge";
+@import "~bootstrap/scss/jumbotron";
+@import "~bootstrap/scss/alert";
+@import "~bootstrap/scss/progress";
+@import "~bootstrap/scss/media";
+@import "~bootstrap/scss/list-group";
+@import "~bootstrap/scss/close";
+@import "~bootstrap/scss/toasts";
+@import "~bootstrap/scss/modal";
+// Poppers.js is relied upon jQuery/Bootstrap javascript
+// for advanced positioning of content like Tooltips, Popovers, and auto-flipping Dropdowns.
+// @import "~bootstrap/scss/tooltip"; // requires popper
+// @import "~bootstrap/scss/popover"; // requires popper
+@import "~bootstrap/scss/carousel";
+@import "~bootstrap/scss/spinners";
+@import "~bootstrap/scss/utilities";
+@import "~bootstrap/scss/print";
+
+/*!
+ * Copyright (c) 2019 Voxpop Games
+ *
+ * JavaScript-specific classes to bind to, must be prefixed with .js-:
+ * <button type="button" class="btn btn-primary js-request-to-book">Request to Book</button>
+ * https://github.com/airbnb/css
+ */
+
+//@import "partials/misc";
+//@import "partials/sidebar";
+
+//html {
+//  position: relative;
+//  min-height: 100%;
+//}
+//
+//body {
+//  min-width: 320px;
+//}
+//
+//a,
+//button {
+//  &:focus {
+//    outline-width: 0;
+//  }
+//}

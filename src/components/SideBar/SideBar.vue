@@ -5,7 +5,7 @@
         <a href="/"
            aria-label="sidebar logo">
           <div class="wrapper-logo-img">
-            <img alt="voxpop" src="/assets/logo.png">
+            <img alt="voxpop" src="../../assets/logo.png">
           </div>
         </a>
       </div>

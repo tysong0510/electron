@@ -1,29 +1,30 @@
 <template>
   <div class="wrapper">
+    <side-bar>
+      <template slot="links">
+        <sidebar-link to="/store" :name="$t('sidebar.store')" />
+        <sidebar-link to="/profile" :name="$t('sidebar.userProfile')" />
+      </template>
+    </side-bar>
     <div class="main-panel">
-      <dashboard-content @click.native="toggleSidebar"></dashboard-content>
+      <dashboard-content @click.native="toggleSidebar" />
     </div>
   </div>
 </template>
 
-<style lang="scss"></style>
-
 <script>
-import DashboardContent from './Content.vue';
+  import DashboardContent from './Content.vue';
 
-export default {
-  components: {
-    // TopNavbar,
-    // ContentFooter,
-    DashboardContent,
-    // MobileMenu
-  },
-  methods: {
-    // toggleSidebar() {
-    //   if (this.$sidebar.showSidebar) {
-    //     this.$sidebar.displaySidebar(false);
-    //   }
-    // }
-  }
-};
+  export default {
+    components: {
+      DashboardContent
+    },
+    methods: {
+      toggleSidebar() {
+        if (this.$sidebar.showSidebar) {
+          this.$sidebar.displaySidebar(false);
+        }
+      }
+    }
+  };
 </script>

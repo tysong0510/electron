@@ -1,17 +1,13 @@
 <template>
   <div>
-    <div class="row">
-      <div class="col-12">
-        TODO Implement layout
-      </div>
-    </div>
+    STORE LAYOUT
   </div>
 </template>
 
 <script>
 export default {
   components: {},
-  data() {},
+  data() { return {}; },
   computed: {},
   methods: {},
   mounted() {},
