@@ -9,6 +9,7 @@
 @import "~bootstrap/scss/functions";
 
 @import "partials/variables";
+@import "~bootstrap-vue/src/variables";
 @import "~bootstrap/scss/variables";
 
 //@import "partials/mixins";
@@ -50,6 +51,14 @@
 @import "~bootstrap/scss/spinners";
 @import "~bootstrap/scss/utilities";
 @import "~bootstrap/scss/print";
+
+
+/*!
+ * BootstrapVue Custom CSS (https://bootstrap-vue.js.org)
+ */
+
+@import "~bootstrap-vue/src/components/index";
+
 
 /*!
  * Copyright (c) 2019 Voxpop Games

@@ -2,20 +2,18 @@
 
 ## Development environment prerequisites
 
-Linux users
+All platforms
 
 - Node.js
 - Yarn/npm
+- `yarn global add @vue/cli`
 
 Windows users
 
 - Ramda
 - Node-gyp
 - node-pre-gyp
-- @vue/cli
 - Build-tools
-- Node.js
-- Yarn/npm
 
 ## Project setup
 ```
