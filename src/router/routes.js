@@ -1,7 +1,9 @@
 import DashboardLayout from '../layout/DashboardLayout.vue';
 
 const Store = () => import(/* webpackChunkName: 'store' */'@/pages/Store.vue');
-const Profile = () => import(/* webpackChunkName: 'common' */'@/pages/Profile.vue');
+const Games = () => import(/* webpackChunkName: 'games' */'@/pages/Games.vue');
+const Profile = () => import(/* webpackChunkName: 'profile' */'@/pages/Profile.vue');
+const News = () => import(/* webpackChunkName: 'news' */'@/pages/News.vue');
 
 const routes = [
   {
@@ -13,15 +15,25 @@ const routes = [
       {
         path: 'store',
         name: 'store',
-        component: Store,
+        component: Store
+      },
+      {
+        path: 'games',
+        name: 'games',
+        component: Games
       },
       {
         path: 'profile',
         name: 'profile',
         component: Profile
       },
-    ],
-  },
+      {
+        path: 'news',
+        name: 'news',
+        component: News
+      }
+    ]
+  }
 ];
 
 export default routes;

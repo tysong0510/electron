@@ -5,14 +5,14 @@
 </template>
 
 <script>
-export default {
-  components: {},
-  data() { return {}; },
-  computed: {},
-  methods: {},
-  mounted() {},
-  beforeDestroy() {}
-};
+  export default {
+    components: {},
+    data() { return {}; },
+    computed: {},
+    methods: {},
+    mounted() {},
+    beforeDestroy() {}
+  };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

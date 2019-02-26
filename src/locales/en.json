@@ -1,6 +1,8 @@
 {
   "sidebar": {
     "store": "Store",
-    "userProfile": "Your Profile"
+    "userGames": "Your Games",
+    "userProfile": "Your Profile",
+    "news": "News"
   }
 }
