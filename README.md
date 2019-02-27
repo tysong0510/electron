@@ -5,42 +5,48 @@
 All platforms
 
 - Node.js
-- Yarn/npm
+- Yarn
 - `yarn global add @vue/cli`
 
 Windows users
 
-- Ramda
-- Node-gyp
-- node-pre-gyp
-- Build-tools
+- `yarn global add ramda`
+- `yarn global add node-gyp`
+- `yarn global add node-pre-gyp`
+- `yarn global add build-tools`
 
 ## Project setup
+
 ```
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
-yarn run serve
+yarn serve
 ```
 
 ### Compiles and minifies for production
+
 ```
-yarn run build
+yarn build
 ```
 
 ### Run your tests
+
 ```
-yarn run test
+yarn test
 ```
 
 ### Lints and fixes files
+
 ```
-yarn run lint
+yarn lint
 ```
 
-### Run your end-to-end tests
+### Run end-to-end tests
+
 ```
 yarn run test:e2e
 ```
