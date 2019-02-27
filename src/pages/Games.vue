@@ -1,30 +1,26 @@
 <template>
   <div>
-    <b-row>
-      <b-col v-for="(game, index) in yourGames.games" cols="6" :key="index">
-        <b-card no-body>
-          <b-row no-gutters>
-            <b-col cols="3">
-              <b-card-img :src="game.img" class="rounded-0" />
-            </b-col>
-            <b-col>
-              <b-card-body>
-                <h4 id="gameTitle">{{game.title}}</h4>
-                <h5 id="releaseDate">{{game.releaseDate}}</h5>
-                <div class="w-100"></div>
+    <b-card-group columns>
+      <b-card no-body v-for="(game, index) in yourGames.games" :key="index" class="pb-5 mb-5"><!-- class="overflow-hidden" style="max-width: 540px;" -->
+        <b-row no-gutters>
+          <b-col md="6">
+            <b-card-img :src="game.img" class="rounded-lg" />
+          </b-col>
+          <b-col md="6">
+            <b-card-body :title="game.title" class="text-white">
+              <small class="text-muted">{{game.releaseDate}}</small>
+              <div class="pt-3">
                 <b-button id="playButton" v-on:click="play(game.gameId)" variant="primary">Play</b-button>
-                <b-button id="deleteButton" v-on:click="deleteGame(game.gameId)" variant="light">Delete</b-button>
-              </b-card-body>
-            </b-col>
-            <b-col cols="1">
-              <a v-on:click="settings">
-                <img src="../assets/icons/settings.svg" alt="img" />
-              </a>
-            </b-col>
-          </b-row>
-        </b-card>
-      </b-col>
-    </b-row>
+              <!--<b-button id="deleteButton" v-on:click="deleteGame(game.gameId)" variant="light">Delete</b-button>-->
+              </div>
+              <!--<a v-on:click="settings">
+                <img src="../assets/icons/settings.svg" />
+              </a>-->
+            </b-card-body>
+          </b-col>
+        </b-row>
+      </b-card>
+    </b-card-group>
   </div>
 </template>
 
@@ -103,18 +99,6 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  button {
-    width: 92px;
-    border-radius: 30px;
-    margin-right: 10px;
-    margin-left: 10px;
-  }
-
-  .card-img {
-    width: 141px;
-    height: 141px;
-  }
-
   .col {
     padding-bottom: 3rem;
     margin-bottom: 3rem;
@@ -126,28 +110,31 @@
     margin-bottom: 1.5em;
   }
 
-  #gameTitle {
-    color: #ffffff;
+  h4.card-title {
+    margin-bottom: 0.1em;
   }
 
-  #releaseDate {
+  button {
+    width: 92px;
     font-size: 12px;
-    margin-bottom: 20px;
+    border-radius: 30px;
+    /*margin-right: 10px;*/
+    /*margin-left: 10px;*/
+  }
+
+  .card-img {
+    width: 141px;
+    height: 141px;
   }
 
   #playButton {
-    height: 32px;
     background: #2B6DF9;
-    border-radius: 30px;
-    font-size: 14px;
   }
 
   #deleteButton {
-    height: 32px;
     background: #ffffff;
-    border-radius: 30px;
     color: #2b6df9;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   #a {

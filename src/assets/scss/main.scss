@@ -87,3 +87,16 @@ button {
     outline-width: 0;
   }
 }
+
+.card-columns {
+  @include media-breakpoint-between(sm, xl) {
+    column-count: 2;
+  }
+  @include media-breakpoint-up(xl) {
+    column-count: 3;
+  }
+
+  @media (min-width: 1920px) {
+    column-count: 4;
+  }
+}
