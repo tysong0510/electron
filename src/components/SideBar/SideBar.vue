@@ -8,7 +8,7 @@
     <!-- -->
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
-        <span aria-label="sidebar logo" class="simple-text ">VOXPOP</span>
+        <span aria-label="sidebar logo" class="simple-text">VOXPOP</span>
       </div>
 
       <ul class="nav">
@@ -38,7 +38,7 @@
       activeColor: {
         type: String,
         default: 'success',
-        validator: (value) => {
+        validator: value => {
           const acceptedValues = [
             'primary',
             'info',
@@ -70,9 +70,9 @@
     },
     computed: {
       /**
-         * Styles to animate the arrow near the current active sidebar link
-         * @returns {{transform: string}}
-         */
+       * Styles to animate the arrow near the current active sidebar link
+       * @returns {{transform: string}}
+       */
       arrowMovePx() {
         return this.linkHeight * this.activeLinkIndex;
       },

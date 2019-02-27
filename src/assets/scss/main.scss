@@ -70,19 +70,20 @@
 
 @import "partials/misc";
 @import "partials/sidebar";
+@import "partials/store";
 
-//html {
-//  position: relative;
-//  min-height: 100%;
-//}
-//
-//body {
-//  min-width: 320px;
-//}
-//
-//a,
-//button {
-//  &:focus {
-//    outline-width: 0;
-//  }
-//}
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  min-width: 768px;
+}
+
+a,
+button {
+  &:focus {
+    outline-width: 0;
+  }
+}

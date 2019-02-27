@@ -1,11 +1,97 @@
 <template>
   <div>
-    NEWS
+    <div class="d-flex">
+      <h3 class="text-nowrap pr-5">All news</h3>
+      <b-select class="filter-period w-auto text-white font-weight-light" :options="filterNews.options" v-model="filterNews.selected" />
+    </div>
+
+    <ul class="list-unstyled">
+      <b-media tag="li" v-for="(n, index) in news.content" :key="index" class="pt-2 pb-5 mb-5 border-bottom">
+        <b-img slot="aside" :src="n.img" class="align-self-start rounded-lg pr-4" height="141px" />
+        <h5 class="mt-0 mb-1 text-white">{{n.title}}</h5>
+        <p class="small">{{n.releaseDate}}</p>
+        <h5 class="text-white small">Announcement - {{n.publisher}}</h5>
+        <p class="mb-0 text-white" style="font-size: 15px">{{n.text}}</p>
+      </b-media>
+    </ul>
   </div>
 </template>
 
 <script>
   export default {
-    name: 'News'
+    name: 'News',
+    data() {
+      return {
+        news: {
+          content: [
+            {
+              img: 'https://hb.imgix.net/e8d2f653d2d74a0aa26150fe7998ddfbf72674b1.jpg?auto=compress,format&fit=crop&h=353&w=616&s=5815a257aa9eeeac939970dea5e59048',
+              title: 'Daily Deal - Rise of Industry, 33% Off',
+              publisher: 'VoxPop',
+              text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+              releaseDate: '17 Feb 2019'
+            },
+            {
+              img: 'https://cdn-static.denofgeek.com/sites/denofgeek/files/styles/main_wide/public/4/36/shenmue_3.jpg?itok=-GWyPiz0',
+              title: 'Daily Deal - Shenmue I II, 35% Off',
+              publisher: 'VoxPop',
+              text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+              releaseDate: '17 Feb 2019'
+            },
+            {
+              img: 'https://hb.imgix.net/0db7d0c29cfac802798e9c1dc640cdce5318adfb.jpeg?auto=compress,format&fit=crop&h=353&w=616&s=c7b52ed96ec474d4165408810a973ebf',
+              title: 'Daily Deal - Absolver, 75% Off',
+              publisher: 'VoxPop',
+              text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+              releaseDate: '17 Feb 2019'
+            },
+            {
+              img: 'https://gagadget.com/media/uploads/FarCry01.png',
+              title: 'Now Available on Steam - Far Cry New Dawn',
+              publisher: 'VoxPop',
+              text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+              releaseDate: '17 Feb 2019'
+            },
+          ],
+        },
+        filterNews: {
+          selected: 'all',
+          options: [
+            {
+              value: 'all',
+              text: 'All News'
+            },
+            {
+              value: 'announcements',
+              text: 'Announcements'
+            },
+            {
+              value: 'clientUpdates',
+              text: 'Client Updates'
+            },
+            {
+              value: 'pressReleases',
+              text: 'Press Releases'
+            },
+          ]
+        }
+      }
+    },
+    methods: {}
   }
 </script>
+
+
+<style scoped lang="scss">
+  h3 {
+    color: white;
+  }
+  .card-title {
+    max-width: 540px;
+    border: none;
+  }
+
+  .filter-period {
+    margin-bottom: 1.5em;
+  }
+</style>

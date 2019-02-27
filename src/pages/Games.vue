@@ -1,27 +1,30 @@
 <template>
   <div>
-    <b-container>
-      <b-row>
-        <b-col v-for="(game, index) in yourGames.games" cols="6" :key="index">
-          <b-card no-body>
-            <b-row no-gutters>
-              <b-col cols="4">
-                <b-card-img :src="game.img" class="rounded-0" width="141" height="141" />
-              </b-col>
-              <b-col>
-                <b-card-body :title="game.title">
-                  <a v-on:click="settings">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Wikipedia_interwiki_section_gear_icon.svg/1024px-Wikipedia_interwiki_section_gear_icon.svg.png" alt="img" width="24" height="24" />
-                  </a>
-                  <h3>{{game.releaseDate}}</h3>
-                  <b-button v-on:click.prevent="play(game.gameId)" variant="primary">Play</b-button>
-                </b-card-body>
-              </b-col>
-            </b-row>
-          </b-card>
-        </b-col>
-      </b-row>
-    </b-container>
+    <b-row>
+      <b-col v-for="(game, index) in yourGames.games" cols="6" :key="index">
+        <b-card no-body>
+          <b-row no-gutters>
+            <b-col cols="3">
+              <b-card-img :src="game.img" class="rounded-0" />
+            </b-col>
+            <b-col>
+              <b-card-body>
+                <h4 id="gameTitle">{{game.title}}</h4>
+                <h5 id="releaseDate">{{game.releaseDate}}</h5>
+                <div class="w-100"></div>
+                <b-button id="playButton" v-on:click="play(game.gameId)" variant="primary">Play</b-button>
+                <b-button id="deleteButton" v-on:click="deleteGame(game.gameId)" variant="light">Delete</b-button>
+              </b-card-body>
+            </b-col>
+            <b-col cols="1">
+              <a v-on:click="settings">
+                <img src="../assets/icons/settings.svg" alt="img" />
+              </a>
+            </b-col>
+          </b-row>
+        </b-card>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -90,6 +93,9 @@
       },
       settings: (gameId) => {
         alert(`Settings for game with id ${gameId}`);
+      },
+      deleteGame: (gameId) => {
+        alert(`Delete game with id ${gameId}`);
       }
     }
   }
@@ -99,13 +105,52 @@
 <style scoped lang="scss">
   button {
     width: 92px;
-    background: #2B6DF9;
     border-radius: 30px;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .card-img {
+    width: 141px;
+    height: 141px;
+  }
+
+  .col {
+    padding-bottom: 3rem;
+    margin-bottom: 3rem;
   }
 
   .card-title {
     max-width: 540px;
     border: none;
     margin-bottom: 1.5em;
+  }
+
+  #gameTitle {
+    color: #ffffff;
+  }
+
+  #releaseDate {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+
+  #playButton {
+    height: 32px;
+    background: #2B6DF9;
+    border-radius: 30px;
+    font-size: 14px;
+  }
+
+  #deleteButton {
+    height: 32px;
+    background: #ffffff;
+    border-radius: 30px;
+    color: #2b6df9;
+    font-size: 14px;
+  }
+
+  #a {
+    float: right;
   }
 </style>

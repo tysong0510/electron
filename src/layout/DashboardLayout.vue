@@ -2,10 +2,10 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links">
-        <sidebar-link to="/store" :name="$t('sidebar.store')" />
-        <sidebar-link to="/games" :name="$t('sidebar.userGames')" />
-        <sidebar-link to="/profile" :name="$t('sidebar.userProfile')" />
-        <sidebar-link to="/news" :name="$t('sidebar.news')" />
+        <sidebar-link to="/store" :name="$t('sidebar.store')" icon="store" />
+        <sidebar-link to="/games" :name="$t('sidebar.userGames')" icon="game" />
+        <sidebar-link to="/profile" :name="$t('sidebar.userProfile')" icon="user" />
+        <sidebar-link to="/news" :name="$t('sidebar.news')" icon="news" />
       </template>
     </side-bar>
     <div class="main-panel">
