@@ -5,7 +5,10 @@
              v-bind="$attrs"
              tag="li">
     <a class="nav-link">
-      <p>{{name}}</p>
+      <slot>
+        <i v-if="icon" :class="icon"></i>
+        <p>{{name}}</p>
+      </slot>
     </a>
   </component>
 </template>
@@ -16,22 +19,22 @@
     inheritAttrs: false,
     inject: {
       autoClose: {
-        default: true,
+        default: true
       },
       addLink: {
-        default: () => {},
+        default: () => {}
       },
       removeLink: {
-        default: () => {},
-      },
+        default: () => {}
+      }
     },
     props: {
       name: String,
       icon: String,
       tag: {
         type: String,
-        default: 'router-link',
-      },
+        default: 'router-link'
+      }
     },
     methods: {
       hideSidebar() {
@@ -41,7 +44,7 @@
       },
       isActive() {
         return this.$el.classList.contains('active');
-      },
+      }
     },
     mounted() {
       if (this.addLink) {
@@ -55,6 +58,6 @@
       if (this.removeLink) {
         this.removeLink(this);
       }
-    },
+    }
   };
 </script>

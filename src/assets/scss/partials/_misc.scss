@@ -1,0 +1,14 @@
+/* Animations */
+.nav-pills .nav-link,
+.navbar,
+.nav-tabs .nav-link,
+.sidebar .nav a,
+.sidebar .nav a i,
+.sidebar .nav p,
+.navbar-collapse .navbar-nav .nav-link,
+.animation-transition-general,
+.tag,
+.tag [data-role="remove"],
+.animation-transition-general{
+  transition: all $general-transition-time $transition-ease;
+}

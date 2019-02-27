@@ -1,25 +1,24 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar"
+       :data="backgroundColor">
+    <!--
+            Tip 1: you can change the color of the sidebar's background using: data-background-color="white | black | darkblue"
+            Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
+        -->
+    <!-- -->
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
-        <a href="/"
-           aria-label="sidebar logo">
-          <div class="wrapper-logo-img">
-            <img alt="voxpop" src="../../assets/logo.png">
-          </div>
-        </a>
+        <span aria-label="sidebar logo" class="simple-text ">VOXPOP</span>
       </div>
-      <slot>
 
-      </slot>
       <ul class="nav">
         <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
         <slot name="links">
           <sidebar-link v-for="(link,index) in sidebarLinks"
-                        :key="index"
-                        :to="link.path"
-                        :name="link.name"
-                        :icon="link.icon">
+            :key="index"
+            :to="link.path"
+            :name="link.name"
+            :icon="link.icon">
           </sidebar-link>
         </slot>
       </ul>
@@ -32,6 +31,10 @@
 
   export default {
     props: {
+      backgroundColor: {
+        type: String,
+        default: 'vue'
+      },
       activeColor: {
         type: String,
         default: 'success',
@@ -41,29 +44,29 @@
             'info',
             'success',
             'warning',
-            'danger',
+            'danger'
           ];
           return acceptedValues.indexOf(value) !== -1;
-        },
+        }
       },
       sidebarLinks: {
         type: Array,
-        default: () => [],
+        default: () => []
       },
       autoClose: {
         type: Boolean,
-        default: true,
-      },
+        default: true
+      }
     },
     provide() {
       return {
         autoClose: this.autoClose,
         addLink: this.addLink,
-        removeLink: this.removeLink,
+        removeLink: this.removeLink
       };
     },
     components: {
-      SidebarLink,
+      SidebarLink
     },
     computed: {
       /**
@@ -77,7 +80,7 @@
         return this.title.split(' ')
           .map(word => word.charAt(0))
           .join('').toUpperCase();
-      },
+      }
     },
     data() {
       return {
@@ -86,7 +89,7 @@
         windowWidth: 0,
         isWindows: false,
         hasAutoHeight: false,
-        links: [],
+        links: []
       };
     },
     methods: {
@@ -106,12 +109,12 @@
         if (index > -1) {
           this.links.splice(index, 1);
         }
-      },
+      }
     },
     mounted() {
       this.$watch('$route', this.findActiveLink, {
-        immediate: true,
+        immediate: true
       });
-    },
+    }
   };
 </script>
