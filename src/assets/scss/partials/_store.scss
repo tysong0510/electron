@@ -1,26 +1,28 @@
-.store-block {
-  .controls {
-    color: white;
-
-    .custom-select {
-      color: white;
-    }
-
-    .title {
-      font-weight: bold;
-    }
-  }
-  .content {
-    .slide {
-      .no-border {
-        border: none;
-        margin: 10px;
-        .card-body {
-          padding-right: 0;
-          padding-left: 0;
-          color: white;
-        }
-      }
-    }
-  }
-}
+//.store-block {
+//  .controls {
+//    color: white;
+//
+//    .custom-select {
+//      color: white;
+//    }
+//
+//    .title {
+//      font-weight: bold;
+//    }
+//  }
+//  .content {
+//    .slide {
+//      .no-border {
+//        border: none;
+//        margin: 10px;
+//        .card-body {
+//          padding-right: 0;
+//          padding-left: 0;
+//          color: white;
+//        }
+//      }
+//    }
+//  }
+//}
+$controls-icon-color: #696E80;
+$controls-icon-hover-color: white;

@@ -240,7 +240,7 @@ li.router-link-active {
 
     > .content {
       //padding: 78px 30px 30px 280px;
-      padding: 78px 30px 30px 320px;
+      padding: 78px 30px 30px 337px;
       min-height: calc(100vh - 70px);
     }
 
@@ -382,7 +382,7 @@ li.router-link-active {
       margin: 0 auto;
       font-size: 13px;
 
-      a{
+      a {
         color: $white;
       }
     }
@@ -394,7 +394,7 @@ li.router-link-active {
 }
 
 .panel-header-lg {
-  height: 380px
+  height: 380px;
 }
 
 @media screen and (max-width: 991px) {

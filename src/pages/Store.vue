@@ -1,75 +1,94 @@
 <template>
   <div>
-    <store-block
+    <game-carousel
       id="store-top"
       title="Top"
       :filter="filterStoreTop"
       :store="storeTop"
+      :carousel-options="topCarouselOptions"
+      :controls-enabled="false"
+      view-all="store-top"
+      key="store-top"
     >
-    </store-block>
-    <store-block
+    </game-carousel>
+    <game-carousel
       id="store-featured"
       title="Featured"
+      title-tag="h4"
       :filter="filterStoreFeatured"
       :store="storeFeatured"
+      :carousel-options="featuredCarouselOptions"
+      :controls-enabled="false"
+      view-all="store-featured"
+      key="store-featured"
     >
-    </store-block>
+    </game-carousel>
   </div>
 </template>
 
 <script>
-  import StoreBlock from '../components/Store/StoreBlock';
+  import GameCarousel from '../components/Carousel/GameCarousel';
 
   export default {
     components: {
-      StoreBlock
+      GameCarousel
     },
     data() {
       return {
         name: 'Store',
+        topCarouselOptions: {
+          perPageCustom: [[0, 1], [768, 3]],
+          autoplay: false
+        },
+        featuredCarouselOptions: {
+          perPageCustom: [[0, 2], [768, 4], [980, 5]],
+          perPage: 5,
+          autoplay: false
+        },
         storeTop: {
-          selected: 0,
-          currentSlide: 0,
-          autoplay: true,
-          perPage: 3,
-          autoplayTimeout: 5000,
-          perPageCustom: [[0, 1], [768, 2], [980, 3]],
+          sort: true,
           content: {
             'day': [
               {
                 rating: 9.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 2',
+                id: '1',
                 price: '49,99 $'
               },
               {
                 rating: 19.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 3',
+                id: '2',
                 price: '59,99 $'
               },
               {
                 rating: 29.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 4',
+                id: '3',
                 price: '69,99 $'
               },
               {
                 rating: 29.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 5',
+                id: '4',
                 price: '69,99 $'
               },
               {
                 rating: 29.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 6',
+                id: '5',
                 price: '69,99 $'
               },
               {
                 rating: 29.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 7',
+                id: '5',
                 price: '69,99 $'
               }
             ],
@@ -78,6 +97,7 @@
                 rating: 9.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 2',
+                id: '1',
                 price: '49,99 $'
               },
             ],
@@ -86,6 +106,7 @@
                 rating: 9.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 2',
+                id: '1',
                 price: '49,99 $'
               },
             ],
@@ -94,6 +115,7 @@
                 rating: 9.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 2',
+                id: '1',
                 price: '49,99 $'
               },
             ],
@@ -102,13 +124,14 @@
                 rating: 9.876,
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 2',
+                id: '1',
                 price: '49,99 $'
               },
             ]
           }
         },
         filterStoreTop: {
-          selected: 'day',
+          default: 'day',
           options: [
             {
               value: null,
@@ -138,22 +161,19 @@
           ]
         },
         storeFeatured: {
-          selected: 0,
-          currentSlide: 0,
-          autoplay: true,
-          perPage: 6,
-          autoplayTimeout: 5000,
-          perPageCustom: [[0, 2], [768, 4], [980, 6]],
+          sort: false,
           content: {
             'day': [
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
+                id: '1',
                 title: 'Watch dogs 2',
                 price: '49,99 $'
               },
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
                 title: 'Watch dogs 3',
+                id: '2',
                 price: '59,99 $'
               },
               {
@@ -205,6 +225,7 @@
             'week': [
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
+                id: '1',
                 title: 'Watch dogs 2',
                 price: '49,99 $'
               },
@@ -212,6 +233,7 @@
             'month': [
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
+                id: '1',
                 title: 'Watch dogs 2',
                 price: '49,99 $'
               },
@@ -219,6 +241,7 @@
             'year': [
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
+                id: '1',
                 title: 'Watch dogs 2',
                 price: '49,99 $'
               },
@@ -226,6 +249,7 @@
             'all': [
               {
                 img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
+                id: '1',
                 title: 'Watch dogs 2',
                 price: '49,99 $'
               },
@@ -233,7 +257,7 @@
           }
         },
         filterStoreFeatured: {
-          selected: 'day',
+          default: 'day',
           options: [
             {
               value: null,

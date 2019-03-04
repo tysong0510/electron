@@ -1,5 +1,12 @@
 <template>
   <div class="wrapper">
+    <!--<div v-for="(group, name) in groups">-->
+      <!--<a v-text="group.name"></a>-->
+      <!--<ul>-->
+        <!--<li v-for="item in group.items" v-text="item"></li>-->
+      <!--</ul>-->
+      <!--<hr>-->
+    <!--</div>-->
     <side-bar>
       <template slot="links">
         <sidebar-link to="/store" :name="$t('sidebar.store')" icon="store" />

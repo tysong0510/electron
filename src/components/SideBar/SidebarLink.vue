@@ -82,10 +82,18 @@
     width: 1.1em;
     display: block;
     float: left;
-    margin-top: 1em;
+    margin-top: 0.8em;
     margin-right: 1.5em;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 100%;
+    opacity: 0.5;
+  }
+
+  ul > li.active:before {
+    opacity: 1;
+  }
+
+  .nav-link>p {
+    letter-spacing: 0.05em;
   }
 </style>
