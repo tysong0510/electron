@@ -1,7 +1,7 @@
 <template>
   <b-row class="vote-bar" v-bind="$attrs" :title="nVote">
     <b-col class="rating" tag="span">
-      <i :class="{star: true, full: value === 100}" v-for="(value, index) in progressData" :key="index">
+      <i :class="{star: true}" v-for="(value, index) in progressData" :key="index">
         <i class="progress" :style="`width: ${value}%;`"></i>
       </i>
     </b-col>
@@ -101,18 +101,19 @@
   }
 
   .star {
-    background-image: url("../../assets/icons/star-black.svg");
+    background-image: url("../../assets/icons/star-empty.svg");
     background-color: transparent;
     background-size: cover;
+    background-position: center;
     width: $size;
     height: $size;
     margin: 0 $margin;
     display: inline-flex;
     position: relative;
 
-    &.full {
-      background-image: none;
-    }
+    /*&.full {*/
+      /*background-image: none;*/
+    /*}*/
 
     .progress {
       background-image: url("../../assets/icons/star.svg");
@@ -123,7 +124,7 @@
       position: absolute;
     }
 
-    &:after {
+    /*&:after {
       content: "";
       display: block;
       position: absolute;
@@ -134,6 +135,6 @@
       background-image: url("../../assets/icons/star.svg");
       background-size: cover;
       z-index: -1;
-    }
+    }*/
   }
 </style>
