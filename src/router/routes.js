@@ -17,13 +17,14 @@ const routes = [
       {
         path: 'store',
         name: 'store',
+        redirect: '/store/top',
         component: Store
       },
       {
         path: 'games/:id(\\d+)',
         name: 'game-details',
         component: GameDetails
-      },,
+      },
       {
         path: 'store/:id(\\d+)',
         name: 'game-details',
