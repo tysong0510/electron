@@ -49,6 +49,9 @@ import './registerServiceWorker';
 
 import './assets/scss/main.scss';
 
+// import test from './fs';
+// test.test();
+
 Vue.use(BootstrapVue);
 Vue.use(Dashboard);
 Vue.use(VueRouter);

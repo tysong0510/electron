@@ -1,9 +1,10 @@
 <template>
   <div>
     <b-row>
-      <template v-for="(game, index) in yourGames.games">
-        <b-col cols="6" :key="index">
-          <b-card no-body class="mb-2 mt-2 border-0">
+      <template v-for="(game, index) in games">
+        <b-col cols="6" :key="'game-' + index">
+          <b-card no-body class="mb-2 mt-2 border-0 game"
+                  @click="$router.push({name: 'my-game-details', params: {id: game.id}})" style="cursor: pointer;">
             <!-- class="overflow-hidden" style="max-width: 540px;" -->
             <!--<b-row no-gutters>-->
             <!--<b-col md="6">-->
@@ -34,7 +35,7 @@
             <!--</b-row>-->
           </b-card>
         </b-col>
-        <b-col cols="12" :key="'line-' + index / 2 >> 0" v-if="index % 2">
+        <b-col cols="12" :key="'line-' + (index / 2 >> 0)" v-if="index % 2">
           <b-row class="ml-1 mr-1">
             <b-col cols="12" class="border-bottom"></b-col>
           </b-row>
@@ -121,12 +122,27 @@
       deleteGame: (gameId) => {
         alert(`Delete game with id ${gameId}`);
       }
+    },
+    computed: {
+      games() {
+        return this.$store.getters.games;
+      }
     }
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+  @import "../assets/scss/partials/store";
+
+  .game {
+    transition: ease-in-out 0.25s;
+
+    &:hover {
+      background-color: $block-hover-background-color;
+    }
+  }
+
   /*.card-img {*/
   /*max-width: 100px;*/
   /*max-height: 100px;*/

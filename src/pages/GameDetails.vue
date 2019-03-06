@@ -14,12 +14,20 @@
             <b-card-body>
               <b-row>
                 <b-col cols="7">
-                  <b-card-title title-tag="h1" class="game-title">{{ game.title }}</b-card-title>
+                  <b-card-title title-tag="h2" class="game-title font-weight-normal">{{ game.title }}</b-card-title>
                   <b-card-sub-title sub-title-tag="h6" sub-title-text-variant="white">{{ game.category }}
                   </b-card-sub-title>
                 </b-col>
                 <b-col cols="5">
-                  <b-button variant="primary" size="lg" @click="gameBuy()" class="btn-buy">{{ game.price }}</b-button>
+
+                  <b-button variant="primary" size="lg" @click="gameBuy()" class="btn-buy"
+                            v-if="currentRouteIs('game-details')">{{ game.price }}
+                  </b-button>
+                  <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings"
+                            variant="link">
+                    <img src="../assets/icons/settings.svg" alt="Settings">
+                  </b-button>
+
                 </b-col>
               </b-row>
               <b-row ref="hLine">
@@ -27,18 +35,31 @@
                   <b-col cols="12" class="h-line"></b-col>
                 </b-col>
               </b-row>
-              <b-row class="rating">
-                <b-col class="pr-0 m-auto d-inline-flex align-middle">
-                  <span class="mr-3">{{ game.vote }}</span>
-                  <vote-bar :vote="game.vote" style="font-size: 0.8em;"></vote-bar>
-                </b-col>
-              </b-row>
-              <b-row class="mt-3" size="sm">
-                <b-col>
-                  <b-button variant="outline-secondary" class="btn-voted">Voted</b-button>
-                </b-col>
-              </b-row>
-              <!--<b-row v-html="$refs.hLine.innerHTML"></b-row>-->
+
+
+              <template v-if="currentRouteIs('game-details')">
+                <b-row class="rating">
+                  <b-col class="pr-0 m-auto d-inline-flex align-middle">
+                    <span class="mr-3">{{ game.vote }}</span>
+                    <vote-bar :vote="game.vote" style="font-size: 0.8em;"></vote-bar>
+                  </b-col>
+                </b-row>
+                <b-row class="mt-3" size="sm">
+                  <b-col>
+                    <b-button variant="outline-secondary" class="btn-voted">Voted</b-button>
+                  </b-col>
+                </b-row>
+              </template>
+              <template v-else-if="currentRouteIs('my-game-details')">
+                <b-row>
+                  <b-col class="game-buttons">
+                    <b-button variant="primary" class="border-0">Play</b-button>
+                    <b-button variant="light" class="text-primary border-0 btn-delete">Delete</b-button>
+                  </b-col>
+                </b-row>
+              </template>
+
+
             </b-card-body>
           </b-col>
         </b-row>
@@ -46,7 +67,7 @@
       <b-row class="mb-4 mt-4">
         <b-col>
           <carousel v-bind="carouselOptions" v-if="game.slides.length > 0">
-            <slide v-for="(image, index) in game.slides" :key="index" class="mr-1 ml-1">
+            <slide v-for="(image, index) in game.slides" :key="'slide-' + index" class="mr-1 ml-1">
               <b-card :img-src="image" class="no-border"></b-card>
             </slide>
           </carousel>
@@ -106,8 +127,20 @@
       }
     },
     methods: {
+      currentRouteIs(route) {
+        return route === this.$router.currentRoute.name;
+      },
       description(text) {
-        return text.replace(new RegExp('\\n', 'g'), '<br>');
+        if (text) {
+          return text.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\n/g, '<br>');
+        } else {
+          return '';
+        }
       },
       gameBuy() {
         confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
@@ -122,77 +155,10 @@
         setTimeout(() => {
           this.loading = false;
 
-          let testData = {
-            '1': {
-              id: '1',
-              title: 'Watch Dogs 2',
-              img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-              price: '$ 49.99',
-              category: 'Stealth',
-              vote: '4.7',
-              description: 'Watch Dogs 2 (stylized as WATCH_DOGS 2) is an action- adventure video game developed by Ubisoft Montreal and published by Ubisoft. \n' +
-                '\n' +
-                'It is the sequel to 2014\'s Watch Dogs and was released worldwide for PlayStation 4, Xbox One and Microsoft Windows in November 2016. \n' +
-                '\n' +
-                'Set within a fictionalized version of the San Francisco Bay Area, the game is played from a third- person perspective and its open world is navigated on-foot or by vehicle. Players control Marcus Holloway, a hacker who works with the hacking group DedSec to take down the city\'s advanced surveillance system known as ctoS. \n' +
-                '\n' +
-                'There are multiple ways to complete missions, and each successful assignment increases the follower count of DedSec. Cooperative multiplayer allows for competitive one-on-one combat and connecting with other players in order to neutralize a player who is causing havoc. \n' +
-                '\n' +
-                'Ubisoft Montreal, the game\'s developer, studied player feedback from the first game \n' +
-                'to assess what could be improved in Watch Dogs 2 and the setting was researched \n' +
-                'by making frequent trips Ubisoft Reflections was responsible for overhauling the driving mechanic. \n' +
-                '\n' +
-                'Real hackers were consulted to validate scripts and game mechanics for authenticity and references to real life hacktivism were fictionalized, like the Project Chanology protest. \n' +
-                '\n' +
-                'The original soundtrack for Watch Dogs 2 was composed by Hudson Mohawke. \n' +
-                '\n' +
-                'The game was released to overall reception from critics which praised the game for improving upon the original Watch Dogs in areas like the hacking, setting, characters and driving. \n' +
-                '\n' +
-                'However, character inconsistencies firearms and frequent technical issues - later patched - were cited as imperfections.',
-              slides: [
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-              ]
-            },
-            '2': {
-              id: '2',
-              title: 'Watch Dogs 3',
-              img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-              price: '$ 59.99',
-              category: 'Stealth',
-              vote: '4.5',
-              description: 'Watch Dogs 2 (stylized as WATCH_DOGS 2) is an action- adventure video game developed by Ubisoft Montreal and published by Ubisoft. \n' +
-                '\n' +
-                'It is the sequel to 2014\'s Watch Dogs and was released worldwide for PlayStation 4, Xbox One and Microsoft Windows in November 2016. \n' +
-                '\n' +
-                'Set within a fictionalized version of the San Francisco Bay Area, the game is played from a third- person perspective and its open world is navigated on-foot or by vehicle. Players control Marcus Holloway, a hacker who works with the hacking group DedSec to take down the city\'s advanced surveillance system known as ctoS. \n' +
-                '\n' +
-                'There are multiple ways to complete missions, and each successful assignment increases the follower count of DedSec. Cooperative multiplayer allows for competitive one-on-one combat and connecting with other players in order to neutralize a player who is causing havoc. \n' +
-                '\n' +
-                'Ubisoft Montreal, the game\'s developer, studied player feedback from the first game \n' +
-                'to assess what could be improved in Watch Dogs 2 and the setting was researched \n' +
-                'by making frequent trips Ubisoft Reflections was responsible for overhauling the driving mechanic. \n' +
-                '\n' +
-                'Real hackers were consulted to validate scripts and game mechanics for authenticity and references to real life hacktivism were fictionalized, like the Project Chanology protest. \n' +
-                '\n' +
-                'The original soundtrack for Watch Dogs 2 was composed by Hudson Mohawke. \n' +
-                '\n' +
-                'The game was released to overall reception from critics which praised the game for improving upon the original Watch Dogs in areas like the hacking, setting, characters and driving. \n' +
-                '\n' +
-                'However, character inconsistencies firearms and frequent technical issues - later patched - were cited as imperfections.',
-              slides: [
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-                'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-              ]
-            }
-          };
+          let game = this.$store.getters.getGameById(gameId);
 
-          if (testData[gameId]) {
-            this.game = testData[gameId];
+          if (game) {
+            this.game = game;
           } else {
             this.error = `Game with id ${gameId} not found`;
           }
@@ -213,6 +179,34 @@
 
       .game-title {
         font-weight: bold;
+      }
+    }
+
+    .game-buttons {
+      .btn {
+        border-radius: 30px;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+        min-width: 140px;
+      }
+
+      .btn-delete {
+        background-color: white;
+
+        &:hover {
+          background-color: lightgray;
+        }
+      }
+    }
+
+    .btn-settings {
+      padding-left: 0;
+      padding-right: 0;
+      width: 1.5em;
+
+      &:hover img {
+        width: 1.4em;
+        height: 1.4em;
       }
     }
 
