@@ -66,9 +66,9 @@
       </b-card>
       <b-row class="mb-4 mt-4">
         <b-col>
-          <carousel v-bind="carouselOptions" v-if="game.slides.length > 0">
-            <slide v-for="(image, index) in game.slides" :key="'slide-' + index" class="mr-1 ml-1">
-              <b-card :img-src="image" class="no-border"></b-card>
+          <carousel v-bind="carouselOptions" v-if="game.slides">
+            <slide v-for="(image, index) in game.slides" :key="'slide-' + index" class="pr-1 pl-1">
+              <b-card :img-src="image" class="no-border" no-body></b-card>
             </slide>
           </carousel>
         </b-col>
@@ -169,6 +169,31 @@
 </script>
 
 <style scoped lang="scss">
+  /deep/ .VueCarousel-pagination {
+    text-align: left;
+
+    .VueCarousel-dot-container {
+      margin-top: 10px !important;
+
+      .VueCarousel-dot {
+        background-color: #696E80 !important;
+        height: 12px !important;
+        width: 12px !important;
+        padding: 0 !important;
+        margin: 10px;
+
+        &:focus {
+          outline: unset;
+        }
+
+        &.VueCarousel-dot--active {
+          background-color: white !important;
+          box-shadow: 0 0 10px white;
+        }
+      }
+    }
+  }
+
   .game-details {
     color: white;
 
@@ -176,10 +201,6 @@
       padding-top: 0;
       padding-bottom: 0;
       color: white;
-
-      .game-title {
-        font-weight: bold;
-      }
     }
 
     .game-buttons {
@@ -219,7 +240,7 @@
       border-radius: 30px;
       width: 100%;
       max-width: 200px;
-      font-size: 1.4em;
+      font-size: 1em;
     }
 
     .btn-voted {

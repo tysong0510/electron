@@ -6,6 +6,60 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     demoData: {
+      news: [
+        {
+          id: '1',
+          img: 'https://hb.imgix.net/e8d2f653d2d74a0aa26150fe7998ddfbf72674b1.jpg?auto=compress,format&fit=crop&h=353&w=616&s=5815a257aa9eeeac939970dea5e59048',
+          title: 'Daily Deal - Rise of Industry, 33% Off',
+          publisher: 'VoxPop',
+          text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+          releaseDate: '17 Feb 2019',
+          subtitle: 'Subtitle',
+          slides: [
+            'https://steamcdn-a.akamaihd.net/steam/apps/671440/ss_e6bd0dbb3d3105f2098d1cab6f5a218b45f8eb9d.600x338.jpg?t=1551364955',
+            'https://steamcdn-a.akamaihd.net/steam/apps/671440/ss_6442059cddacb3de13fdd7ee4bf289815417bac1.600x338.jpg?t=1551364955',
+            'https://steamcdn-a.akamaihd.net/steam/apps/671440/ss_75a294655aea1690fa297341fe0f850864ddfda9.600x338.jpg?t=1551364955',
+          ],
+          blocks: [
+            {
+              title: 'Reviews',
+              text: '“It is not often that we walk out of a Gamescom meeting saying “Wow!”, but we did with Rise of Industry. We saw amazing depth and equally amazing performance and some really clever and fun ideas.”\n' +
+                'Hooked Gamers\n' +
+                '\n' +
+                '“Rise of Industry features just enough realistic detail to making zooming on my little towns a joy, and just enough abstraction that I never lost sight of how all my trade routes and harvesting operations fit together. It\'s beautiful.”\n' +
+                'PC Gamer\n' +
+                '\n' +
+                '“This is exactly how an Early Access release should be handled.”\n' +
+                'Hardcore Gamer'
+            },
+            {
+              title: 'About this game',
+              text: 'Test'
+            }
+          ]
+        },
+        {
+          img: 'https://cdn-static.denofgeek.com/sites/denofgeek/files/styles/main_wide/public/4/36/shenmue_3.jpg?itok=-GWyPiz0',
+          title: 'Daily Deal - Shenmue I II, 35% Off',
+          publisher: 'VoxPop',
+          text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+          releaseDate: '17 Feb 2019'
+        },
+        {
+          img: 'https://hb.imgix.net/0db7d0c29cfac802798e9c1dc640cdce5318adfb.jpeg?auto=compress,format&fit=crop&h=353&w=616&s=c7b52ed96ec474d4165408810a973ebf',
+          title: 'Daily Deal - Absolver, 75% Off',
+          publisher: 'VoxPop',
+          text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+          releaseDate: '17 Feb 2019'
+        },
+        {
+          img: 'https://gagadget.com/media/uploads/FarCry01.png',
+          title: 'Now Available on Steam - Far   Cry New Dawn',
+          publisher: 'VoxPop',
+          text: 'Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!',
+          releaseDate: '17 Feb 2019'
+        },
+      ],
       games: [
         {
           id: '1',
@@ -637,6 +691,36 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    news: state => {
+      let news = [];
+
+      for (let current of state.demoData.news) {
+        /**
+         * @type {({} & {img, releaseDate, publisher, id, text, title}) | any}
+         */
+        let normalized = Object.assign({}, current);
+
+        if (normalized.id) {
+          news.push(normalized);
+
+          continue;
+        }
+
+        normalized.id = encodeURI(
+          current.title.toLowerCase()
+            .replace(/%/g, '')
+            .replace(/\s+/g, '_')
+        );
+        news.push(normalized);
+      }
+
+      return news;
+    },
+    getNewsById: (state, getters) => id => {
+      return getters.news.filter((elem) => {
+        return elem.id === id;
+      }).pop();
+    },
     games: state => {
       return state.demoData.games;
     },

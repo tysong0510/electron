@@ -56,8 +56,8 @@ const routes = [
         component: News
       },
       {
-        path: 'news/details',
-        name: 'newsDetails',
+        path: 'news/:id',
+        name: 'news-details',
         component: NewsDetails
       }
     ]
