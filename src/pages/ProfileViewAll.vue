@@ -1,49 +1,27 @@
 <template>
-  <!--<div>-->
-  <!--<game-carousel-->
-  <!--id="store-top"-->
-  <!--title="Top"-->
-  <!--:filter="filterStoreTop"-->
-  <!--:store="storeTop"-->
-  <!--:carousel-options="topCarouselOptions"-->
-  <!--:controls-enabled="false"-->
-  <!--view-all="store-top"-->
-  <!--key="store-top"-->
-  <!--&gt;-->
-  <!--</game-carousel>-->
-  <!--<game-carousel-->
-  <!--id="store-featured"-->
-  <!--title="Featured"-->
-  <!--title-tag="h4"-->
-  <!--:filter="filterStoreFeatured"-->
-  <!--:store="storeFeatured"-->
-  <!--:carousel-options="featuredCarouselOptions"-->
-  <!--:controls-enabled="false"-->
-  <!--view-all="store-featured"-->
-  <!--key="store-featured"-->
-  <!--&gt;-->
-  <!--</game-carousel>-->
-  <!--</div>-->
   <div class="text-white">
+    <b-row class="mt-1 mb-4 pb-2">
+      <b-col>
+        <router-link :to="{name: 'profile'}" class="text-muted">
+          <div class="d-inline-block"
+               style="border-left: 1px solid; border-bottom: 1px solid; border-radius: 1px; height: .6em; width: .6em; transform: matrix(1, 1, -1, 1, 0, 0);"></div>
+          Back to profile
+        </router-link>
+      </b-col>
+    </b-row>
     <b-row>
       <b-col>
         <b-row>
           <b-col>
             <h2>{{ storeTitle }}</h2>
           </b-col>
-          <b-col cols="4" v-if="filter">
-            <b-select :options="filter.options" class="filter-period text-white" v-model="filterSelected">
-            </b-select>
-          </b-col>
-          <b-col v-if="filter"></b-col>
         </b-row>
       </b-col>
-      <b-col v-if="filter"></b-col>
     </b-row>
-    <b-row class="border-bottom">
+    <b-row>
       <b-col v-for="(game, index) in content.slice(0, 3)" :key="index"
              class="p-2 rounded-lg game mb-4 mt-2"
-             @click="$router.push({name: 'game-details', params: {id: game.id}})" style="cursor: pointer;">
+             @click="$router.push({name: 'my-game-details', params: {id: game.id}})" style="cursor: pointer;">
         <b-card no-body class="border-0">
           <b-row>
             <b-col cols="12" class="col-img">
@@ -56,25 +34,39 @@
             <b-col cols="12">
               <b-card-body class="p-0 pt-2">
                 <b-card-title title-tag="h5" class="font-weight-normal">{{ game.title }}</b-card-title>
-                <b-card-sub-title title-tag="h6" class="font-weight-normal">
-                  <b-row>
-                    <b-col class="text-white" cols="5">
-                      {{ game.price }}
-                    </b-col>
-                    <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
-                      <img src="../assets/icons/downloaded.svg" alt="Downloaded">
-                      {{ game.downloaded || 0 }}
-                    </b-col>
-                  </b-row>
-                </b-card-sub-title>
-                <b-card-text class="font-weight-normal mt-3">{{
-                  game.description &&
-                  game.description
-                  .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-                  .replace(/[.,\s]*?$/, '...')
-                  }}
-                  <b-link class="text-primary">More</b-link>
-                </b-card-text>
+                <template v-if="currentStore === 'my-recommendation'">
+                  <b-card-sub-title sub-title-tag="h6" class="font-weight-normal mt-2">
+                    <b-row>
+                      <b-col class="text-white">
+                        {{ game.price }}
+                      </b-col>
+                    </b-row>
+                  </b-card-sub-title>
+                </template>
+                <template v-else-if="currentStore === 'recently-played'">
+                  <b-card-sub-title sub-title-tag="h6" class="font-weight-normal mt-2">
+                    <b-row>
+                      <b-col class="text-white">
+                        {{ (game.lastPlayed && dateFns.distanceInWordsToNow(new Date(game.lastPlayed), {addSuffix:
+                        true})) || 'never' }}
+                      </b-col>
+                    </b-row>
+                  </b-card-sub-title>
+                </template>
+                <template v-else>
+                  <b-card-text class="font-weight-normal mt-3 text-muted">
+                    <b-row>
+                      <b-col>
+                        {{ game.releaseDate }}
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        {{ game.size }}
+                      </b-col>
+                    </b-row>
+                  </b-card-text>
+                </template>
               </b-card-body>
             </b-col>
           </b-row>
@@ -84,7 +76,7 @@
     <b-row class="border-bottom limited-height-row mt-3 pb-3" v-for="(game, index) in content.slice(3)" :key="index">
       <b-col :key="index"
              class="p-2 rounded-lg game mt-1 mb-1"
-             @click="$router.push({name: 'game-details', params: {id: game.id}})" style="cursor: pointer;">
+             @click="$router.push({name: 'my-game-details', params: {id: game.id}})" style="cursor: pointer;">
         <b-card no-body class="border-0">
           <b-row>
             <b-col cols="2" class="m-auto text-center">
@@ -93,23 +85,34 @@
             <b-col>
               <b-card-body class="p-0">
                 <b-card-title title-tag="h5" class="font-weight-normal">{{ game.title }}</b-card-title>
-                <b-card-sub-title sub-title-tag="div" class="font-weight-normal" style="font-size: 14px;">
-                  <b-row>
-                    <b-col class="text-white" cols="2">
-                      {{ game.price }}
-                    </b-col>
-                    <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
-                      <img src="../assets/icons/downloaded.svg" alt="Downloaded">
-                      {{ game.downloaded || 0 }}
-                    </b-col>
-                  </b-row>
-                </b-card-sub-title>
-                <b-card-text class="font-weight-normal mt-2 col-7 p-0">{{
-                  game.description &&
-                  game.description
-                  .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-                  .replace(/[.,\s]*?$/, '...') }}
-                  <b-link class="text-primary">More</b-link>
+                <b-card-text class="font-weight-normal mt-2 col-7 p-0 text-muted">
+                  <template v-if="currentStore === 'my-recommendation'">
+                    <b-row>
+                      <b-col>
+                        {{ game.price }}
+                      </b-col>
+                    </b-row>
+                  </template>
+                  <template v-else-if="currentStore === 'recently-played'">
+                    <b-row>
+                      <b-col class="text-white">
+                        {{ (game.lastPlayed && dateFns.distanceInWordsToNow(new Date(game.lastPlayed), {addSuffix:
+                        true})) || 'never' }}
+                      </b-col>
+                    </b-row>
+                  </template>
+                  <template v-else>
+                    <b-row>
+                      <b-col>
+                        {{ game.releaseDate }}
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        {{ game.size }}
+                      </b-col>
+                    </b-row>
+                  </template>
                 </b-card-text>
               </b-card-body>
             </b-col>
@@ -121,21 +124,14 @@
 </template>
 
 <script>
-  // import GameCarousel from '../components/Carousel/GameCarousel';
-
-  let colCounter = 0;
+  import * as dateFns from 'date-fns';
 
   export default {
-    // components: {
-    //   GameCarousel
-    // },
+    name: "ProfileViewAll",
     data() {
       return {
-        name: 'Store',
-        filterSelected: 'day',
         storeTitle: '',
-        store: null,
-        filter: null,
+        dateFns
       };
     },
     computed: {
@@ -166,19 +162,6 @@
       }
     },
     methods: {
-      getCols(index) {
-        if (index === 0) {
-          colCounter = 0;
-        }
-
-        colCounter += 1;
-
-        if (colCounter < 4) {
-          return '4';
-        } else {
-          return '2_5';
-        }
-      },
       storeSort(store, byField = 'rating', order = 'DESC') {
         let orderVector = 0;
 
@@ -206,15 +189,9 @@
         }
       },
       getData(storeName) {
-        let filter = this.$store.getters.getFilterByName(storeName);
-        if (filter) {
-          this.filter = filter;
-          this.filterSelected = this.filter.default;
-        }
-
         let store = this.$store.getters.getRatingStoreByName(storeName) || {};
 
-        this.storeTitle = store.title;
+        this.storeTitle = store.title || '';
 
         if (store.sort) {
           this.storeSort(store, store.byField, store.order);
@@ -222,19 +199,10 @@
 
         this.store = store;
       }
-    },
-    mounted() {
-
-    },
-    created() {
-      this.getData(this.currentStore);
-    },
-    beforeDestroy() {
     }
-  };
+  }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   @import "../assets/scss/partials/store";
 
@@ -276,11 +244,5 @@
         max-width: 120px;
       }
     }
-  }
-
-  .col-2_5 {
-    -webkit-box-flex: 0;
-    flex: 0 0 20%;
-    max-width: 20%;
   }
 </style>

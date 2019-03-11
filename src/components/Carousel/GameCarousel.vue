@@ -47,7 +47,8 @@
               @pageChange="(val) => carouselPositions[filterSelected] = val"
             >
               <slide :key="`slide-${index}`" class="slide" v-for="(item, index) in content"
-                     @slideclick="$router.push({name: 'game-details', params: { id: item.id }})">
+                     @slideclick="$router.push({name: 'my-game-details', params: { id: item.id }})"
+                     style="cursor: pointer;">
                 <b-card
                   :img-alt="item.title"
                   :img-src="item.img"
@@ -208,8 +209,8 @@
         this.storeSort(this.store);
       } else {
         if (this.store.sort) {
-          let byField = this.store['sortByField'];
-          let order = this.store['sortOrder'];
+          let byField = this.store['byField'];
+          let order = this.store['order'];
 
           this.storeSort(this.store, byField, order);
         }
@@ -311,6 +312,7 @@
       .title {
         //font-weight: bold;
       }
+
       h4.title {
         font-size: 1.5rem !important;
       }

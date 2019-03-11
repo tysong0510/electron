@@ -69,7 +69,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '7 hours',
-          vote: 4.6,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: new Date(),
           description: 'Play as Marcus Holloway, a brilliant young hacker living in the birthplace of the tech revolution, the San Francisco Bay Area.\n' +
             'Team up with Dedsec, a notorious group of hackers, to execute the biggest hack in history; take down ctOS 2.0, an invasive operating system being used by criminal masterminds to monitor and manipulate citizens on a massive scale.\n' +
             '\n' +
@@ -101,7 +103,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: 'FREE',
           text: '24 hours',
-          vote: 4.8,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: '2017-01-13 10:49',
           description: 'Counter-Strike: Global Offensive (CS: GO) expands upon the team-based action gameplay that it pioneered when it was launched 19 years ago.\n' +
             '\n' +
             'CS: GO features new maps, characters, weapons, and game modes, and delivers updated versions of the classic CS content (de_dust2, etc.).\n' +
@@ -122,7 +126,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: 'FREE',
           text: '14 hours',
-          vote: 4.4,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: '2018-12-13 15:40',
           description: 'The most-played game on Steam.\n' +
             'Every day, millions of players worldwide enter battle as one of over a hundred Dota heroes. And no matter if it\'s their 10th hour of play or 1,000th, there\'s always something new to discover. With regular updates that ensure a constant evolution of gameplay, features, and heroes, Dota 2 has truly taken on a life of its own.\n' +
             '\n' +
@@ -151,7 +157,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: 'FREE',
           text: '2 hours',
-          vote: 4.0,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           slides: []
         },
         {
@@ -162,7 +169,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '230 hours',
-          vote: 4.9,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           description: 'PLAYERUNKNOWN\'S BATTLEGROUNDS is a battle royale shooter that pits 100 players against each other in a struggle for survival. Gather supplies and outwit your opponents to become the last person standing.\n' +
             '\n' +
             'PLAYERUNKNOWN, aka Brendan Greene, is a pioneer of the battle royale genre and the creator of the battle royale game modes in the ARMA series and H1Z1: King of the Kill. At PUBG Corp., Greene is working with a veteran team of developers to make PUBG into the world\'s premiere battle royale experience. ',
@@ -176,7 +184,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '2 hours',
-          vote: 3.7,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: '2019-03-11 16:40',
           slides: []
         },
         {
@@ -187,7 +197,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '30 hours',
-          vote: 4.5,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           slides: []
         },
         {
@@ -198,7 +209,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '70 hours',
-          vote: 4.6,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           slides: []
         },
         {
@@ -209,7 +221,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '0 hours',
-          vote: 3.9,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: new Date(new Date().setDate(new Date().getDate() + 4)),
           slides: []
         },
         {
@@ -220,7 +234,9 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '0 hours',
-          vote: 3.1,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
+          lastPlayed: '2019-03-11 16:40',
           slides: []
         },
         {
@@ -231,7 +247,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '15 hours',
-          vote: 3.8,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           description: 'Originally created by legendary game designer Sid Meier, Civilization is a turn-based strategy game in which you attempt to build an empire to stand the test of time. Become Ruler of the World by establishing and leading a civilization from the Stone Age to the Information Age. Wage war, conduct diplomacy, advance your culture, and go head-to-head with history’s greatest leaders as you attempt to build the greatest civilization the world has ever known.\n' +
             '\n' +
             'Civilization VI offers new ways to engage with your world: cities now physically expand across the map, active research in technology and culture unlocks new potential, and competing leaders will pursue their own agendas based on their historical traits as you race for one of five ways to achieve victory in the game.\n' +
@@ -263,7 +280,8 @@ export default new Vuex.Store({
           size: '4.2 GB',
           price: '49,99 $',
           text: '298 hours',
-          vote: 3.9,
+          vote: (Math.random() * 5),
+          downloaded: Math.floor(Math.random() * 1000),
           slides: []
         }
       ],
@@ -272,251 +290,251 @@ export default new Vuex.Store({
           day: [
             {
               id: '1',
-              value: 9.713
+              value: Math.random() * 10
             },
             {
               id: '2',
-              value: 8.415
+              value: Math.random() * 10
             },
             {
               id: '3',
-              value: 8.222
+              value: Math.random() * 10
             },
             {
               id: '4',
-              value: 7.82
+              value: Math.random() * 10
             },
             {
               id: '5',
-              value: 7.19
+              value: Math.random() * 10
             },
             {
               id: '6',
-              value: 8.362
+              value: Math.random() * 10
             },
             {
               id: '7',
-              value: 5.192
+              value: Math.random() * 10
             },
             {
               id: '8',
-              value: 6.112
+              value: Math.random() * 10
             },
             {
               id: '9',
-              value: 7.211
+              value: Math.random() * 10
             },
             {
               id: '10',
-              value: 3.123
+              value: Math.random() * 10
             },
             {
               id: '11',
-              value: 8.412
+              value: Math.random() * 10
             },
             {
               id: '12',
-              value: 7.123
+              value: Math.random() * 10
             },
           ],
           week: [
             {
               id: '1',
-              value: 7.713
+              value: Math.random() * 10
             },
             {
               id: '2',
-              value: 3.415
+              value: Math.random() * 10
             },
             {
               id: '3',
-              value: 8.222
+              value: Math.random() * 10
             },
             {
               id: '4',
-              value: 5.82
+              value: Math.random() * 10
             },
             {
               id: '5',
-              value: 6.19
+              value: Math.random() * 10
             },
             {
               id: '6',
-              value: 9.362
+              value: Math.random() * 10
             },
             {
               id: '7',
-              value: 5.192
+              value: Math.random() * 10
             },
             {
               id: '8',
-              value: 7.112
+              value: Math.random() * 10
             },
             {
               id: '9',
-              value: 7.211
+              value: Math.random() * 10
             },
             {
               id: '10',
-              value: 8.123
+              value: Math.random() * 10
             },
             {
               id: '11',
-              value: 5.412
+              value: Math.random() * 10
             },
             {
               id: '12',
-              value: 9.123
+              value: Math.random() * 10
             },
           ],
           month: [
             {
               id: '1',
-              value: 6.713
+              value: Math.random() * 10
             },
             {
               id: '2',
-              value: 4.415
+              value: Math.random() * 10
             },
             {
               id: '3',
-              value: 8.222
+              value: Math.random() * 10
             },
             {
               id: '4',
-              value: 4.82
+              value: Math.random() * 10
             },
             {
               id: '5',
-              value: 9.19
+              value: Math.random() * 10
             },
             {
               id: '6',
-              value: 2.362
+              value: Math.random() * 10
             },
             {
               id: '7',
-              value: 6.192
+              value: Math.random() * 10
             },
             {
               id: '8',
-              value: 8.112
+              value: Math.random() * 10
             },
             {
               id: '9',
-              value: 2.211
+              value: Math.random() * 10
             },
             {
               id: '10',
-              value: 9.123
+              value: Math.random() * 10
             },
             {
               id: '11',
-              value: 9.412
+              value: Math.random() * 10
             },
             {
               id: '12',
-              value: 9.123
+              value: Math.random() * 10
             },
           ],
           year: [
             {
               id: '1',
-              value: 4.713
+              value: Math.random() * 10
             },
             {
               id: '2',
-              value: 9.415
+              value: Math.random() * 10
             },
             {
               id: '3',
-              value: 5.222
+              value: Math.random() * 10
             },
             {
               id: '4',
-              value: 7.82
+              value: Math.random() * 10
             },
             {
               id: '5',
-              value: 4.19
+              value: Math.random() * 10
             },
             {
               id: '6',
-              value: 9.362
+              value: Math.random() * 10
             },
             {
               id: '7',
-              value: 8.192
+              value: Math.random() * 10
             },
             {
               id: '8',
-              value: 4.112
+              value: Math.random() * 10
             },
             {
               id: '9',
-              value: 9.211
+              value: Math.random() * 10
             },
             {
               id: '10',
-              value: 2.123
+              value: Math.random() * 10
             },
             {
               id: '11',
-              value: 6.412
+              value: Math.random() * 10
             },
             {
               id: '12',
-              value: 1.123
+              value: Math.random() * 10
             },
           ],
           all: [
             {
               id: '1',
-              value: 4.713
+              value: Math.random() * 10
             },
             {
               id: '2',
-              value: 7.415
+              value: Math.random() * 10
             },
             {
               id: '3',
-              value: 9.222
+              value: Math.random() * 10
             },
             {
               id: '4',
-              value: 4.82
+              value: Math.random() * 10
             },
             {
               id: '5',
-              value: 7.19
+              value: Math.random() * 10
             },
             {
               id: '6',
-              value: 6.362
+              value: Math.random() * 10
             },
             {
               id: '7',
-              value: 9.192
+              value: Math.random() * 10
             },
             {
               id: '8',
-              value: 4.112
+              value: Math.random() * 10
             },
             {
               id: '9',
-              value: 6.211
+              value: Math.random() * 10
             },
             {
               id: '10',
-              value: 9.123
+              value: Math.random() * 10
             },
             {
               id: '11',
-              value: 6.412
+              value: Math.random() * 10
             },
             {
               id: '12',
-              value: 8.123
+              value: Math.random() * 10
             },
           ]
         },
@@ -612,7 +630,33 @@ export default new Vuex.Store({
               id: '9'
             }
           ]
-        }
+        },
+        'store-all': '*',
+        'my-top-games': [
+          {
+            id: '1',
+            value: 1,
+          },
+          {
+            id: '2',
+            value: 2
+          },
+          {
+            id: '3',
+            value: 3
+          },
+          {
+            id: '4',
+            value: '4',
+          },
+          {
+            id: '5',
+            value: 5
+          }
+        ],
+        'my-files': '*',
+        'my-recommendation': '*',
+        'recently-played': '*'
       },
       stores: [
         {
@@ -623,7 +667,31 @@ export default new Vuex.Store({
         },
         {
           name: 'store-featured',
-          title: 'featured'
+          title: 'Featured'
+        },
+        {
+          name: 'store-all',
+          title: 'All games'
+        },
+        {
+          name: 'my-top-games',
+          title: 'Your top games',
+          sort: true,
+          order: 'ASC'
+        },
+        {
+          name: 'my-files',
+          title: 'Your files',
+          sort: true,
+          byField: 'id'
+        },
+        {
+          name: 'my-recommendation',
+          title: 'Your recommendation'
+        },
+        {
+          name: 'recently-played',
+          title: 'Recently played',
         }
       ],
       filters: {
@@ -733,38 +801,77 @@ export default new Vuex.Store({
       if (state.demoData.filters.hasOwnProperty(name)) {
         return state.demoData.filters[name];
       } else {
-        return {};
+        return null;
       }
     },
     getRatingStoreByName: (state, getters) => name => {
       if (state.demoData.rating.hasOwnProperty(name)) {
-        let rating = Object.assign({}, state.demoData.rating[name]);
+        let rating = null;
+
+        if (typeof state.demoData.rating[name] === "object" && !Array.isArray(state.demoData.rating[name])) {
+          rating = Object.assign({}, state.demoData.rating[name]);
+        } else if (Array.isArray(state.demoData.rating[name])) {
+          rating = state.demoData.rating[name].slice(0);
+        } else {
+          rating = state.demoData.rating[name];
+        }
+
         let games = getters.games;
 
-        for (let key in rating) {
-          if (rating.hasOwnProperty(key)) {
-            let result = [];
+        if (typeof rating === "object") {
+          for (let key in rating) {
+            if (rating.hasOwnProperty(key)) {
+              let result = [];
 
-            rating[key].reduce((res, elem) => {
-              let rate = elem.hasOwnProperty('value') ? elem['value'] : null;
-              let id = Number.parseInt(elem.id);
+              if (rating[key].reduce) {
+                rating[key].reduce((res, elem) => {
+                  let rate = elem.hasOwnProperty('value') ? elem['value'] : null;
+                  let id = Number.parseInt(elem.id);
 
-              let newElem = games.filter((cur) => {
-                return Number.parseInt(cur.id) === id;
-              }).pop();
+                  let newElem = games.filter((cur) => {
+                    return Number.parseInt(cur.id) === id;
+                  }).pop();
 
-              if (newElem) {
-                newElem = Object.assign({}, newElem);
+                  if (newElem) {
+                    newElem = Object.assign({}, newElem);
 
-                if (rate) {
-                  newElem.rating = rate;
+                    if (rate) {
+                      newElem.rating = rate;
+                    }
+
+                    result.push(newElem);
+                  }
+                }, result);
+              } else {
+                let newElem = games.filter((cur) => {
+                  /**
+                   * @type {number}
+                   */
+                  let id = Number.parseInt(rating[key].id);
+
+                  return Number.parseInt(cur.id) === id;
+                }).pop();
+
+                if (newElem) {
+                  newElem.rating = rating[key].hasOwnProperty('value') ? rating[key].value : null;
+                  rating[key] =  newElem;
+
+                  continue;
                 }
-
-                result.push(newElem);
               }
-            }, result);
 
-            rating[key] = result;
+              rating[key] = result;
+            }
+          }
+        } else if (rating) {
+          switch (rating) {
+            /**
+             * Return all games
+             */
+            case '*': {
+              rating = games.slice(0);
+              break;
+            }
           }
         }
 
@@ -773,13 +880,20 @@ export default new Vuex.Store({
         }).pop();
 
         return {
-          sort: storeInfo.sort,
-          order: storeInfo.order,
-          title: storeInfo ? storeInfo.title : name,
+          sort: storeInfo && storeInfo.sort,
+          byField: storeInfo && storeInfo.byField,
+          order: storeInfo && storeInfo.order,
+          title: storeInfo ? (storeInfo.title || name) : name,
           content: rating
         };
       } else {
-        return null;
+        let storeInfo = state.demoData.stores.filter((elem) => {
+          return elem.name === name;
+        }).pop();
+
+        return {
+          title: storeInfo ? (storeInfo.title || name) : name
+        };
       }
     }
   },

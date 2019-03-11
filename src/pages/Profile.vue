@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-card no-body class="flex-row pb-3 mb-2">
-      <b-card-img src="https://picsum.photos/400/400/?image=20" class="img-profile pulse" />
+      <b-card-img src="https://picsum.photos/400/400/?image=20" class="img-profile pulse"/>
       <b-card-body class="pr-0">
         <b-row no-gutters>
           <b-col class="col-auto mr-auto">
@@ -11,7 +11,7 @@
           </b-col>
           <b-col class="col-auto">
             <!--<b-button id="playButton" v-on:click="play(game.gameId)" variant="outline">-->
-            <img src="../assets/icons/settings.svg" />
+            <img src="../assets/icons/settings.svg" alt="Settings"/>
             <!--</b-button>-->
           </b-col>
         </b-row>
@@ -30,7 +30,8 @@
           <b-col class="col-8 d-inline mr-auto">
             <h4 class="display-4 d-inline" style="font-size: 1.5rem;">Profile statistic</h4>
             <div class="d-inline pl-5">
-              <b-select class="filter-period w-auto text-white font-weight-light" :options="filterStatistics.options" v-model="filterStatistics.selected" />
+              <b-select class="filter-period w-auto text-white font-weight-light" :options="filterStatistics.options"
+                        v-model="filterStatistics.selected"/>
             </div>
           </b-col>
         </b-row>
@@ -39,7 +40,7 @@
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
               :data="[{key: 'test', value: 20}, {key: 'test1', value: 50}, {key: 'test2', value: 30}]"
-              style="width: auto; height: 184.02px;" />
+              style="width: auto; height: 184.02px;"/>
           </b-col>
           <b-col class="col-8 d-inline text-white">
             <ul class="mt-5 pt-5">
@@ -57,48 +58,48 @@
     </b-row>
 
     <div class="pb-5 mb-4 border-bottom">
-    <game-carousel
-      id="top-games"
-      title="Your top games"
-      title-tag="h4"
-      title-class="display-4"
-      :store="topGamesStore"
-      :filter-enabled="false"
-      :carousel-options="yourTopGamesCarouselOptions"
-      :controls-enabled="false"
-      view-all="top-games"
-      key="top-games"
-      v-once />
+      <game-carousel
+        id="top-games"
+        title="Your top games"
+        title-tag="h4"
+        title-class="display-4"
+        :store="topGamesStore"
+        :filter-enabled="false"
+        :carousel-options="yourTopGamesCarouselOptions"
+        :controls-enabled="false"
+        view-all="my-top-games"
+        key="top-games"
+        v-once/>
     </div>
 
     <div class="pb-5 mb-4 border-bottom">
-    <game-carousel
-      id="your-files"
-      title="Your files"
-      title-tag="h4"
-      title-class="display-4"
-      :store="yourFilesStore"
-      :filter-enabled="false"
-      :carousel-options="normalizeOptions(carouselOptions)"
-      :controls-enabled="false"
-      view-all="your-files"
-      key="your-files"
-      v-once />
+      <game-carousel
+        id="your-files"
+        title="Your files"
+        title-tag="h4"
+        title-class="display-4"
+        :store="yourFilesStore"
+        :filter-enabled="false"
+        :carousel-options="normalizeOptions(carouselOptions)"
+        :controls-enabled="false"
+        view-all="my-files"
+        key="your-files"
+        v-once/>
     </div>
 
     <div class="pb-5 mb-4 border-bottom">
-    <game-carousel
-      id="your-recommendation"
-      title="Your recommendation"
-      title-tag="h4"
-      title-class="display-4"
-      :store="yourRecommendationStore"
-      :filter-enabled="false"
-      :carousel-options="normalizeOptions(carouselOptions)"
-      :controls-enabled="false"
-      view-all="your-recommendation"
-      key="your-recommendation"
-      v-once />
+      <game-carousel
+        id="your-recommendation"
+        title="Your recommendation"
+        title-tag="h4"
+        title-class="display-4"
+        :store="yourRecommendationStore"
+        :filter-enabled="false"
+        :carousel-options="normalizeOptions(carouselOptions)"
+        :controls-enabled="false"
+        view-all="my-recommendation"
+        key="your-recommendation"
+        v-once/>
     </div>
 
     <game-carousel
@@ -112,7 +113,7 @@
       :controls-enabled="false"
       view-all="recently-played"
       key="recently-played"
-      v-once />
+      v-once/>
   </div>
 </template>
 
@@ -124,44 +125,52 @@
       GameCarousel
     },
     computed: {},
+    created() {
+      this.getData();
+    },
     methods: {
       normalizeOptions(options) {
         return Object.assign({
-          perPageCustom: [[0, 3], [980, 6]],
-          perPage: 6,
+          perPage: 5,
+          autoplay: false,
         }, options);
+      },
+      getData() {
+        Object.assign(this.topGamesStore, this.$store.getters.getRatingStoreByName('my-top-games'));
+        Object.assign(this.yourRecommendationStore, this.$store.getters.getRatingStoreByName('my-recommendation'));
+        Object.assign(this.yourFilesStore, this.$store.getters.getRatingStoreByName('my-files'));
+        Object.assign(this.recentlyPlayedStore, this.$store.getters.getRatingStoreByName('recently-played'));
       }
     },
     data() {
       return {
         filterStatistics: {
-        selected: 'day',
+          selected: 'day',
           options: [
-          {
-            value: 'day',
-            text: 'Day'
-          },
-          {
-            value: 'Week',
-            text: 'Week'
-          },
-          {
-            value: 'month',
-            text: 'Month'
-          },
-          {
-            value: 'year',
-            text: 'Year'
-          },
-          {
-            value: 'allTime',
-            text: 'All time'
-          }
-        ]
-      },
+            {
+              value: 'day',
+              text: 'Day'
+            },
+            {
+              value: 'Week',
+              text: 'Week'
+            },
+            {
+              value: 'month',
+              text: 'Month'
+            },
+            {
+              value: 'year',
+              text: 'Year'
+            },
+            {
+              value: 'allTime',
+              text: 'All time'
+            }
+          ]
+        },
         yourTopGamesCarouselOptions: {
-          perPageCustom: [[0, 2], [768, 3], [980, 4]],
-          perPage: 4,
+          perPage: 5,
         },
         carouselOptions: {},
         topGamesStore: {
@@ -289,14 +298,14 @@
           photo: ''
         }
       };
-    }
+    },
   };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   .card-body .card-text .text-recently-played {
-    font-size: 0.3em!important;
+    font-size: 0.3em !important;
   }
 
   .d-inline.float-right {
@@ -304,8 +313,8 @@
   }
 
   .img-profile,
-  card-img-left {
-    background:url(https://i.imgpile.com/nInalx.jpg);
+  .card-img-left {
+    background: url(https://i.imgpile.com/nInalx.jpg);
     background-size: 100% 100%;
     height: 140px;
     width: 140px;
@@ -313,7 +322,7 @@
     /*   margin: 10px auto; */
   }
 
-  .pulse{
+  .pulse {
     box-shadow: 0 0 0 0 #696E80;
     animation: pulse 1.5s 1 cubic-bezier(0.66, 0, 0, 1);
   }

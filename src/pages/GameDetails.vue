@@ -40,8 +40,8 @@
               <template v-if="currentRouteIs('game-details')">
                 <b-row class="rating">
                   <b-col class="pr-0 m-auto d-inline-flex align-middle">
-                    <span class="mr-3">{{ game.vote }}</span>
-                    <vote-bar :vote="game.vote" style="font-size: 0.8em;"></vote-bar>
+                    <span class="mr-3">{{ game.vote.toFixed(1) }}</span>
+                    <vote-bar :vote="game.vote.toFixed(1)" style="font-size: 0.8em;"></vote-bar>
                   </b-col>
                 </b-row>
                 <b-row class="mt-3" size="sm">
@@ -54,7 +54,7 @@
                 <b-row>
                   <b-col class="game-buttons">
                     <b-button variant="primary" class="border-0">Play</b-button>
-                    <b-button variant="light" class="text-primary border-0 btn-delete">Delete</b-button>
+                    <b-button variant="light" class="text-primary border-0 btn-delete">Uninstall</b-button>
                   </b-col>
                 </b-row>
               </template>

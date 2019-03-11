@@ -12,8 +12,8 @@
             <!--<b-col md="6">-->
             <b-card-body>
               <b-row>
-                <b-col cols="2" class="m-auto p-0">
-                  <b-card-img :src="game.img" class="rounded-lg"/>
+                <b-col cols="3" class="m-auto text-center">
+                  <b-card-img :src="game.img" class="rounded-lg"></b-card-img>
                 </b-col>
                 <b-col>
                   <b-card-title class="text-white font-weight-normal" title-tag="h6">{{ game.title }}</b-card-title>
@@ -140,6 +140,11 @@
 
     &:hover {
       background-color: $block-hover-background-color;
+    }
+
+    img {
+      max-height: 75px;
+      max-width: 120px;
     }
   }
 
