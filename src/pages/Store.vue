@@ -67,13 +67,8 @@
                     </b-col>
                   </b-row>
                 </b-card-sub-title>
-                <b-card-text class="font-weight-normal mt-3">{{
-                  game.description &&
-                  game.description
-                  .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-                  .replace(/[.,\s]*?$/, '...')
-                  }}
-                  <b-link class="text-primary">More</b-link>
+                <b-card-text class="font-weight-normal mt-3">{{textCutter(game.description)}}
+                  <b-link class="text-primary" v-if="textCutter(game.description).length > 140">More</b-link>
                 </b-card-text>
               </b-card-body>
             </b-col>
@@ -92,25 +87,27 @@
             </b-col>
             <b-col>
               <b-card-body class="p-0">
-                <b-card-title title-tag="h5" class="font-weight-normal">{{ game.title }}</b-card-title>
-                <b-card-sub-title sub-title-tag="div" class="font-weight-normal" style="font-size: 14px;">
-                  <b-row>
-                    <b-col class="text-white" cols="2">
-                      {{ game.price }}
-                    </b-col>
-                    <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
-                      <img src="../assets/icons/downloaded.svg" alt="Downloaded">
-                      {{ game.downloaded || 0 }}
-                    </b-col>
-                  </b-row>
-                </b-card-sub-title>
-                <b-card-text class="font-weight-normal mt-2 col-7 p-0">{{
-                  game.description &&
-                  game.description
-                  .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-                  .replace(/[.,\s]*?$/, '...') }}
-                  <b-link class="text-primary">More</b-link>
-                </b-card-text>
+                <b-card-title title-tag="h5" class="font-weight-normal mb-2">{{ game.title }}</b-card-title>
+                <b-row>
+                  <b-col cols="4">
+                    <b-card-sub-title sub-title-tag="div" class="font-weight-normal mt-0" style="font-size: 14px;">
+                      <b-row>
+                        <b-col class="text-white">
+                          {{ game.price }}
+                        </b-col>
+                        <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
+                          <img src="../assets/icons/downloaded.svg" alt="Downloaded">
+                          {{ game.downloaded || 0 }}
+                        </b-col>
+                      </b-row>
+                    </b-card-sub-title>
+                  </b-col>
+                  <b-col>
+                    <b-card-text class="font-weight-normal p-0 mt-0">{{textCutter(game.description)}}
+                      <b-link class="text-primary" v-if="textCutter(game.description).length > 140">More</b-link>
+                    </b-card-text>
+                  </b-col>
+                </b-row>
               </b-card-body>
             </b-col>
           </b-row>
@@ -178,6 +175,19 @@
         } else {
           return '2_5';
         }
+      },
+      textCutter(text = null) {
+        let cuttedText = '';
+
+        if (text && text.length > 140) {
+          cuttedText = text
+            .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
+            .replace(/[.,\s]*?$/, '...');
+        } else {
+          cuttedText = text ? text : '';
+        }
+
+        return cuttedText;
       },
       storeSort(store, byField = 'rating', order = 'DESC') {
         let orderVector = 0;

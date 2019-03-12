@@ -63,42 +63,29 @@ export default new Vuex.Store({
       games: [
         {
           id: '1',
-          img: 'https://steamcdn-a.akamaihd.net/steam/apps/447040/header.jpg?t=1527101545',
-          title: 'Watch_Dogs® 2',
-          releaseDate: '20 feb. 2019',
+          img: '/screenshots/beglitched/Beglitched.png',
+          title: 'Beglitched',
+          releaseDate: 'Oct 6, 2018',
           size: '4.2 GB',
           price: '49,99 $',
           text: '7 hours',
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
           lastPlayed: new Date(),
-          description: 'Play as Marcus Holloway, a brilliant young hacker living in the birthplace of the tech revolution, the San Francisco Bay Area.\n' +
-            'Team up with Dedsec, a notorious group of hackers, to execute the biggest hack in history; take down ctOS 2.0, an invasive operating system being used by criminal masterminds to monitor and manipulate citizens on a massive scale.\n' +
-            '\n' +
-            '    Explore the dynamic open-world, full of gameplay possibilities\n' +
-            '    Hack into every connected device and take control of the city infrastructure.\n' +
-            '    Develop different skills to suit your playstyle, and upgrade your hacker tools – RC cars, Quadcopter drone, 3D printed weapons and much more.\n' +
-            '    Stay seamlessly connected to your friends with a brand new co-op and adversarial multiplayer Watch Dogs experience.\n' +
-            '\n' +
-            '\n' +
-            'PUT YOUR EYES IN CTRL\n' +
-            'Get the upper hand with Tobii Eye Tracking. Let your gaze aid you in weaponizing the “internet of things”, aim at enemies and take cover while you naturally explore the environment. Combine the extensive eye tracking feature set to pinpoint enemies, interact with your surroundings, locate shelter points, and rapidly select hackable targets. Let your vision lead the hacking of the city’s digital brain.\n' +
-            '\n' +
-            'Compatible with all Tobii Eye Tracking gaming devices.\n' +
-            '----\n' +
-            'Additional notes:\n' +
-            'Eye tracking features available with Tobii Eye Tracking.',
+          developer: 'Hexecutable',
+          publisher: 'Hexecutable',
+          description: 'Beglitched is a game about insecurity, in our computers and ourselves',
           slides: [
-            'https://steamcdn-a.akamaihd.net/steam/apps/447040/ss_8071f719fea2d45baa805449ec550395db700118.600x338.jpg?t=1527101545',
-            'https://steamcdn-a.akamaihd.net/steam/apps/447040/ss_b93d600b2a0372d6b5a5d191b46654ba489819d1.600x338.jpg?t=1527101545',
-            'https://steamcdn-a.akamaihd.net/steam/apps/447040/ss_6eb9108a5ac2f33942d15ebf0801f0e69373d4f8.600x338.jpg?t=1527101545',
-            'https://steamcdn-a.akamaihd.net/steam/apps/447040/ss_3466ea1a9e73594961b9f73fd560f379f7f49870.600x338.jpg?t=1527101545',
+            '/screenshots/beglitched/Beglitched SC 1.jpg',
+            '/screenshots/beglitched/Beglitched SC 2.jpg',
+            '/screenshots/beglitched/Beglitched SC 3.jpg',
+            '/screenshots/beglitched/Beglitched SC 4.jpg',
           ]
         },
         {
           id: '2',
-          img: 'https://steamcdn-a.akamaihd.net/steam/apps/730/header.jpg?t=1550873343',
-          title: 'Counter-Strike: Global Offensive',
+          img: '/screenshots/fortune-499/fortune.png',
+          title: 'Fortune 499',
           releaseDate: '20 feb. 2019',
           size: '4.2 GB',
           price: 'FREE',
@@ -106,60 +93,56 @@ export default new Vuex.Store({
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
           lastPlayed: '2017-01-13 10:49',
-          description: 'Counter-Strike: Global Offensive (CS: GO) expands upon the team-based action gameplay that it pioneered when it was launched 19 years ago.\n' +
-            '\n' +
-            'CS: GO features new maps, characters, weapons, and game modes, and delivers updated versions of the classic CS content (de_dust2, etc.).\n' +
-            '\n' +
-            '"Counter-Strike took the gaming industry by surprise when the unlikely MOD became the most played online PC action game in the world almost immediately after its release in August 1999," said Doug Lombardi at Valve. "For the past 12 years, it has continued to be one of the most-played games in the world, headline competitive gaming tournaments and selling over 25 million units worldwide across the franchise. CS: GO promises to expand on CS\' award-winning gameplay and deliver it to gamers on the PC as well as the next gen consoles and the Mac." ',
+          developer: 'AP Thompson',
+          publisher: 'AP Thompson',
+          description: 'There is no future in the future.',
           slides: [
-            'https://steamcdn-a.akamaihd.net/steam/apps/730/ss_34090867f1a02b6c17652ba9043e3f622ed985a9.600x338.jpg?t=1550873343',
-            'https://steamcdn-a.akamaihd.net/steam/apps/730/ss_1d30c9a215fd621e2fd74f40d93b71587bf6409c.600x338.jpg?t=1550873343',
-            'https://steamcdn-a.akamaihd.net/steam/apps/730/ss_baa02e979cd3852e3c4182afcd603ab64e3502f9.600x338.jpg?t=1550873343',
-            'https://steamcdn-a.akamaihd.net/steam/apps/730/ss_ffe584c163a2b16e9c1b733b1c8e2ba669fb1204.600x338.jpg?t=1550873343'
+            '/screenshots/fortune-499/499 SC 1.jpg',
+            '/screenshots/fortune-499/499 SC 2.jpg',
+            '/screenshots/fortune-499/499 SC 3.jpg',
+            '/screenshots/fortune-499/499 SC 4.jpg'
           ]
         },
         {
           id: '3',
-          img: 'https://steamcdn-a.akamaihd.net/steam/apps/570/header.jpg?t=1543590720',
-          title: 'Dota 2',
-          releaseDate: '20 feb. 2019',
+          img: '/screenshots/getting-over-it/getting_over_it.jpg',
+          title: 'Getting Over It',
+          releaseDate: 'Dec 6, 2017',
           size: '4.2 GB',
           price: 'FREE',
           text: '14 hours',
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
           lastPlayed: '2018-12-13 15:40',
-          description: 'The most-played game on Steam.\n' +
-            'Every day, millions of players worldwide enter battle as one of over a hundred Dota heroes. And no matter if it\'s their 10th hour of play or 1,000th, there\'s always something new to discover. With regular updates that ensure a constant evolution of gameplay, features, and heroes, Dota 2 has truly taken on a life of its own.\n' +
-            '\n' +
-            'One Battlefield. Infinite Possibilities.\n' +
-            'When it comes to diversity of heroes, abilities, and powerful items, Dota boasts an endless array—no two games are the same. Any hero can fill multiple roles, and there\'s an abundance of items to help meet the needs of each game. Dota doesn\'t provide limitations on how to play, it empowers you to express your own style.\n' +
-            '\n' +
-            'All heroes are free.\n' +
-            'Competitive balance is Dota\'s crown jewel, and to ensure everyone is playing on an even field, the core content of the game—like the vast pool of heroes—is available to all players. Fans can collect cosmetics for heroes and fun add-ons for the world they inhabit, but everything you need to play is already included before you join your first match.\n' +
-            '\n' +
-            'Bring your friends and party up.\n' +
-            'Dota is deep, and constantly evolving, but it\'s never too late to join.\n' +
-            'Learn the ropes playing co-op vs. bots. Sharpen your skills in the hero demo mode. Jump into the behavior- and skill-based matchmaking system that ensures you\'ll\n' +
-            'be matched with the right players each game. ',
+          developer: 'Bennett Foddy',
+          publisher: 'Bennett Foddy',
+          description: 'A game I made for a certain kind of person. To hurt them.',
           slides: [
-            'https://steamcdn-a.akamaihd.net/steam/apps/570/ss_86d675fdc73ba10462abb8f5ece7791c5047072c.600x338.jpg?t=1543590720',
-            'https://steamcdn-a.akamaihd.net/steam/apps/570/ss_ad8eee787704745ccdecdfde3a5cd2733704898d.600x338.jpg?t=1543590720',
-            'https://steamcdn-a.akamaihd.net/steam/apps/570/ss_7ab506679d42bfc0c0e40639887176494e0466d9.600x338.jpg?t=1543590720',
-            'https://steamcdn-a.akamaihd.net/steam/apps/570/ss_b33a65678dc71cc98df4890e22a89601ee56a918.600x338.jpg?t=1543590720'
+            '/screenshots/getting-over-it/Getting Over It SC 1.jpg',
+            '/screenshots/getting-over-it/Getting Over It SC 2.jpg'
           ]
         },
         {
           id: '4',
-          img: 'https://versiya.info/uploads/posts/2018-11/1542721739_league-of-legends_0.jpg',
-          title: 'League of legends',
-          releaseDate: '20 feb. 2019',
+          img: '/screenshots/the-norwood-suite/norwood.jpg',
+          title: 'The Norwood Suite',
+          releaseDate: 'Oct 2, 2017',
           size: '4.2 GB',
           price: 'FREE',
           text: '2 hours',
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
-          slides: []
+          developer: 'Cosmo D',
+          publisher: 'Alliance',
+          description: 'Explore the mysterious Hotel Norwood in this surreal first-person adventure. Curious characters, forgotten secrets, ' +
+            'and head-nodding music await your arrival.',
+          slides: [
+            '/screenshots/the-norwood-suite/Norwood SC 1.jpg',
+            '/screenshots/the-norwood-suite/Norwood SC 2.jpg',
+            '/screenshots/the-norwood-suite/Norwood SC 3.jpg',
+            '/screenshots/the-norwood-suite/Norwood SC 4.jpg',
+            '/screenshots/the-norwood-suite/Norwood SC 5.jpg',
+          ]
         },
         {
           id: '5',
@@ -687,11 +670,13 @@ export default new Vuex.Store({
         },
         {
           name: 'my-recommendation',
-          title: 'Your recommendation'
+          title: 'Your recommendation',
+          sort: false,
         },
         {
           name: 'recently-played',
           title: 'Recently played',
+          sort: false,
         }
       ],
       filters: {
