@@ -3,8 +3,8 @@
     <b-row>
       <template v-for="(game, index) in games">
         <b-col cols="6" :key="'game-' + index">
-          <b-card no-body class="mb-2 mt-2 border-0 game"
-                  @click="$router.push({name: 'my-game-details', params: {id: game.id}})" style="cursor: pointer;">
+          <b-card no-body class="mb-2 mt-2 border-0 game" tag="a"
+                  :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href">
             <!-- class="overflow-hidden" style="max-width: 540px;" -->
             <!--<b-row no-gutters>-->
             <!--<b-col md="6">-->
@@ -137,6 +137,10 @@
 
   .game {
     transition: ease-in-out 0.25s;
+
+    &:link {
+      text-decoration: none;
+    }
 
     &:hover {
       background-color: $block-hover-background-color;

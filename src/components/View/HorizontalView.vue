@@ -12,7 +12,7 @@
           </slot>
           <slot name="view-all">
             <b-col>
-              <b-link :href="viewAllUrl" class="float-right">{{ viewAllText }}</b-link>
+              <b-link :href="viewAllUrl" class="float-right view-all">{{ viewAllText }}</b-link>
             </b-col>
           </slot>
         </b-row>
@@ -66,5 +66,7 @@
 </script>
 
 <style scoped lang="scss">
-
+  .view-all {
+    color: #696E80;
+  }
 </style>

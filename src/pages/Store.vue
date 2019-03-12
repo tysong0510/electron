@@ -42,8 +42,8 @@
     </b-row>
     <b-row class="border-bottom">
       <b-col v-for="(game, index) in content.slice(0, 3)" :key="index"
-             class="p-2 rounded-lg game mb-4 mt-2"
-             @click="$router.push({name: 'game-details', params: {id: game.id}})" style="cursor: pointer;">
+             class="p-2 rounded-lg game mb-4 mt-2" tag="a"
+             :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href">
         <b-card no-body class="border-0">
           <b-row>
             <b-col cols="12" class="col-img">
@@ -68,7 +68,9 @@
                   </b-row>
                 </b-card-sub-title>
                 <b-card-text class="font-weight-normal mt-3">{{textCutter(game.description)}}
-                  <b-link class="text-primary" v-if="textCutter(game.description).length > 140">More</b-link>
+                  <b-link class="text-primary" v-if="textCutter(game.description).length > 140"
+                          :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href">More
+                  </b-link>
                 </b-card-text>
               </b-card-body>
             </b-col>
@@ -78,8 +80,8 @@
     </b-row>
     <b-row class="border-bottom limited-height-row mt-3 pb-3" v-for="(game, index) in content.slice(3)" :key="index">
       <b-col :key="index"
-             class="p-2 rounded-lg game mt-1 mb-1"
-             @click="$router.push({name: 'game-details', params: {id: game.id}})" style="cursor: pointer;">
+             class="p-2 rounded-lg game mt-1 mb-1" tag="a"
+             :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href">
         <b-card no-body class="border-0">
           <b-row>
             <b-col cols="2" class="m-auto text-center">
@@ -104,7 +106,9 @@
                   </b-col>
                   <b-col>
                     <b-card-text class="font-weight-normal p-0 mt-0">{{textCutter(game.description)}}
-                      <b-link class="text-primary" v-if="textCutter(game.description).length > 140">More</b-link>
+                      <b-link class="text-primary" v-if="textCutter(game.description).length > 140"
+                              :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href">More
+                      </b-link>
                     </b-card-text>
                   </b-col>
                 </b-row>
@@ -250,6 +254,10 @@
 
   .game {
     transition: ease-in-out 0.25s;
+
+    &:link {
+      text-decoration: none;
+    }
 
     .card-text {
       font-size: 12px;

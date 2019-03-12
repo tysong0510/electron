@@ -1,5 +1,5 @@
 <template>
-  <b-row class="vote-bar" v-bind="$attrs" :title="nVote">
+  <b-row class="vote-bar" v-bind="$attrs" :title="nVote.toFixed(1)">
     <b-col class="rating" tag="span">
       <i :class="{star: true}" v-for="(value, index) in progressData" :key="index">
         <i class="progress" :style="`width: ${value}%;`"></i>
