@@ -242,8 +242,7 @@
                   {{ game.title }}
                 </b-card-title>
                 <b-card-text style="font-size: 0.7em;">
-                  {{ (game.lastPlayed && dateFns.distanceInWordsToNow(new Date(game.lastPlayed), {addSuffix:
-                  true})) || 'never' }}
+                  {{ game.lastPlayed | distanceInWordsToNow({ addSuffix: true }) }}
                 </b-card-text>
               </b-col>
             </b-row>
@@ -258,14 +257,15 @@
 <script>
   // import GameCarousel from '../components/Carousel/GameCarousel';
   import HorizontalView from '../components/View/HorizontalView';
-
-  import * as dateFns from 'date-fns';
+  import {store} from "../mixins/store";
+  import {date} from "../mixins/date";
 
   export default {
     components: {
       // GameCarousel,
       HorizontalView
     },
+    mixins: [store, date],
     computed: {},
     created() {
       this.getData();
@@ -287,42 +287,41 @@
         Object.assign(this.recentlyPlayedStore, this.$store.getters.getRatingStoreByName('recently-played'));
         this.storeSort(this.recentlyPlayedStore);
       },
-      storeSort(store) {
-        if (store.hasOwnProperty('sort') && store.sort !== undefined && !store.sort) {
-          return;
-        }
-
-        let orderVector = 0;
-        let byField = store.byField || 'rating';
-        let order = store.order || 'DESC';
-
-        switch (order) {
-          case 'ASC':
-            orderVector = 1;
-            break;
-          case 'DESC':
-          default:
-            orderVector = -1;
-        }
-
-        if (store && store.content && !Array.isArray(store.content)) {
-          for (let key in store.content) {
-            if (store.content.hasOwnProperty(key)) {
-              store.content[key].sort((a, b) => {
-                return (a[byField] - b[byField]) * (orderVector);
-              });
-            }
-          }
-        } else {
-          store.content.sort((a, b) => {
-            return (a[byField] - b[byField]) * (orderVector);
-          });
-        }
-      },
+      // storeSort(store) {
+      //   if (store.hasOwnProperty('sort') && store.sort !== undefined && !store.sort) {
+      //     return;
+      //   }
+      //
+      //   let orderVector = 0;
+      //   let byField = store.byField || 'rating';
+      //   let order = store.order || 'DESC';
+      //
+      //   switch (order) {
+      //     case 'ASC':
+      //       orderVector = 1;
+      //       break;
+      //     case 'DESC':
+      //     default:
+      //       orderVector = -1;
+      //   }
+      //
+      //   if (store && store.content && !Array.isArray(store.content)) {
+      //     for (let key in store.content) {
+      //       if (store.content.hasOwnProperty(key)) {
+      //         store.content[key].sort((a, b) => {
+      //           return (a[byField] - b[byField]) * (orderVector);
+      //         });
+      //       }
+      //     }
+      //   } else {
+      //     store.content.sort((a, b) => {
+      //       return (a[byField] - b[byField]) * (orderVector);
+      //     });
+      //   }
+      // },
     },
     data() {
       return {
-        dateFns: dateFns,
         filterStatistics: {
           selected: 'day',
           options: [

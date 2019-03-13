@@ -47,8 +47,7 @@
                   <b-card-sub-title sub-title-tag="h6" class="font-weight-normal mt-2">
                     <b-row>
                       <b-col class="text-white">
-                        {{ (game.lastPlayed && dateFns.distanceInWordsToNow(new Date(game.lastPlayed), {addSuffix:
-                        true})) || 'never' }}
+                        {{ game.lastPlayed | distanceInWordsToNow({ addSuffix: true }) }}
                       </b-col>
                     </b-row>
                   </b-card-sub-title>
@@ -96,8 +95,7 @@
                   <template v-else-if="currentStore === 'recently-played'">
                     <b-row>
                       <b-col class="text-white">
-                        {{ (game.lastPlayed && dateFns.distanceInWordsToNow(new Date(game.lastPlayed), {addSuffix:
-                        true})) || 'never' }}
+                        {{ game.lastPlayed | distanceInWordsToNow({ addSuffix: true }) }}
                       </b-col>
                     </b-row>
                   </template>
@@ -124,20 +122,22 @@
 </template>
 
 <script>
-  import * as dateFns from 'date-fns';
+  import {store} from "../mixins/store";
+  import {date} from "../mixins/date";
 
   export default {
     name: "ProfileViewAll",
     data() {
       return {
-        storeTitle: '',
-        dateFns
+        storeTitle: ''
       };
     },
+    mixins: [store, date],
+    filters: {},
     computed: {
-      currentStore() {
-        return this.$router.currentRoute.name;
-      },
+      // currentStore() {
+      //   return this.$router.currentRoute.name;
+      // },
       content: {
         get() {
           if (!this.store) {
@@ -162,43 +162,46 @@
       }
     },
     methods: {
-      storeSort(store, byField = 'rating', order = 'DESC') {
-        let orderVector = 0;
-
-        switch (order) {
-          case 'ASC':
-            orderVector = 1;
-            break;
-          case 'DESC':
-          default:
-            orderVector = -1;
-        }
-
-        if (store && store.content && !Array.isArray(store.content)) {
-          for (let key in store.content) {
-            if (store.content.hasOwnProperty(key)) {
-              store.content[key].sort((a, b) => {
-                return (a[byField] - b[byField]) * (orderVector);
-              });
-            }
-          }
-        } else {
-          store.content.sort((a, b) => {
-            return (a[byField] - b[byField]) * (orderVector);
-          });
-        }
-      },
+      // storeSort(store, byField = 'rating', order = 'DESC') {
+      //   let orderVector = 0;
+      //
+      //   switch (order) {
+      //     case 'ASC':
+      //       orderVector = 1;
+      //       break;
+      //     case 'DESC':
+      //     default:
+      //       orderVector = -1;
+      //   }
+      //
+      //   if (store && store.content && !Array.isArray(store.content)) {
+      //     for (let key in store.content) {
+      //       if (store.content.hasOwnProperty(key)) {
+      //         store.content[key].sort((a, b) => {
+      //           return (a[byField] - b[byField]) * (orderVector);
+      //         });
+      //       }
+      //     }
+      //   } else {
+      //     store.content.sort((a, b) => {
+      //       return (a[byField] - b[byField]) * (orderVector);
+      //     });
+      //   }
+      // },
       getData(storeName) {
         let store = this.$store.getters.getRatingStoreByName(storeName) || {};
 
         this.storeTitle = store.title || '';
 
-        if (store.sort) {
-          this.storeSort(store, store.byField, store.order);
-        }
+        this.storeSort(store);
 
         this.store = store;
-      }
+      },
+      // formatDate(date) {
+      //   return (date && dateFns.distanceInWordsToNow(new Date(date), {
+      //     addSuffix: true
+      //   })) || 'never';
+      // }
     }
   }
 </script>

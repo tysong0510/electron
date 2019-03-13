@@ -123,6 +123,7 @@
 
 <script>
   // import GameCarousel from '../components/Carousel/GameCarousel';
+  import { store } from "../mixins/store";
 
   let colCounter = 0;
 
@@ -130,6 +131,7 @@
     // components: {
     //   GameCarousel
     // },
+    mixins: [store],
     data() {
       return {
         name: 'Store',
@@ -140,9 +142,9 @@
       };
     },
     computed: {
-      currentStore() {
-        return this.$router.currentRoute.name;
-      },
+      // currentStore() {
+      //   return this.$router.currentRoute.name;
+      // },
       content: {
         get() {
           if (!this.store) {
@@ -193,32 +195,32 @@
 
         return cuttedText;
       },
-      storeSort(store, byField = 'rating', order = 'DESC') {
-        let orderVector = 0;
-
-        switch (order) {
-          case 'ASC':
-            orderVector = 1;
-            break;
-          case 'DESC':
-          default:
-            orderVector = -1;
-        }
-
-        if (store && store.content && !Array.isArray(store.content)) {
-          for (let key in store.content) {
-            if (store.content.hasOwnProperty(key)) {
-              store.content[key].sort((a, b) => {
-                return (a[byField] - b[byField]) * (orderVector);
-              });
-            }
-          }
-        } else {
-          store.content.sort((a, b) => {
-            return (a[byField] - b[byField]) * (orderVector);
-          });
-        }
-      },
+      // storeSort(store, byField = 'rating', order = 'DESC') {
+      //   let orderVector = 0;
+      //
+      //   switch (order) {
+      //     case 'ASC':
+      //       orderVector = 1;
+      //       break;
+      //     case 'DESC':
+      //     default:
+      //       orderVector = -1;
+      //   }
+      //
+      //   if (store && store.content && !Array.isArray(store.content)) {
+      //     for (let key in store.content) {
+      //       if (store.content.hasOwnProperty(key)) {
+      //         store.content[key].sort((a, b) => {
+      //           return (a[byField] - b[byField]) * (orderVector);
+      //         });
+      //       }
+      //     }
+      //   } else {
+      //     store.content.sort((a, b) => {
+      //       return (a[byField] - b[byField]) * (orderVector);
+      //     });
+      //   }
+      // },
       getData(storeName) {
         let filter = this.$store.getters.getFilterByName(storeName);
         if (filter) {
@@ -230,9 +232,7 @@
 
         this.storeTitle = store.title;
 
-        if (store.sort) {
-          this.storeSort(store, store.byField, store.order);
-        }
+        this.storeSort(store);
 
         this.store = store;
       }
