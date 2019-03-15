@@ -1,9 +1,16 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import games from "./games";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+/**
+ * Library for deep merging objects
+ * @see https://github.com/TehShrike/deepmerge
+ */
+const deepMerge = require('deepmerge');
+
+let demoData = {
   state: {
     demoData: {
       news: [
@@ -63,7 +70,8 @@ export default new Vuex.Store({
       games: [
         {
           id: '1',
-          img: '/screenshots/beglitched/Beglitched.png',
+          img: 'https://i.imgur.com/OKRBCD8.png',
+
           title: 'Beglitched',
           releaseDate: 'Oct 6, 2018',
           size: '4.2 GB',
@@ -76,15 +84,15 @@ export default new Vuex.Store({
           publisher: 'Hexecutable',
           description: 'Beglitched is a game about insecurity, in our computers and ourselves',
           slides: [
-            '/screenshots/beglitched/Beglitched SC 1.jpg',
-            '/screenshots/beglitched/Beglitched SC 2.jpg',
-            '/screenshots/beglitched/Beglitched SC 3.jpg',
-            '/screenshots/beglitched/Beglitched SC 4.jpg',
+            'https://i.imgur.com/B9Vd4av.png',
+            'https://i.imgur.com/EH91SwS.png',
+            'https://i.imgur.com/XxoNHmD.png',
+            'https://i.imgur.com/MSrWG2l.png',
           ]
         },
         {
           id: '2',
-          img: '/screenshots/fortune-499/fortune.png',
+          img: 'https://i.imgur.com/cmw30Hr.png',
           title: 'Fortune 499',
           releaseDate: '20 feb. 2019',
           size: '4.2 GB',
@@ -97,15 +105,15 @@ export default new Vuex.Store({
           publisher: 'AP Thompson',
           description: 'There is no future in the future.',
           slides: [
-            '/screenshots/fortune-499/499 SC 1.jpg',
-            '/screenshots/fortune-499/499 SC 2.jpg',
-            '/screenshots/fortune-499/499 SC 3.jpg',
-            '/screenshots/fortune-499/499 SC 4.jpg'
+            'https://i.imgur.com/XS8rrws.jpg',
+            'https://i.imgur.com/q4UcwnL.jpg',
+            'https://i.imgur.com/636SI8G.jpg',
+            'https://i.imgur.com/6nXi3o7.jpg'
           ]
         },
         {
           id: '3',
-          img: '/screenshots/getting-over-it/getting_over_it.jpg',
+          img: 'https://i.imgur.com/GOppcWb.jpg',
           title: 'Getting Over It',
           releaseDate: 'Dec 6, 2017',
           size: '4.2 GB',
@@ -118,13 +126,13 @@ export default new Vuex.Store({
           publisher: 'Bennett Foddy',
           description: 'A game I made for a certain kind of person. To hurt them.',
           slides: [
-            '/screenshots/getting-over-it/Getting Over It SC 1.jpg',
-            '/screenshots/getting-over-it/Getting Over It SC 2.jpg'
+            'https://i.imgur.com/dZaoHNj.jpg',
+            'https://i.imgur.com/CIUGytF.jpg'
           ]
         },
         {
           id: '4',
-          img: '/screenshots/the-norwood-suite/norwood.jpg',
+          img: 'https://i.imgur.com/hdoXi4I.jpg',
           title: 'The Norwood Suite',
           releaseDate: 'Oct 2, 2017',
           size: '4.2 GB',
@@ -137,11 +145,11 @@ export default new Vuex.Store({
           description: 'Explore the mysterious Hotel Norwood in this surreal first-person adventure. Curious characters, forgotten secrets, ' +
             'and head-nodding music await your arrival.',
           slides: [
-            '/screenshots/the-norwood-suite/Norwood SC 1.jpg',
-            '/screenshots/the-norwood-suite/Norwood SC 2.jpg',
-            '/screenshots/the-norwood-suite/Norwood SC 3.jpg',
-            '/screenshots/the-norwood-suite/Norwood SC 4.jpg',
-            '/screenshots/the-norwood-suite/Norwood SC 5.jpg',
+            'https://i.imgur.com/WbjVBsy.jpg',
+            'https://i.imgur.com/KlIMkE3.jpg',
+            'https://i.imgur.com/PznLj0m.jpg',
+            'https://i.imgur.com/V2AidvL.jpg',
+            'https://i.imgur.com/UQCXvfe.jpg',
           ]
         },
         {
@@ -743,6 +751,22 @@ export default new Vuex.Store({
       }
     }
   },
+  mutations: {},
+  actions: {},
+};
+
+/**
+ * Merge stores
+ */
+let stores = deepMerge.all(
+  [
+    games,
+    demoData
+  ]
+);
+
+export default new Vuex.Store({
+  ...stores,
   getters: {
     news: state => {
       let news = [];
@@ -839,7 +863,7 @@ export default new Vuex.Store({
 
                 if (newElem) {
                   newElem.rating = rating[key].hasOwnProperty('value') ? rating[key].value : null;
-                  rating[key] =  newElem;
+                  rating[key] = newElem;
 
                   continue;
                 }
@@ -882,6 +906,4 @@ export default new Vuex.Store({
       }
     }
   },
-  mutations: {},
-  actions: {},
 });

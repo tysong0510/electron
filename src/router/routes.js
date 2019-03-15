@@ -7,6 +7,7 @@ const Profile = () => import(/* webpackChunkName: 'profile' */'@/pages/Profile.v
 const News = () => import(/* webpackChunkName: 'news' */'@/pages/News.vue');
 const NewsDetails = () => import(/* webpackChunkName: 'newsDetails' */'@/pages/NewsDetails.vue');
 const ProfileViewAll = () => import(/* webpackChunkName: 'profileViewAll' */'@/pages/ProfileViewAll.vue');
+const ApiDemo = () => import (/* webpackChunkName: 'apiDemo' */'@/pages/ApiDemo');
 
 const routes = [
   {
@@ -24,7 +25,8 @@ const routes = [
       {
         path: 'games/:id(\\d+)',
         name: 'my-game-details',
-        component: GameDetails
+        component: GameDetails,
+        meta: { requireAuth: true }
       },
       {
         path: 'store/:id(\\d+)',
@@ -49,32 +51,38 @@ const routes = [
       {
         path: 'games',
         name: 'games',
-        component: Games
+        component: Games,
+        meta: { requireAuth: true }
       },
       {
         path: 'profile',
         name: 'profile',
-        component: Profile
+        component: Profile,
+        meta: { requireAuth: true }
       },
       {
         path: 'profile/top-games',
         name: 'my-top-games',
-        component: ProfileViewAll
+        component: ProfileViewAll,
+        meta: { requireAuth: true }
       },
       {
         path: 'profile/files',
         name: 'my-files',
-        component: ProfileViewAll
+        component: ProfileViewAll,
+        meta: { requireAuth: true }
       },
       {
         path: 'profile/recommendation',
         name: 'my-recommendation',
-        component: ProfileViewAll
+        component: ProfileViewAll,
+        meta: { requireAuth: true }
       },
       {
         path: 'profile/recently-played',
         name: 'recently-played',
-        component: ProfileViewAll
+        component: ProfileViewAll,
+        meta: { requireAuth: true }
       },
       {
         path: 'news',
@@ -85,6 +93,11 @@ const routes = [
         path: 'news/:id',
         name: 'news-details',
         component: NewsDetails
+      },
+      {
+        path: 'api/demo',
+        name: 'api-demo',
+        component: ApiDemo
       }
     ]
   }

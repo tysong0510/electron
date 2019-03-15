@@ -1,0 +1,21 @@
+import Vapi from "vuex-rest-api";
+import {baseURL} from "../apiConfig";
+
+/**
+ * Games store from api
+ */
+export default new Vapi({
+  baseURL,
+  state: {
+    games: [],
+    game: null
+  }
+}).get({
+  action: "getGames",
+  property: "games",
+  path: "/posts"
+}).get({
+  action: "getGame",
+  property: "game",
+  path: ({id}) => `/posts/${id}`
+}).getStore();

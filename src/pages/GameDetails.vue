@@ -143,7 +143,8 @@
         }
       },
       gameBuy() {
-        confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
+        //confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
+        this.$router.replace({query: Object.assign({}, this.$route.query, {auth: 'select'})});
       },
       fetchData() {
         this.error = null;

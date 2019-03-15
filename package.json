@@ -3,27 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build",
-    "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "test:e2e": "vue-cli-service test:e2e"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.13",
     "d3-vs": "^0.8.0",
     "date-fns": "^1.30.1",
+    "deepmerge": "^3.2.0",
     "fs": "^0.0.1-security",
     "register-service-worker": "^1.5.2",
     "vue": "^2.6.6",
     "vue-carousel": "^0.18.0-alpha",
     "vue-i18n": "^8.8.2",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vuex-rest-api": "^2.10.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",

@@ -950,7 +950,7 @@ $modal-content-border-radius:       $border-radius-lg !default;
 $modal-content-box-shadow-xs:       0 .25rem .5rem rgba($black, .5) !default;
 $modal-content-box-shadow-sm-up:    0 .5rem 1rem rgba($black, .5) !default;
 
-$modal-backdrop-bg:                 $black !default;
+//$modal-backdrop-bg:                 $black !default;
 $modal-backdrop-opacity:            .5 !default;
 $modal-header-border-color:         $border-color !default;
 $modal-footer-border-color:         $modal-header-border-color !default;
@@ -1185,3 +1185,5 @@ $general-transition-time:     300ms !default;
 //$navbar-light-toggler-border-color: transparent !default;
 $full-width:                        100% !default;
 //$navbar-padding:                    10px 15px !default;
+
+$modal-backdrop-bg: #080e32 !default;

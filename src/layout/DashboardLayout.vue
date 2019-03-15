@@ -18,14 +18,18 @@
     <div class="main-panel">
       <dashboard-content @click.native="toggleSidebar" />
     </div>
+
+    <auth-modal />
   </div>
 </template>
 
 <script>
   import DashboardContent from './Content.vue';
+  import AuthModal from '../components/Modals/AuthModal';
 
   export default {
     components: {
+      AuthModal,
       DashboardContent
     },
     methods: {
