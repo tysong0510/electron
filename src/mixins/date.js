@@ -1,6 +1,6 @@
 import * as dateFns from 'date-fns';
 
-export const date = {
+export default {
   filters: {
     /**
      * Return date distance in words to now
@@ -15,5 +15,5 @@ export const date = {
 
       return dateFns.distanceInWordsToNow(date, options);
     },
-  }
+  },
 };

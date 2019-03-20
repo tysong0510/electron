@@ -1,5 +1,3 @@
-
-
 import { app, protocol, BrowserWindow } from 'electron';
 import {
   createProtocol,
@@ -20,7 +18,7 @@ function createWindow() {
     width: 992,
     height: 640,
     minWidth: 992,
-    minHeight: 640
+    minHeight: 640,
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

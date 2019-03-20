@@ -1,1 +1,5 @@
-export const baseURL = 'https://jsonplaceholder.typicode.com'; // TODO add https://api.voxpopgames.com
+export const baseURL = 'http://157.230.135.10:8080'; // TODO add https://api.voxpopgames.com
+
+export const authConfig = {
+
+};

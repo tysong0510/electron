@@ -1,0 +1,23 @@
+root: true
+
+env:
+  es6: true
+  node: true
+
+extends:
+  - 'plugin:vue/recommended'
+  - 'eslint:recommended'
+#  - '@vue/airbnb'
+
+parserOptions:
+  parser: 'babel-eslint'
+  ecmaVersion: 2018
+
+plugins:
+  - vue
+
+rules: {
+  'no-console': 0,
+  'no-debugger': 0,
+  'vue/max-attributes-per-line': 0
+}

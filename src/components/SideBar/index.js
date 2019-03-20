@@ -6,7 +6,7 @@ const SidebarStore = {
   sidebarLinks: [],
   displaySidebar(value) {
     this.showSidebar = value;
-  }
+  },
 };
 
 export default {
@@ -18,5 +18,5 @@ export default {
     Vue.prototype.$sidebar = app.sidebarStore;
     Vue.component('side-bar', Sidebar);
     Vue.component('sidebar-link', SidebarLink);
-  }
+  },
 };

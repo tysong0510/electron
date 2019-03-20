@@ -1,57 +1,74 @@
 <template>
   <div>
     <ul>
-      <li v-for="(game, index) in games" :key="index" @click="gameShow(game)">{{game}}</li>
+      <li
+        v-for="(game, index) in games"
+        :key="index"
+        @click="gameShow(game)"
+      >
+        {{ game }}
+      </li>
     </ul>
-    <p v-if="pending.games">loading posts...</p>
-    <p v-if="error.games">loading failed</p>
+    <p v-if="pending.games">
+      loading posts...
+    </p>
+    <p v-if="error.games">
+      loading failed
+    </p>
 
-    <b-modal :title="modalTitle" v-model="modalShow" v-if="game || error.game">
+    <b-modal
+      v-if="game || error.game"
+      v-model="modalShow"
+      :title="modalTitle"
+    >
       {{ game || error.game }}
     </b-modal>
   </div>
 </template>
 
 <script>
-  import {mapActions, mapState} from "vuex";
+import { mapActions, mapState } from 'vuex';
 
-  export default {
-    name: "ApiDemo",
-    data() {
-      return {
-        modalShow: false,
-        modalContent: null
-      }
+export default {
+  name: 'ApiDemo',
+  data() {
+    return {
+      modalShow: false,
+    };
+  },
+  computed: {
+    ...mapState({
+      games: state => state.games,
+      game: state => state.game,
+      pending: state => state.pending,
+      error: state => state.error,
+    }),
+    modalTitle: {
+      get() {
+        return this.game ? this.game.title : 'Modal';
+      },
     },
-    computed: {
-      ...mapState({
-        games: state => state.games,
-        game: state => state.game,
-        pending: state => state.pending,
-        error: state => state.error,
-      }),
-      modalTitle: {
-        get() {
-          return this.game ? this.game.title : 'Modal';
-        }
-      }
+  },
+  created() {
+    this.getGames();
+  },
+  methods: {
+    ...mapActions([
+      'getGame',
+      'getGames',
+    ]),
+    gameShow(game) {
+      this.getGame({ params: game }).then(
+        () => {
+          this.modalShow = true;
+        },
+        () => {
+          this.modalShow = true;
+        },
+      );
     },
-    methods: {
-      ...mapActions([
-        "getGame",
-        "getGames"
-      ]),
-      gameShow(game) {
-        this.getGame({params: game}).then(
-          () => this.modalShow = true,
-          () => this.modalShow = true
-        );
-      }
-    },
-    created() {
-      this.getGames();
-    }
-  }
+  },
+};
 </script>
 
 <style scoped>

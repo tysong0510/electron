@@ -1,4 +1,4 @@
-export const store = {
+export default {
   computed: {
     /**
      * Get current store name (route name)
@@ -18,7 +18,7 @@ export const store = {
      * @return void
      */
     storeSort(store, options = {}) {
-      let {byField, order, sort} = options;
+      let { byField, order, sort } = options;
 
       /**
        * Sort store by default
@@ -60,20 +60,16 @@ export const store = {
       }
 
       if (store && store.content && !Array.isArray(store.content)) {
-        for (let key in store.content) {
+        for (const key in store.content) {
           if (store.content.hasOwnProperty(key)) {
             if (Array.isArray(store.content[key])) {
-              store.content[key].sort((a, b) => {
-                return (a[byField] - b[byField]) * (orderVector);
-              });
+              store.content[key].sort((a, b) => (a[byField] - b[byField]) * (orderVector));
             }
           }
         }
       } else {
-        store.content.sort((a, b) => {
-          return (a[byField] - b[byField]) * (orderVector);
-        });
+        store.content.sort((a, b) => (a[byField] - b[byField]) * (orderVector));
       }
     },
-  }
+  },
 };

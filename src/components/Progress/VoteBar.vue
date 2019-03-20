@@ -1,87 +1,100 @@
 <template>
-  <b-row class="vote-bar" v-bind="$attrs" :title="nVote.toFixed(1)">
-    <b-col class="rating" tag="span">
-      <i :class="{star: true}" v-for="(value, index) in progressData" :key="index">
-        <i class="progress" :style="`width: ${value}%;`"></i>
+  <b-row
+    class="vote-bar"
+    v-bind="$attrs"
+    :title="nVote.toFixed(1)"
+  >
+    <b-col
+      class="rating"
+      tag="span"
+    >
+      <i
+        v-for="(value, index) in progressData"
+        :key="index"
+        :class="{star: true}"
+      >
+        <i
+          class="progress"
+          :style="`width: ${value}%;`"
+        />
       </i>
     </b-col>
   </b-row>
 </template>
 
 <script>
-  export default {
-    name: "vote-bar",
-    props: {
-      min: {
-        type: Number,
-        default: 0
-      },
-      max: {
-        type: Number,
-        default: 5
-      },
-      vote: {
-        type: [Number, String]
-      }
+export default {
+  name: 'VoteBar',
+  props: {
+    min: {
+      type: Number,
+      default: 0,
     },
-    data() {
-      return {
-        nMin: 0,
-        nMax: 5
-      }
+    max: {
+      type: Number,
+      default: 5,
     },
-    computed: {
-      progressData() {
-        let result = [];
-        let step = (this.nMax - this.nMin) * 0.2;
+    vote: {
+      required: true,
+      type: [Number, String],
+    },
+  },
+  data() {
+    return {
+      nMin: 0,
+      nMax: 5,
+    };
+  },
+  computed: {
+    progressData() {
+      const result = [];
+      const step = (this.nMax - this.nMin) * 0.2;
 
-        for (let i = 1; i <= 5; i++) {
-          if (this.nVote >= this.nMin + step * i) {
-            result.push(100);
-          } else {
-            if (this.nVote < this.nMin + step * (i - 1)) {
-              result.push(0);
-            } else {
-              result.push(Math.floor((this.nVote - (this.nMin + (step * (i - 1)))) * 100));
-            }
-          }
-        }
-
-        return result;
-      },
-      nVote: {
-        set() {
-          this.vote = Number.parseFloat(this.vote);
-        },
-        get() {
-          return Number.parseFloat(this.vote);
-        }
-      }
-    },
-    created() {
-      this.normalizeVote();
-    },
-    updated() {
-      this.normalizeVote();
-    },
-    methods: {
-      normalizeVote() {
-        if (this.min > this.max) {
-          this.nMin = this.max;
-          this.nMax = this.min;
+      for (let i = 1; i <= 5; i += 1) {
+        if (this.nVote >= this.nMin + step * i) {
+          result.push(100);
+        } else if (this.nVote < this.nMin + step * (i - 1)) {
+          result.push(0);
         } else {
-          this.nMin = this.min;
-          this.nMax = this.max;
-        }
-
-        if (this.nVote < this.nMin) {
-          this.nVote = this.nMin;
-        } else if (this.nVote > this.nMax) {
-          this.nVote = this.nMax;
+          result.push(Math.floor((this.nVote - (this.nMin + (step * (i - 1)))) * 100));
         }
       }
-    }
-  }
+
+      return result;
+    },
+    nVote: {
+      set() {
+        this.vote = Number.parseFloat(this.vote);
+      },
+      get() {
+        return Number.parseFloat(this.vote);
+      },
+    },
+  },
+  created() {
+    this.normalizeVote();
+  },
+  updated() {
+    this.normalizeVote();
+  },
+  methods: {
+    normalizeVote() {
+      if (this.min > this.max) {
+        this.nMin = this.max;
+        this.nMax = this.min;
+      } else {
+        this.nMin = this.min;
+        this.nMax = this.max;
+      }
+
+      if (this.nVote < this.nMin) {
+        this.nVote = this.nMin;
+      } else if (this.nVote > this.nMax) {
+        this.nVote = this.nMax;
+      }
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">
