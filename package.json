@@ -16,9 +16,12 @@
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.13",
+    "create-torrent": "^3.33.0",
     "d3-vs": "^0.8.0",
     "date-fns": "^1.30.1",
+    "debounce": "^1.2.0",
     "deepmerge": "^3.2.0",
+    "es6-error": "^4.1.1",
     "fs": "^0.0.1-security",
     "register-service-worker": "^1.5.2",
     "vue": "^2.6.6",
@@ -28,7 +31,8 @@
     "vue-progress-path": "^0.0.2",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-rest-api": "^2.10.0"
+    "vuex-rest-api": "^2.10.0",
+    "webtorrent": "^0.103.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",
@@ -38,6 +42,8 @@
     "@vue/cli-service": "^3.4.0",
     "@vue/eslint-config-airbnb": "^4.0.0",
     "babel-eslint": "^10.0.1",
+    "connect": "^3.6.6",
+    "devtron": "^1.4.0",
     "electron": "^4.1.0",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
@@ -46,7 +52,10 @@
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-electron-builder": "^1.1.3",
     "vue-template-compiler": "^2.5.21",
-    "webpack": "^4.29.6"
+    "webpack": "file:./lib/webpack"
+  },
+  "resolutions": {
+    "webpack": "file:./lib/webpack"
   },
   "optionalDependencies": {
     "jquery": "1.9.1 - 3"

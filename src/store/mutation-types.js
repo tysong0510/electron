@@ -1,0 +1,2 @@
+export const ADD_TORRENT = 'ADD_TORRENT';
+export const UPDATE_TORRENT = 'UPDATE_TORRENT';

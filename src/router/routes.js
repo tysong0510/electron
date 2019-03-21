@@ -9,8 +9,12 @@ const NewsDetails = () => import(/* webpackChunkName: 'newsDetails' */'@/pages/N
 const ProfileViewAll = () => import(/* webpackChunkName: 'profileViewAll' */'@/pages/ProfileViewAll.vue');
 const ApiDemo = () => import(/* webpackChunkName: 'apiDemo' */'@/pages/ApiDemo');
 
+// FIXME: temporary hack while there is no backend
+const requireAuth = process.env.NODE_ENV !== 'development';
+
 const routes = [
   {
+    // base: process.env.BASE_URL,
     path: '/',
     name: 'home',
     component: DashboardLayout,
@@ -26,7 +30,7 @@ const routes = [
         path: 'games/:id(\\d+)',
         name: 'my-game-details',
         component: GameDetails,
-        // meta: { requireAuth: true },
+        meta: { requireAuth },
       },
       {
         path: 'store/:id(\\d+)',
@@ -58,34 +62,31 @@ const routes = [
         path: 'profile',
         name: 'profile',
         component: Profile,
-        // meta: {
-        //   auth: true,
-        //   requireAuth: true
-        // },
+        meta: { requireAuth }
       },
       {
         path: 'profile/top-games',
         name: 'my-top-games',
         component: ProfileViewAll,
-        // meta: { requireAuth: true },
+        meta: { requireAuth }
       },
       {
         path: 'profile/files',
         name: 'my-files',
         component: ProfileViewAll,
-        // meta: { requireAuth: true },
+        meta: { requireAuth }
       },
       {
         path: 'profile/recommendation',
         name: 'my-recommendation',
         component: ProfileViewAll,
-        // meta: { requireAuth: true },
+        meta: { requireAuth }
       },
       {
         path: 'profile/recently-played',
         name: 'recently-played',
         component: ProfileViewAll,
-        // meta: { requireAuth: true },
+        meta: { requireAuth }
       },
       {
         path: 'news',

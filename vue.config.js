@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+// const webpack = require('webpack');
 
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
@@ -10,13 +10,14 @@ module.exports = {
   runtimeCompiler: undefined,
   productionSourceMap: false,
   parallel: undefined,
-  configureWebpack: {
+  // Commented because it breaks main page in multipage setup.
+  /* configureWebpack: {
     plugins: [
       new webpack.optimize.LimitChunkCountPlugin({
-        maxChunks: 6,
-      }),
-    ],
-  },
+        maxChunks: 6
+      })
+    ]
+  }, */
   pwa: {
     name: 'Voxpop Games',
     themeColor: '#10132B',
@@ -36,4 +37,36 @@ module.exports = {
     // modules: true,
     sourceMap: process.env.NODE_ENV !== 'production',
   },
+  pages: {
+    main: {
+      // entry for the page
+      entry: 'src/main.js',
+      // the source template
+      template: 'public/index.html',
+      // output as dist/index.html
+      filename: 'index.html'
+      // chunks to include on this page, by default includes
+      // extracted common chunks and vendor chunks.
+      // chunks: ['chunk-vendors', 'chunk-common', 'main']
+    },
+    webtorrent: {
+      // entry for the page
+      entry: 'src/webtorrent.js',
+      // the source template
+      template: 'public/webtorrent.html',
+      // output as dist/index.html
+      filename: 'webtorrent.html',
+      // chunks to include on this page, by default includes
+      // extracted common chunks and vendor chunks.
+      // chunks: ['chunk-vendors', 'chunk-common', 'webtorrent']
+    }
+  },
+  /* devServer: {
+    historyApiFallback: {
+      rewrites: [
+        { from: /\/index/, to: '/index.html' },
+        { from: /\/webtorrent/, to: '/webtorrent.html' }
+      ]
+    }
+  } */
 };

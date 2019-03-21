@@ -1,8 +1,15 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { START_DOWNLOAD_GAME } from './actions-types';
+import { ADD_TORRENT, UPDATE_TORRENT } from './mutation-types';
+const electron = require('electron')
+const { ipcRenderer } = electron;
+
 import games from './games';
 
 Vue.use(Vuex);
+
+let nextTorrentKey = 1; /* identify torrents for IPC between the main and webtorrent windows */
 
 /**
  * Library for deep merging objects
@@ -746,27 +753,86 @@ const demoData = {
               value: 'all',
               text: 'All Time',
             },
-          ],
-        },
-      },
+          ]
+        }
+      }
     },
+    torrents: [],
   },
-  mutations: {},
-  actions: {},
-};
+  mutations: {
+    [ADD_TORRENT] (state, payload) {
+      if (!payload.state) {
+        payload.state = 'pending';
+      }
+      state.torrents = [...state.torrents, payload];
+    },
+    [UPDATE_TORRENT] (state, payload) {
+      const keys = ['infoHash', 'torrentKey'];
+      keys.some(keyName => {
+        const keyValue = payload[keyName];
+        if (keyValue !== void 0) {
+          state.torrents = patchCollectionItemByKey(state.torrents, payload, keyName);
+          return true;
+        }
+      });
+    }
+  },
+  actions: {
+    async [START_DOWNLOAD_GAME]({  commit, getters }, { gameId }) {
+      const { findTorrentByGameId, getGameById } = getters;
+      const game = getGameById(gameId);
+      let torrent = findTorrentByGameId(gameId);
+      const torrentKey = nextTorrentKey++;
+      if (torrent) {
+        if (/*['download-paused', 'loading-metadata-paused'].indexOf(torrent.state) !== -1*/torrent.state !== 'downloading') {
+          let nextState;
+          //if (torrent.state === 'download-paused') {
+            nextState = 'downloading';
+          /*} else {
+            nextState = 'loading-metadata';
+          }*/
+          commit({
+            type: UPDATE_TORRENT,
+            state: nextState,
+            torrentKey
+          });
+        } else {
+          // nothing to do
+          return;
+        }
+      } else {
+        const addTorrentMsg = {
+          type: ADD_TORRENT,
+          gameId,
+          state: 'loading-metadata',
+          torrentURL: game.torrentURL,
+          torrentFile: '/Users/eugene/repos/ktbyte/voxpop-electron/tracker/torrents/Beglitched_Windows_v1.01.zip.torrent',
+          torrentKey
+        };
+        commit(addTorrentMsg);
+        torrent = findTorrentByGameId(gameId);
+      }
+      const { torrentFile, torrentURL } = torrent;
+      const torrentId = torrentFile || torrentURL;
 
-/**
- * Merge stores
- */
-const stores = deepMerge.all(
-  [
-    games,
-    demoData,
-  ],
-);
+      // if (state.torrents)
+      // '/Users/eugene/Downloads';
+      const userDataPath = (electron.app || electron.remote.app).getPath('userData');
+      const userDataAppsPath = userDataPath; // path.join(userDataPath, 'apps'); // apps создать руками )))
+      console.log('DESTINATION: ' + userDataAppsPath);
 
-export default new Vuex.Store({
-  ...stores,
+      ipcRenderer.send(
+        'wt-start-torrenting',
+        torrentKey, // key
+        //'http://127.0.0.1:8088/Beglitched_Windows_v1.01.zip.torrent',
+        // 'https://webtorrent.io/torrents/sintel.torrent',
+        torrentId,
+        userDataPath,
+        null, // no modtimes
+        [true] // select first file
+      );
+    }
+  },
   getters: {
     news: (state) => {
       const news = [];
@@ -888,5 +954,34 @@ export default new Vuex.Store({
         title: storeInfo ? (storeInfo.title || name) : name,
       };
     },
+    findTorrentByGameId: (state) => (id)  => {
+      return state.torrents.filter(torrent => torrent.gameId === id).shift();
+    },
+
+    findTorrentByKey: (state) => (key)  => {
+      return state.torrents.filter(torrent => torrent.torrentKey === key).shift();
+    },
   },
-});
+};
+
+/**
+ * Merge stores
+ */
+const stores = deepMerge.all(
+  [
+    games,
+    demoData,
+  ],
+);
+
+function patchCollectionItemByKey(items, itemPatch, keyName) {
+  const needleKey = itemPatch[keyName];
+  return items.map(item => {
+    if (item[keyName] !== needleKey) {
+      return item;
+    }
+    return {...item, ...itemPatch};
+  });
+}
+
+export default new Vuex.Store(stores);

@@ -133,10 +133,11 @@
 </template>
 
 <script>
-  import {mapActions, mapState} from 'vuex';
+  import {mapGetters, mapActions, mapState} from 'vuex';
   import {Carousel, Slide} from 'vue-carousel';
 
   import VoteBar from '../components/Progress/VoteBar.vue';
+  import { START_DOWNLOAD_GAME } from '../store/actions-types';
   import {baseURL} from '../apiConfig';
 
   const carouselOptions = {
@@ -190,6 +191,9 @@
           this.progress = value / 100
         }
       },
+      ...mapGetters([
+        'getGameById'
+      ]),
       progressDisplay() {
         return `${Math.round(this.progress * 100)}%`
       }
@@ -236,6 +240,9 @@
           this.$root.$emit('unauthorized', {noRedirect: true});
           this.$root.$once('authorized', this.gameBuy);
         } else {
+this[START_DOWNLOAD_GAME]({
+gameId: this.game.id
+});
           setTimeout(() => {
             if (this.showDownloadProgress) {
               this.indeterminate ? this.pauseDownloading() : this.startDownloading();
@@ -273,7 +280,8 @@
         } else {
           return null;
         }
-      }
+      },
+...mapActions([START_DOWNLOAD_GAME])
     }
   };
 </script>
