@@ -795,13 +795,11 @@ const demoData = {
   actions: {
     async [START_DOWNLOAD_GAME]({  state, commit, getters }, { gameId }) {
       const { findTorrentByGameId, getGameById } = getters;
-      // FIXME: use magnetURI returned by server when it'll become implemented on the Java backend
       const game = getGameById(gameId);
       const { magnetURI } = game;
       if (!magnetURI) {
         return;
       }
-      // const magnetURI = 'magnet:?xt=urn:btih:311de7bf9479e7b0abb9a078fa364084f9bf7ea6&dn=Beglitched_Windows_v1.01.zip.torrent&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000';
       let torrent = findTorrentByGameId(gameId);
       let torrentKey;
 

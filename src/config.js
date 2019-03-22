@@ -8,9 +8,8 @@ module.exports = {
   APP_VERSION,
   WINDOW_WEBTORRENT: 'file://' + path.join(__dirname, '..', 'static', 'webtorrent.html'),
   TRACKER_ANNOUNCE_LIST: [
-    // ['ws://127.0.0.1:8000'],
     ['ws://157.230.135.10:8000'],
-    // ['udp://127.0.0.1:8000']
+    ['udp://157.230.135.10:8000'],
   ],
   PIECE_LENGTH: 1024*1024 // 1MB
 };
