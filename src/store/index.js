@@ -794,8 +794,11 @@ const demoData = {
   },
   actions: {
     async [START_DOWNLOAD_GAME]({  state, commit, getters }, { gameId }) {
-      const { findTorrentByGameId, getGameById } = getters;
-      const game = getGameById(gameId);
+      const { findTorrentByGameId } = getters;
+      const { game } = state;
+      if (!game) {
+        return;
+      }
       const { magnetURI } = game;
       if (!magnetURI) {
         return;

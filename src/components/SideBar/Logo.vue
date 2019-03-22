@@ -1,10 +1,10 @@
 <template>
   <b-row class="logo mt-4 mb-4">
     <b-col class="text-center">
-      <b-link href="/" title="VoxPop">
+      <router-link :to="{name: 'home'}" title="VoxPop">
         <img class="logo-normal" alt="VoxPop" src="../../assets/logo.png">
         <img class="logo-icon" alt="VoxPop" src="../../assets/icons/voxpop.svg">
-      </b-link>
+      </router-link>
     </b-col>
   </b-row>
 </template>
@@ -27,6 +27,7 @@
       .logo-icon {
         display: inline-block;
       }
+
       .logo-normal {
         display: none;
       }
