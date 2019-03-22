@@ -269,7 +269,6 @@
         return '';
       },
       startDownloading() {
-        console.log('startDownloading');
         this[START_DOWNLOAD_GAME]({
           gameId: this.game.id
         });
@@ -291,7 +290,8 @@
           this.$root.$emit('unauthorized', {noRedirect: true});
           this.$root.$once('authorized', this.gameBuy);
         } else {
-          this.startDownloading();
+          if (this.game.magnetURI) this.startDownloading();
+          else alert('There is no seeds available for this game');
         }
       },
       fetchData() {
