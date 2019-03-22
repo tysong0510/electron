@@ -258,13 +258,13 @@ ipcRenderer.once('wt-reset-ok', () => {
         state: 'paused'
       };
       console.log('restoring torrent state', torrent);
+      commit({
+        type: ADD_TORRENT,
+        payload: torrent
+      });
       if (originalState !== 'paused') {
-        commit({
-          type: ADD_TORRENT,
-          payload: torrent
-        });
+        dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
       }
-      dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
     });
     // setInterval(() => { State.saveImmediate(getSavedState()) }, 5000);
   });
