@@ -1,12 +1,18 @@
-import { app, protocol, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import { app, remote, protocol, BrowserWindow, ipcMain } from 'electron';
 import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
+
 import { webtorrent } from './background/windows';
 import { State } from './state';
 import { STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR } from './dispatch-types';
 
+const userDataPath = (app || remote.app).getPath('userData');
+const downloadPath = path.join(userDataPath, 'downloads');
+const installPath = path.join(userDataPath, 'apps');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -19,10 +25,10 @@ protocol.registerStandardSchemes(['app'], { secure: true });
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 992,
-    height: 640,
-    minWidth: 992,
-    minHeight: 640,
+    width: 1144,
+    height: 720,
+    minWidth: 1144,
+    minHeight: 720,
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -108,6 +114,12 @@ async function init() {
     }
   })
 
+  // /apps and /downloads folders need to be created manually
+  if (!fs.existsSync(downloadPath))
+    fs.mkdirSync(downloadPath, { recursive: true });
+  if (!fs.existsSync(installPath))
+    fs.mkdirSync(installPath, { recursive: true });
+
   const [, appState] = await Promise.all([
     { then: res => app.on('ready', () => res()) },
     State.load()
@@ -115,6 +127,10 @@ async function init() {
   isReady = true;
 
   if (isDevelopment && !process.env.IS_TEST) {
+    // FIXME: IPC is shown only in one window. In other window it remains empty
+    // If require it manually then it works fine.
+    // BrowserWindow.addDevToolsExtension('./node_modules/devtron');
+
     // Install Vue Devtools
     try {
       await installVueDevtools();

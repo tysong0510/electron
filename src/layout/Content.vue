@@ -1,5 +1,9 @@
 <template>
   <main class="content">
-    <router-view />
+    <transition>
+      <keep-alive>
+        <router-view />
+      </keep-alive>
+    </transition>
   </main>
 </template>

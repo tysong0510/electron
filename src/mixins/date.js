@@ -15,5 +15,8 @@ export default {
 
       return dateFns.distanceInWordsToNow(date, options);
     },
+    dateFormat(date, format = 'DD MMM YYYY', options = {}) {
+      return dateFns.format(date, format, options);
+    }
   },
 };

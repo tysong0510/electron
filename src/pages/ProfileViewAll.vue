@@ -27,23 +27,23 @@
       <b-col
         v-for="(game, index) in content.slice(0, 3)"
         :key="index"
+        :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href"
         class="p-2 rounded-lg game mb-4 mt-2"
         tag="a"
-        :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href"
       >
         <b-card
-          no-body
           class="border-0"
+          no-body
         >
           <b-row>
             <b-col
-              cols="12"
               class="col-img"
+              cols="12"
             >
               <b-row class="h-100">
                 <b-col class="m-auto">
                   <b-card-img
-                    :src="game.img"
+                    :src="getImagePath(game)"
                     class="rounded-lg"
                   />
                 </b-col>
@@ -52,27 +52,27 @@
             <b-col cols="12">
               <b-card-body class="p-0 pt-2">
                 <b-card-title
-                  title-tag="h5"
                   class="font-weight-normal"
+                  title-tag="h5"
                 >
                   {{ game.title }}
                 </b-card-title>
                 <template v-if="currentStore === 'my-recommendation'">
                   <b-card-sub-title
-                    sub-title-tag="h6"
                     class="font-weight-normal mt-2"
+                    sub-title-tag="h6"
                   >
                     <b-row>
                       <b-col class="text-white">
-                        {{ game.price }}
+                        {{ game.price | currency(game.currency) }}
                       </b-col>
                     </b-row>
                   </b-card-sub-title>
                 </template>
                 <template v-else-if="currentStore === 'recently-played'">
                   <b-card-sub-title
-                    sub-title-tag="h6"
                     class="font-weight-normal mt-2"
+                    sub-title-tag="h6"
                   >
                     <b-row>
                       <b-col class="text-white">
@@ -85,12 +85,12 @@
                   <b-card-text class="font-weight-normal mt-3 text-muted">
                     <b-row>
                       <b-col>
-                        {{ game.releaseDate }}
+                        {{ game.releaseDate | dateFormat }}
                       </b-col>
                     </b-row>
                     <b-row>
                       <b-col>
-                        {{ game.size }}
+                        {{ game.size }} {{ game.sizeUnit }}
                       </b-col>
                     </b-row>
                   </b-card-text>
@@ -108,29 +108,29 @@
     >
       <b-col
         :key="index"
+        :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href"
         class="p-2 rounded-lg game mt-1 mb-1"
         tag="a"
-        :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href"
       >
         <b-card
-          no-body
           class="border-0"
+          no-body
         >
           <b-row>
             <b-col
-              cols="2"
               class="m-auto text-center"
+              cols="2"
             >
               <b-card-img
-                :src="game.img"
+                :src="getImagePath(game)"
                 class="rounded-lg"
               />
             </b-col>
             <b-col>
               <b-card-body class="p-0">
                 <b-card-title
-                  title-tag="h5"
                   class="font-weight-normal"
+                  title-tag="h5"
                 >
                   {{ game.title }}
                 </b-card-title>
@@ -138,7 +138,7 @@
                   <template v-if="currentStore === 'my-recommendation'">
                     <b-row>
                       <b-col>
-                        {{ game.price }}
+                        {{ game.price | currency(game.currency) }}
                       </b-col>
                     </b-row>
                   </template>
@@ -152,12 +152,12 @@
                   <template v-else>
                     <b-row>
                       <b-col>
-                        {{ game.releaseDate }}
+                        {{ game.releaseDate | dateFormat }}
                       </b-col>
                     </b-row>
                     <b-row>
                       <b-col>
-                        {{ game.size }}
+                        {{ game.size }} {{ game.sizeUnit }}
                       </b-col>
                     </b-row>
                   </template>
@@ -174,20 +174,18 @@
 <script>
 import store from '../mixins/store';
 import date from '../mixins/date';
+import currency from '../mixins/currency';
 
 export default {
   name: 'ProfileViewAll',
   filters: {},
-  mixins: [store, date],
+  mixins: [store, date, currency],
   data() {
     return {
       storeTitle: '',
     };
   },
   computed: {
-    // currentStore() {
-    //   return this.$router.currentRoute.name;
-    // },
     content: {
       get() {
         if (!this.store) {
@@ -208,33 +206,12 @@ export default {
       },
     },
   },
+
+  created() {
+    this.getGames()
+  },
+
   methods: {
-    // storeSort(store, byField = 'rating', order = 'DESC') {
-    //   let orderVector = 0;
-    //
-    //   switch (order) {
-    //     case 'ASC':
-    //       orderVector = 1;
-    //       break;
-    //     case 'DESC':
-    //     default:
-    //       orderVector = -1;
-    //   }
-    //
-    //   if (store && store.content && !Array.isArray(store.content)) {
-    //     for (let key in store.content) {
-    //       if (store.content.hasOwnProperty(key)) {
-    //         store.content[key].sort((a, b) => {
-    //           return (a[byField] - b[byField]) * (orderVector);
-    //         });
-    //       }
-    //     }
-    //   } else {
-    //     store.content.sort((a, b) => {
-    //       return (a[byField] - b[byField]) * (orderVector);
-    //     });
-    //   }
-    // },
     getData(storeName) {
       const store = this.$store.getters.getRatingStoreByName(storeName) || {};
 
@@ -244,11 +221,6 @@ export default {
 
       this.store = store;
     },
-    // formatDate(date) {
-    //   return (date && dateFns.distanceInWordsToNow(new Date(date), {
-    //     addSuffix: true
-    //   })) || 'never';
-    // }
   },
 };
 </script>

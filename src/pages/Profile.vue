@@ -5,7 +5,7 @@
       class="flex-row pb-3 mb-2"
     >
       <b-card-img
-        src="https://picsum.photos/400/400/?image=20"
+        :src="avatar"
         class="img-profile pulse"
       />
       <b-card-body class="pr-0">
@@ -15,7 +15,7 @@
               class="card-title display-2 text-white"
               style="font-size: 2.25rem;"
             >
-              {{ user.username }}
+              {{ name }}
             </h2>
           </b-col>
           <b-col class="col-auto">
@@ -36,11 +36,9 @@
 
     <b-row class="pb-5 mb-5 border-bottom">
       <b-col class="col-8 mr-auto text-white">
-        <p
-          class="pb-5"
-          v-html="user.bio"
-        />
-
+        <p class="pb-5">
+          {{ user.bio }}
+        </p>
         <b-row class="pb-4 mb-3">
           <b-col class="col-8 d-inline mr-auto">
             <h4
@@ -99,6 +97,7 @@
     <!--</div>-->
 
     <horizontal-view
+      v-if="!pending.games"
       v-once
       title="Your top games"
       class="text-white pb-5 mb-4 border-bottom"
@@ -122,7 +121,7 @@
             <b-row class="game-image">
               <b-col class="h-100 m-auto">
                 <b-card-img
-                  :src="game.img"
+                  :src="getImagePath(game)"
                   :alt="game.title"
                   img-top
                   class="rounded-lg"
@@ -139,7 +138,7 @@
                   {{ game.title }}
                 </b-card-title>
                 <b-card-text style="font-size: 0.7em;">
-                  {{ game.price }}
+                  {{ game.price | currency(game.currency) }}
                 </b-card-text>
               </b-col>
             </b-row>
@@ -164,6 +163,7 @@
     <!--</div>-->
 
     <horizontal-view
+      v-if="!pending.games"
       v-once
       title="Your files"
       class="text-white pb-5 mb-4 border-bottom"
@@ -187,7 +187,7 @@
             <b-row class="game-image">
               <b-col class="h-100 m-auto">
                 <b-card-img
-                  :src="game.img"
+                  :src="getImagePath(game)"
                   :alt="game.title"
                   img-top
                   class="rounded-lg"
@@ -204,7 +204,7 @@
                   {{ game.title }}
                 </b-card-title>
                 <b-card-text style="font-size: 0.7em;">
-                  {{ game.price }}
+                  {{ game.price | currency(game.currency) }}
                 </b-card-text>
               </b-col>
             </b-row>
@@ -229,6 +229,7 @@
     <!--</div>-->
 
     <horizontal-view
+      v-if="!pending.games"
       v-once
       title="Your recommendation"
       class="text-white pb-5 mb-4 border-bottom"
@@ -252,7 +253,7 @@
             <b-row class="game-image">
               <b-col class="h-100 m-auto">
                 <b-card-img
-                  :src="game.img"
+                  :src="getImagePath(game)"
                   :alt="game.title"
                   img-top
                   class="rounded-lg"
@@ -269,7 +270,7 @@
                   {{ game.title }}
                 </b-card-title>
                 <b-card-text style="font-size: 0.7em;">
-                  {{ game.price }}
+                  {{ game.price | currency(game.currency) }}
                 </b-card-text>
               </b-col>
             </b-row>
@@ -292,6 +293,7 @@
     <!--v-once/>-->
 
     <horizontal-view
+      v-if="!pending.games"
       v-once
       title="Recently played"
       class="text-white pb-5 mb-4 border-bottom"
@@ -315,7 +317,7 @@
             <b-row class="game-image">
               <b-col class="h-100 m-auto">
                 <b-card-img
-                  :src="game.img"
+                  :src="getImagePath(game)"
                   :alt="game.title"
                   img-top
                   class="rounded-lg"
@@ -344,17 +346,18 @@
 </template>
 
 <script>
-// import GameCarousel from '../components/Carousel/GameCarousel.vue';
 import HorizontalView from '../components/View/HorizontalView.vue';
 import store from '../mixins/store';
 import date from '../mixins/date';
+import currency from '../mixins/currency';
+
+import { baseURL } from '../apiConfig';
 
 export default {
   components: {
-    // GameCarousel,
     HorizontalView,
   },
-  mixins: [store, date],
+  mixins: [store, date, currency],
   data() {
     return {
       filterStatistics: {
@@ -393,133 +396,50 @@ export default {
       },
       topGamesStore: {
         sort: false,
-        // imageTextClass: '',
-        // imageTitleTag: 'h6',
-        // content: [
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        //   {
-        //     img: 'https://24tv.ua/resources/photos/news/610x344_DIR/201812/1077000.jpg?201812161705',
-        //     title: 'CS Global Offensive'
-        //   },
-        //   {
-        //     img: 'https://steamcdn-a.akamaihd.net/steam/apps/570/header.jpg?t=1543590720',
-        //     title: 'Dota 2'
-        //   },
-        //   {
-        //     img: 'https://versiya.info/uploads/posts/2018-11/1542721739_league-of-legends_0.jpg',
-        //     title: 'League of legends'
-        //   },
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        // ]
+        content: [],
       },
       yourFilesStore: {
         sort: false,
-        // imageTextClass: '',
-        // imageTitleTag: 'h6',
-        // content: [
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        //   {
-        //     img: 'https://24tv.ua/resources/photos/news/610x344_DIR/201812/1077000.jpg?201812161705',
-        //     title: 'CS Global Offensive'
-        //   },
-        //   {
-        //     img: 'https://steamcdn-a.akamaihd.net/steam/apps/570/header.jpg?t=1543590720',
-        //     title: 'Dota 2'
-        //   },
-        //   {
-        //     img: 'https://versiya.info/uploads/posts/2018-11/1542721739_league-of-legends_0.jpg',
-        //     title: 'League of legends'
-        //   },
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        // ]
+        content: [],
       },
       recentlyPlayedStore: {
         sort: false,
-        // imageTextClass: 'text-recently-played',
-        // imageTitleTag: 'h6',
-        // content: [
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2',
-        //     text: '7 hours'
-        //   },
-        //   {
-        //     img: 'https://24tv.ua/resources/photos/news/610x344_DIR/201812/1077000.jpg?201812161705',
-        //     title: 'CS Global Offensive',
-        //     text: '24 hours'
-        //   },
-        //   {
-        //     img: 'https://steamcdn-a.akamaihd.net/steam/apps/570/header.jpg?t=1543590720',
-        //     title: 'Dota 2',
-        //     text: '14 hours'
-        //   },
-        //   {
-        //     img: 'https://versiya.info/uploads/posts/2018-11/1542721739_league-of-legends_0.jpg',
-        //     title: 'League of legends',
-        //     text: '2 hours'
-        //   },
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2',
-        //     text: '58 hours'
-        //   },
-        // ]
+        content: [],
       },
       yourRecommendationStore: {
         sort: false,
-        // imageTextClass: '',
-        // imageTitleTag: 'h6',
-        // content: [
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        //   {
-        //     img: 'https://24tv.ua/resources/photos/news/610x344_DIR/201812/1077000.jpg?201812161705',
-        //     title: 'CS Global Offensive'
-        //   },
-        //   {
-        //     img: 'https://steamcdn-a.akamaihd.net/steam/apps/570/header.jpg?t=1543590720',
-        //     title: 'Dota 2'
-        //   },
-        //   {
-        //     img: 'https://versiya.info/uploads/posts/2018-11/1542721739_league-of-legends_0.jpg',
-        //     title: 'League of legends'
-        //   },
-        //   {
-        //     img: 'https://images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTczwPpf10BNAIpjg93OVBXieOlxLDUVdALKHvpC.iQYxhJ_MV4dWn12.v4JDpBEq98zwdFQu.VX8YiXAUipAMnZiclYvMLWJBmbkXmtgap7EoOhB4uOi.AKoKaNKf_HbkBKAGLvSNKDhGlxfTEgstMT1QntZQmtMbhK5WzjSV5lDs-&h=1080&w=1920&format=jpg',
-        //     title: 'Watch dogs 2'
-        //   },
-        // ]
-      },
-      user: {
-        username: 'Username',
-        country: 'Spain',
-        category: 'Category',
-        bio: '<p>A star is type of astronomical object consisting of a luminous spheroid of plasma held together by its own gravity.</p>'
-            + '<p>The nearest star to Earth is the Sun. Many other stars are risible to the naked eye from Earth during the night, appearing'
-            + 'as a multitude of fixed luminous points in the sky due to their immense distance from Earth. Historically, the most prominent '
-            + 'stars were grouped into constellations and asterisms, the brightest of which gained proper names.'
-            + '<p>Astronomers have assembled star catalogues that identify the known stars and provide standardized stellar designations.</p>',
-        photo: '',
+        content: [],
       },
     };
   },
-  computed: {},
+  computed: {
+    user: {
+      get() {
+        return this.$auth.user();
+      }
+    },
+    avatar: {
+      get() {
+        let userAvatar = this.user && this.user.images && this.user.images.main;
+
+        if (userAvatar) {
+          return baseURL + `/profile/${this.user.id}/${userAvatar}`;
+        } else {
+          /**
+           * Return 1x1 transparent PNG pixel
+           */
+          return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+        }
+      }
+    },
+    name: {
+      get() {
+        return `${this.user.firstName} ${this.user.lastName}`
+      }
+    }
+  },
   created() {
-    this.getData();
+    this.getGames();
   },
   methods: {
     getUrlByRoute(route) {
@@ -538,38 +458,6 @@ export default {
       Object.assign(this.recentlyPlayedStore, this.$store.getters.getRatingStoreByName('recently-played'));
       this.storeSort(this.recentlyPlayedStore);
     },
-    // storeSort(store) {
-    //   if (store.hasOwnProperty('sort') && store.sort !== undefined && !store.sort) {
-    //     return;
-    //   }
-    //
-    //   let orderVector = 0;
-    //   let byField = store.byField || 'rating';
-    //   let order = store.order || 'DESC';
-    //
-    //   switch (order) {
-    //     case 'ASC':
-    //       orderVector = 1;
-    //       break;
-    //     case 'DESC':
-    //     default:
-    //       orderVector = -1;
-    //   }
-    //
-    //   if (store && store.content && !Array.isArray(store.content)) {
-    //     for (let key in store.content) {
-    //       if (store.content.hasOwnProperty(key)) {
-    //         store.content[key].sort((a, b) => {
-    //           return (a[byField] - b[byField]) * (orderVector);
-    //         });
-    //       }
-    //     }
-    //   } else {
-    //     store.content.sort((a, b) => {
-    //       return (a[byField] - b[byField]) * (orderVector);
-    //     });
-    //   }
-    // },
   },
 };
 </script>
@@ -609,7 +497,7 @@ export default {
 
   .img-profile,
   .card-img-left {
-    background: url(https://i.imgpile.com/nInalx.jpg);
+    background: url('../assets/icons/no-avatar.png');
     background-size: 100% 100%;
     height: 140px;
     width: 140px;

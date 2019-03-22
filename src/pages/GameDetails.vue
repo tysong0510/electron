@@ -36,23 +36,46 @@
                 <b-col cols="5" class="text-center">
                   <div v-if="currentRouteIs('game-details')">
                     <b-button
+                      v-if="showBuyBtn"
                       variant="primary"
                       size="lg"
                       class="btn-buy"
                       @click="gameBuy()"
                     >
-                      <template v-if="showDownloadProgress">
-                        {{ indeterminate ? 'Pause' : 'Resume' }}
-                      </template>
-                      <template v-else>
-                        {{ game.price | currency(game.currency) }}
-                      </template>
+                      {{ game.price | currency(game.currency) }}
                     </b-button>
-                    <transition @enter="startDownloading">
+                    <b-button
+                      v-if="showPauseBtn"
+                      variant="primary"
+                      size="lg"
+                      class="btn-buy"
+                      @click="pauseDownloading()"
+                    >
+                      Pause
+                    </b-button>
+                    <b-button
+                      v-if="showResumeBtn"
+                      variant="primary"
+                      size="lg"
+                      class="btn-buy"
+                      @click="resumeDownloading()"
+                    >
+                      Resume
+                    </b-button>
+                    <b-button
+                      v-if="showPlayBtn"
+                      variant="primary"
+                      size="lg"
+                      class="btn-buy"
+                      @click="playGame()"
+                    >
+                      Play
+                    </b-button>
+                    <transition>
                       <loading-progress
                         v-if="showDownloadProgress"
                         :progress="progress"
-                        :indeterminate="indeterminate"
+                        :indeterminate="isProgressIndeterminate"
                         shape="line"
                         size="160"
                         width="160"
@@ -135,9 +158,10 @@
 <script>
   import {mapGetters, mapActions, mapState} from 'vuex';
   import {Carousel, Slide} from 'vue-carousel';
+  import currency from '../mixins/currency';
 
   import VoteBar from '../components/Progress/VoteBar.vue';
-  import { START_DOWNLOAD_GAME } from '../store/actions-types';
+  import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME } from '../store/actions-types';
   import {baseURL} from '../apiConfig';
 
   const carouselOptions = {
@@ -159,18 +183,11 @@
       Slide
     },
 
-    filters: {
-      currency(value, currency = 'USD', locales = 'en-US') {
-        return Intl.NumberFormat(locales, {style: 'currency', currency: currency}).format(value);
-      }
-    },
+    mixins: [currency],
 
     data() {
       return {
         carouselOptions: null,
-        showDownloadProgress: false,
-        indeterminate: true,
-        progress: 0
       };
     },
 
@@ -178,25 +195,52 @@
       ...mapState({
         game: state => state.game,
         pending: state => state.pending,
-        error: state => state.error,
+        error: state => state.error
       }),
       loadingClass() {
         return this.pending.game ? 'loading' : '';
       },
-      progressModel: {
-        get() {
-          return this.progress * 100
-        },
-        set(value) {
-          this.progress = value / 100
-        }
-      },
       ...mapGetters([
-        'getGameById'
+        'getGameById',
       ]),
+      progress() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        if (!torrent) {
+          return 0;
+        }
+        if (torrent.downloaded) {
+          return 1;
+        }
+        return torrent.progress ? torrent.progress.progress : 0;
+      },
       progressDisplay() {
         return `${Math.round(this.progress * 100)}%`
-      }
+      },
+      showBuyBtn() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return !torrent;
+      },
+      showPauseBtn() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && !torrent.downloaded &&
+          ['loading-metadata', 'downloading'].includes(torrent.state);
+      },
+      showResumeBtn() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
+      },
+      showPlayBtn() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && torrent.downloaded;
+      },
+      showDownloadProgress() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent;
+      },
+      isProgressIndeterminate() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && torrent.state === 'loading-metadata';
+      },
     },
 
     watch: {
@@ -224,14 +268,21 @@
         }
         return '';
       },
-      startDownloading(el) {
-        console.log(el);
-        console.log('startDownloading from %' + this.progress);
-        this.indeterminate = true;
+      startDownloading() {
+        console.log('startDownloading');
+        this[START_DOWNLOAD_GAME]({
+          gameId: this.game.id
+        });
       },
       pauseDownloading() {
-        console.log('on pause');
-        this.indeterminate = false;
+        this[PAUSE_DOWNLOAD_GAME]({
+          gameId: this.game.id
+        });
+      },
+      resumeDownloading() {
+        this[START_DOWNLOAD_GAME]({
+          gameId: this.game.id
+        });
       },
       gameBuy() {
         // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
@@ -240,24 +291,15 @@
           this.$root.$emit('unauthorized', {noRedirect: true});
           this.$root.$once('authorized', this.gameBuy);
         } else {
-this[START_DOWNLOAD_GAME]({
-gameId: this.game.id
-});
-          setTimeout(() => {
-            if (this.showDownloadProgress) {
-              this.indeterminate ? this.pauseDownloading() : this.startDownloading();
-            } else {
-              this.showDownloadProgress = true;
-            }
-            // wait login
-            // confirm(`Confirm buy game with id ${this.game.id} for ${this.$options.filters.currency(this.game.price, this.game.currency)}?`);
-          }, 100);
+          this.startDownloading();
         }
       },
       fetchData() {
         const gameId = this.$route.params.id || 0;
         this.getGame({params: {id: gameId}});
         // this.game = this.$store.getters.getGameById(gameId);
+        // HACK to work is server is down
+        // this.$store.state.game = this.$store.getters.getGameById(gameId);
       },
       getImagePath(game, type = 'main') {
         if (game.images) {
@@ -281,7 +323,7 @@ gameId: this.game.id
           return null;
         }
       },
-...mapActions([START_DOWNLOAD_GAME])
+      ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME])
     }
   };
 </script>

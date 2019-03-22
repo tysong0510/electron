@@ -24,7 +24,7 @@
                   class="m-auto text-center"
                 >
                   <b-card-img
-                    :src="game.img"
+                    :src="getImagePath(game)"
                     class="rounded-lg"
                   />
                 </b-col>
@@ -36,8 +36,8 @@
                     {{ game.title }}
                   </b-card-title>
                   <b-card-text>
-                    <small class="text-muted">{{ game.releaseDate }}</small>
-                    <small class="text-muted d-block">{{ game.size }}</small>
+                    <small class="text-muted">{{ game.releaseDate | dateFormat }}</small>
+                    <small class="text-muted d-block">{{ game.size.toFixed(1) }} {{ game.sizeUnit }}</small>
                   </b-card-text>
                 </b-col>
               </b-row>
@@ -71,78 +71,26 @@
 </template>
 
 <script>
+import store from '../mixins/store';
+import date from '../mixins/date';
+
 export default {
   name: 'Games',
+  mixins: [store, date],
   data() {
     return {
-      yourGames: {
-        games: [
-          {
-            img: 'https://www.techpowerup.com/reviews/Performance_Analysis/Watch_Dogs_2/images/small.png',
-            title: 'Watch Dogs 2',
-            releaseDate: '20 feb. 2019',
-            gameId: '1',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://csgo-crosshair.com/assets/images/logo.jpg',
-            title: 'CS Global Offencive',
-            releaseDate: '20 feb. 2019',
-            gameId: '2',
-            size: '4.2 GB',
-          },
-          {
-            img: 'http://imperators-soeckchen.de/wp-content/uploads/sites/145/2018/05/1.jpg',
-            title: 'Dota 2',
-            releaseDate: '20 feb. 2019',
-            gameId: '3',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRi008MJfTaEatBHCt5nqagS4_vqi5W68fHi1dQSHR45tNmMJNh',
-            title: 'League of Legends',
-            releaseDate: '20 feb. 2019',
-            gameId: '4',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://rusoz.ru/wp-content/uploads/2016/04/team_fortress_2.png',
-            title: 'Team Fortress 2',
-            releaseDate: '20 feb. 2019',
-            gameId: '5',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://cdn141.picsart.com/258923433007202.png?c256x256',
-            title: 'FIFA 19',
-            releaseDate: '20 feb. 2019',
-            gameId: '6',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://steamuserimages-a.akamaihd.net/ugc/388790936728994789/D50100C4F663819692DE1459636FD10FF93CC65D/',
-            title: 'RUST',
-            releaseDate: '20 feb. 2019',
-            gameId: '7',
-            size: '4.2 GB',
-          },
-          {
-            img: 'https://warcraft3map.github.io/img/war3mapPreview12.png',
-            title: 'Warcraft III',
-            releaseDate: '20 feb. 2019',
-            gameId: '8',
-            size: '4.2 GB',
-          },
-        ],
-      },
+
     };
   },
   computed: {
-    games() {
-      return this.$store.getters.games;
-    },
+  },
+  created() {
+    this.getGames();
   },
   methods: {
+    getData() {
+
+    },
     play: (gameId) => {
       alert(`Running game with id ${gameId}`);
     },

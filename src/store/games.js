@@ -18,4 +18,8 @@ export default new Vapi({
   action: 'getGame',
   property: 'game',
   path: ({ id }) => `/games/${id}`,
+}).get({
+  action: 'getFeatured',
+  property: 'featuredGames',
+  path: '/games/filter/featured'
 }).getStore();

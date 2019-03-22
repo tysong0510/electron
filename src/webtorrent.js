@@ -68,7 +68,7 @@ const VERSION_PREFIX = '-WD' + '0000' /* VERSION_STR */ + '-'
  */
 const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString('base64'))
 
-// WebTorrent Desktop is a hybrid
+// Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
 let client = window.client = new WebTorrent({
   peerId: PEER_ID,
@@ -93,6 +93,8 @@ function init () {
     saveTorrentFile(torrentKey))
   ipc.on('wt-select-files', (e, infoHash, selections) =>
     selectFiles(infoHash, selections))
+
+  ipc.on('wt-reset', () => reset());
 
   ipc.send('ipcReadyWebTorrent')
 
@@ -214,7 +216,11 @@ function getTorrentFileInfo (file) {
 // than re-fetching it from peers using ut_metadata.
 function saveTorrentFile (torrentKey) {
   const torrent = getTorrent(torrentKey)
-  const torrentPath = path.join(config.TORRENT_PATH, torrent.infoHash + '.torrent')
+  const torrentsDir = path.join(
+    (electron.app || electron.remote.app).getPath('userData'),
+    'torrents'); //config.TORRENT_PATH,
+  const torrentPath = path.join(torrentsDir,
+    torrent.infoHash + '.torrent')
 
   fs.access(torrentPath, fs.constants.R_OK, function (err) {
     const fileName = torrent.infoHash + '.torrent'
@@ -223,14 +229,13 @@ function saveTorrentFile (torrentKey) {
       return ipc.send('wt-file-saved', torrentKey, fileName)
     }
 
-    // Otherwise, save the .torrent file, under the app config folder
-    mkdirp(config.TORRENT_PATH, function () {
+    mkdirp(torrentsDir, function () {
       fs.writeFile(torrentPath, torrent.torrentFile, function (err) {
         if (err) return console.log('error saving torrent file %s: %o', torrentPath, err)
         console.log('saved torrent file %s', torrentPath)
         return ipc.send('wt-file-saved', torrentKey, fileName)
       })
-    })
+    });
   })
 }
 
@@ -358,21 +363,25 @@ window.testOfflineMode = function () {
   listenToClientEvents()
 }
 
-// const torrentId = 'https://webtorrent.io/torrents/sintel.torrent';
 // For debugging
 window.wtClient = client;
 // Download torrent and seed it
 
-/* startTorrenting(1, torrentId,
-  // path.join(path.dirname(process.execPath), 'files')
-  '/Users/eugene/repos/ktbyte/voxpop-electron/files'
-); */
-
-// '/Users/eugene/repos/ktbyte/voxpop-electron/test.torrent'
-/* createTorrent(1, {
-  name: 'test',
-  private: true,
-  announceList: config.TRACKER_ANNOUNCE_LIST,
-  files: [{ path: '/Users/eugene/repos/ktbyte/voxpop-electron/README.md'}]
-}); */
 // ipc.on('wt-');
+
+function reset() {
+  console.log('reset');
+  if (!client || !client.torrents.length) {
+    ipc.send('wt-reset-ok');
+    return;
+  }
+  if (client.torrents.length) {
+    Promise.all(client.torrents.map(t => ({
+      then: (res) => {
+        t.destroy(() => { /* err ? rej(err) : res(); */ res(); });
+      }
+    }))).then(() => ipc.send('wt-reset-ok'));
+  }
+}
+// Manual reset for dev
+window.reset = reset;

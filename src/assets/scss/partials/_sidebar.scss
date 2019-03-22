@@ -22,16 +22,17 @@ li.router-link-active {
 }
 
 .sidebar,
+.v-sidebar-menu,
 .off-canvas-sidebar {
-  height: 100vh;
-  width: 290px;
-  position: fixed;
-  top: 0;
-  left: 0;
+  //height: 100vh;
+  //width: 290px;
+  //position: fixed;
+  //top: 0;
+  //left: 0;
   z-index: 1;
-  display: block;
-  padding-top: 70px;
-  padding-left: 52px;
+  //display: block;
+  //padding-top: 70px;
+  //padding-left: 52px;
   background: $primary-states;
   box-shadow: 0 0 45px 0 rgba(0,0,0,0.6);
 
@@ -239,8 +240,10 @@ li.router-link-active {
     }
 
     > .content {
+      transition: ease-in-out 0.5s;
       //padding: 78px 30px 30px 280px;
       padding: 78px 30px 30px 337px;
+      //padding: 78px 30px 30px 100px;
       min-height: calc(100vh - 70px);
     }
 
@@ -253,6 +256,13 @@ li.router-link-active {
     }
 }
 
+.sidebar-collapsed {
+  .main-panel {
+    > .content {
+      padding: 78px 30px 30px 100px;
+    }
+  }
+}
 
 .perfect-scrollbar-on {
   .sidebar,
@@ -423,7 +433,7 @@ li.router-link-active {
   .main-panel {
     width: 100%;
       .content {
-      padding-left: 30px;
+      padding-left: 100px;
     }
   }
 
@@ -466,7 +476,7 @@ li.router-link-active {
 
 @media screen and (max-width: 768px) {
   .main-panel .content {
-    padding-left: 15px;
+    padding-left: 100px;
     padding-right: 15px;
   }
 }

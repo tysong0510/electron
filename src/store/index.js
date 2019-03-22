@@ -1,15 +1,18 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { START_DOWNLOAD_GAME } from './actions-types';
-import { ADD_TORRENT, UPDATE_TORRENT } from './mutation-types';
+import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME } from './actions-types';
+import { ADD_TORRENT, UPDATE_TORRENT, NEXT_TORRENT_KEY_USED } from './mutation-types';
 const electron = require('electron')
-const { ipcRenderer } = electron;
+const { ipcRenderer, app, remote } = electron;
+import path from 'path';
+import fs from 'fs';
 
 import games from './games';
 
 Vue.use(Vuex);
-
-let nextTorrentKey = 1; /* identify torrents for IPC between the main and webtorrent windows */
+const userDataPath = (app || remote.app).getPath('userData');
+const downloadPath = path.join(userDataPath, 'downloads');
+const installPath = path.join(userDataPath, 'apps');
 
 /**
  * Library for deep merging objects
@@ -243,7 +246,7 @@ const demoData = {
           title: 'Sid Meier’s Civilization® VI',
           releaseDate: '20 feb. 2019',
           size: '4.2 GB',
-          price: '49,99 $',
+          price: '18.99 $',
           text: '15 hours',
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
@@ -276,7 +279,7 @@ const demoData = {
           title: 'Rust',
           releaseDate: '20 feb. 2019',
           size: '4.2 GB',
-          price: '49,99 $',
+          price: 49.99,
           text: '298 hours',
           vote: (Math.random() * 5),
           downloaded: Math.floor(Math.random() * 1000),
@@ -757,80 +760,124 @@ const demoData = {
         }
       }
     },
+    nextTorrentKey: 1, // identify torrents for IPC between the main and webtorrent windows
     torrents: [],
   },
   mutations: {
-    [ADD_TORRENT] (state, payload) {
-      if (!payload.state) {
-        payload.state = 'pending';
-      }
-      state.torrents = [...state.torrents, payload];
+    [ADD_TORRENT] (state, { payload }) {
+      const defaults = {
+        state: 'pending',
+        downloaded: false,
+      };
+      const data = {
+        ...defaults,
+        ...payload
+      };
+
+      state.torrents = [...state.torrents, data];
     },
-    [UPDATE_TORRENT] (state, payload) {
-      const keys = ['infoHash', 'torrentKey'];
-      keys.some(keyName => {
+    [UPDATE_TORRENT] (state, { payload }) {
+      const keys = ['torrentKey', 'infoHash'];
+      if (!keys.some(keyName => {
         const keyValue = payload[keyName];
         if (keyValue !== void 0) {
           state.torrents = patchCollectionItemByKey(state.torrents, payload, keyName);
           return true;
         }
-      });
+      })) {
+        throw new Error('keys not found in UPDATE_TORRENT payload');
+      }
+    },
+    [NEXT_TORRENT_KEY_USED] (state) {
+      state.nextTorrentKey++;
     }
   },
   actions: {
-    async [START_DOWNLOAD_GAME]({  commit, getters }, { gameId }) {
+    async [START_DOWNLOAD_GAME]({  state, commit, getters }, { gameId }) {
       const { findTorrentByGameId, getGameById } = getters;
+      // FIXME: use magnetURI returned by server when it'll become implemented on the Java backend
       const game = getGameById(gameId);
+      const { magnetURI } = game;
+      if (!magnetURI) {
+        return;
+      }
+      // const magnetURI = 'magnet:?xt=urn:btih:311de7bf9479e7b0abb9a078fa364084f9bf7ea6&dn=Beglitched_Windows_v1.01.zip.torrent&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F127.0.0.1%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000&tr=ws%3A%2F%2F157.230.135.10%3A8000';
       let torrent = findTorrentByGameId(gameId);
-      const torrentKey = nextTorrentKey++;
+      let torrentKey;
+
+        const gameInstallPath = path.join(installPath, `${gameId}`);
+        const gameDownloadPath = path.join(downloadPath, `${gameId}`);
+        if (!fs.existsSync(gameDownloadPath))
+            fs.mkdirSync(gameDownloadPath, { recursive: true });
+        if (!fs.existsSync(gameInstallPath))
+            fs.mkdirSync(gameInstallPath, { recursive: true });
+
+
       if (torrent) {
-        if (/*['download-paused', 'loading-metadata-paused'].indexOf(torrent.state) !== -1*/torrent.state !== 'downloading') {
-          let nextState;
-          //if (torrent.state === 'download-paused') {
-            nextState = 'downloading';
-          /*} else {
-            nextState = 'loading-metadata';
-          }*/
-          commit({
-            type: UPDATE_TORRENT,
-            state: nextState,
-            torrentKey
-          });
-        } else {
+        ({ torrentKey } = torrent);
+        if (torrent.state === 'downloading') {
           // nothing to do
           return;
         }
+        commit({
+          type: UPDATE_TORRENT,
+          payload: {
+            state: 'downloading',
+            torrentKey
+          }
+        });
       } else {
+        torrentKey = state.nextTorrentKey;
+        commit(NEXT_TORRENT_KEY_USED);
         const addTorrentMsg = {
           type: ADD_TORRENT,
-          gameId,
-          state: 'loading-metadata',
-          torrentURL: game.torrentURL,
-          torrentFile: '/Users/eugene/repos/ktbyte/voxpop-electron/tracker/torrents/Beglitched_Windows_v1.01.zip.torrent',
-          torrentKey
+          payload: {
+            gameId,
+            state: 'loading-metadata',
+            torrentURL: magnetURI,
+            torrentKey
+          }
         };
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }
+
       const { torrentFile, torrentURL } = torrent;
       const torrentId = torrentFile || torrentURL;
 
-      // if (state.torrents)
-      // '/Users/eugene/Downloads';
-      const userDataPath = (electron.app || electron.remote.app).getPath('userData');
-      const userDataAppsPath = userDataPath; // path.join(userDataPath, 'apps'); // apps создать руками )))
-      console.log('DESTINATION: ' + userDataAppsPath);
+      // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
+      //  the game will be installed to `gameInstalationPath`
 
       ipcRenderer.send(
         'wt-start-torrenting',
         torrentKey, // key
-        //'http://127.0.0.1:8088/Beglitched_Windows_v1.01.zip.torrent',
-        // 'https://webtorrent.io/torrents/sintel.torrent',
         torrentId,
-        userDataPath,
-        null, // no modtimes
-        [true] // select first file
+        gameDownloadPath,
+        null
+        // select all torrent files by default
       );
+    },
+
+    async [PAUSE_DOWNLOAD_GAME]({ commit, getters }, { gameId }) {
+      const { findTorrentByGameId } = getters;
+      const torrent = findTorrentByGameId(gameId);
+      if (!torrent) {
+        return;
+      }
+      const { infoHash, torrentKey } = torrent;
+      commit({
+        type: UPDATE_TORRENT,
+        payload: {
+          state: 'paused',
+          infoHash,
+          torrentKey
+        }
+      });
+      if (infoHash) {
+        ipcRenderer.send('wt-stop-torrenting', infoHash);
+      } else {
+        // metadata hasn't been parsed yet. when metadata will be received torrent will be paused
+      }
     }
   },
   getters: {
@@ -869,7 +916,7 @@ const demoData = {
       }
       return null;
     },
-    getRatingStoreByName: (state, getters) => (name) => {
+    getRatingStoreByName: state => (name) => {
       if (state.demoData.rating.hasOwnProperty(name)) {
         let rating = null;
 
@@ -881,7 +928,7 @@ const demoData = {
           rating = state.demoData.rating[name];
         }
 
-        const { games } = getters;
+        const games = state.games;
 
         if (typeof rating === 'object') {
           for (const key in rating) {
@@ -957,10 +1004,26 @@ const demoData = {
     findTorrentByGameId: (state) => (id)  => {
       return state.torrents.filter(torrent => torrent.gameId === id).shift();
     },
-
     findTorrentByKey: (state) => (key)  => {
       return state.torrents.filter(torrent => torrent.torrentKey === key).shift();
     },
+    findTorrentByMagnetURI: (state) => (magnetURI)  => {
+      return state.torrents.filter(torrent => torrent.magnetURI === magnetURI).shift();
+    },
+    findTorrentByInfoHash: (state) => (infoHash)  => {
+      return state.torrents.filter(torrent => torrent.infoHash === infoHash).shift();
+    },
+    isGameDownloaded: (state, getters) => (gameId) => {
+      const torrent = getters.findTorrentByGameId(gameId);
+      if (!torrent) {
+        return false;
+      }
+      return torrent.progress && torrent.progress.done;
+    },
+    getGameDownloadProgress:  (state, getters) => (gameId) => {
+      const torrent = getters.findTorrentByGameId(gameId);
+      return torrent && torrent.progress ? torrent.progress.progress : 0;
+    }
   },
 };
 

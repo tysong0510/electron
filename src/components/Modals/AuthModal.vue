@@ -353,6 +353,7 @@
           },
           rememberMe: this.rememberMe,
           redirect: false,
+          fetchUser: true,
           success: function () {
             this.$authModal.showModal = false;
 
