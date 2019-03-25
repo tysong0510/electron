@@ -15,7 +15,8 @@ const router = new VueRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
+// It seems like this code prevents navigating to game page if auth got 401 error
+/* router.beforeEach((to, from, next) => {
   if (to.meta.hasOwnProperty('requireAuth') && to.meta.requireAuth) {
     if (localStorage.auth) {
       return next(true);
@@ -38,6 +39,6 @@ router.beforeEach((to, from, next) => {
   } else {
     return next(true);
   }
-});
+}); */
 
 export default router;

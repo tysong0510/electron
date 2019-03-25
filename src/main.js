@@ -182,12 +182,17 @@ function setupIpc() {
       const { findTorrentByKey } = getters;
       const torrent = findTorrentByKey(torrentKey);
       if (torrent && !deepEqual(torrent.progress, p)) {
+        const patch = {
+          torrentKey,
+          progress: p
+        };
+        if (torrent.downloaded && p.progress !== 1) {
+          // Reset done
+          patch.downloaded = false;
+        }
         commit({
           type: UPDATE_TORRENT,
-          payload: {
-            torrentKey,
-            progress: p
-          }
+          payload: patch
         });
       }
     });
@@ -208,7 +213,11 @@ function setupIpc() {
         }
       });
     }
-  })
+  });
+
+  ipcRenderer.on('wt-warning', (e, torrentKey, message) => {
+    console.warn(`torrentKey=${torrentKey}, msg: ${message}`);
+  });
 
   ipcRenderer.on('wt-error', (e, torrentKey, message) => {
     console.error('wt-error',torrentKey, message);
@@ -257,12 +266,18 @@ ipcRenderer.once('wt-reset-ok', () => {
         // Force pause
         state: 'paused'
       };
-      console.log('restoring torrent state', torrent);
+      console.log('restoring torrent state', torrent, {
+        dwnld: t.downloaded,
+        notpaused: originalState !== 'paused',
+        start: t.downloaded || originalState !== 'paused'
+      });
       commit({
         type: ADD_TORRENT,
         payload: torrent
       });
-      if (originalState !== 'paused') {
+      if (t.downloaded || originalState !== 'paused') {
+        console.log('dispatching start download', torrent.gameId);
+        // seed downloaded or download not paused
         dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
       }
     });

@@ -72,15 +72,20 @@
                       Play
                     </b-button>
                     <transition>
-                      <loading-progress
-                        v-if="showDownloadProgress"
-                        :progress="progress"
-                        :indeterminate="isProgressIndeterminate"
-                        shape="line"
-                        size="160"
-                        width="160"
-                        height="6"
-                      />
+                      <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                        <loading-progress
+                          v-if="showDownloadProgress"
+                          :progress="progress"
+                          :indeterminate="isProgressIndeterminate"
+                          shape="line"
+                          size="160"
+                          width="160"
+                          height="6"
+                        />
+                        <div v-if="showDownloadProgress" class="torrent-info">
+                          Peers: {{ numberOfPeers }}
+                        </div>
+                      </div>
                     </transition>
                   </div>
                   <b-button
@@ -122,10 +127,10 @@
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
-                    <b-button variant="primary" class="border-0">
+                    <b-button variant="primary" class="border-0" @click="playGame()">
                       Play
                     </b-button>
-                    <b-button variant="light" class="text-primary border-0 btn-delete">
+                    <b-button variant="light" class="text-primary border-0 btn-delete" @click="uninstallGame()">
                       Uninstall
                     </b-button>
                   </b-col>
@@ -157,11 +162,11 @@
 
 <script>
   import {mapGetters, mapActions, mapState} from 'vuex';
-  import {Carousel, Slide} from 'vue-carousel';
+  import { Carousel, Slide } from 'vue-carousel';
   import currency from '../mixins/currency';
 
   import VoteBar from '../components/Progress/VoteBar.vue';
-  import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME } from '../store/actions-types';
+  import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from '../store/actions-types';
   import {baseURL} from '../apiConfig';
 
   const carouselOptions = {
@@ -212,6 +217,13 @@
           return 1;
         }
         return torrent.progress ? torrent.progress.progress : 0;
+      },
+      numberOfPeers() {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        if (!torrent || !torrent.progress) {
+          return 'n/a';
+        }
+        return torrent.progress.numPeers;
       },
       progressDisplay() {
         return `${Math.round(this.progress * 100)}%`
@@ -294,6 +306,14 @@
           else alert('There is no seeds available for this game');
         }
       },
+      playGame() {
+        this[START_GAME]({
+          gameId: this.game.id
+        });
+      },
+      uninstallGame() {
+        confirm(`Please confirm to remove the game`);
+      },
       fetchData() {
         const gameId = this.$route.params.id || 0;
         this.getGame({params: {id: gameId}});
@@ -323,7 +343,7 @@
           return null;
         }
       },
-      ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME])
+      ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME])
     }
   };
 </script>
@@ -439,5 +459,30 @@
     .card-img {
       max-height: 280px;
     }
+  }
+
+  .torrent-info {
+    transition: opacity .5s;
+    /* opacity: 0; */
+    text-align: left;
+    font-size: 75%;
+  }
+
+  .b-torrent-info {
+    &__no-peers {
+      /* FIXME: style override doesn't work */
+      .vue-progress-path .progress {
+          stroke: #EED202;
+      }
+      .vue-progress-path .background {
+          stroke: red;
+      }
+    }
+
+    /* &:hover {
+      .torrent-info {
+        opacity: 1;
+      }
+    } */
   }
 </style>

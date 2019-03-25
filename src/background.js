@@ -39,6 +39,9 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
+    if (isDevelopment) {
+      win.webContents.openDevTools({ mode: 'detach' });
+    }
   }
 
   win.on('closed', () => {

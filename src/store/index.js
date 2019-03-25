@@ -1,13 +1,14 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME } from './actions-types';
+import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from './actions-types';
 import { ADD_TORRENT, UPDATE_TORRENT, NEXT_TORRENT_KEY_USED } from './mutation-types';
-const electron = require('electron')
-const { ipcRenderer, app, remote } = electron;
+const electron = require('electron');
+const { ipcRenderer, app, remote, shell } = electron;
 import path from 'path';
 import fs from 'fs';
 
 import games from './games';
+import users from './users';
 
 Vue.use(Vuex);
 const userDataPath = (app || remote.app).getPath('userData');
@@ -793,17 +794,37 @@ const demoData = {
     }
   },
   actions: {
-    async [START_DOWNLOAD_GAME]({  state, commit, getters }, { gameId }) {
-      const { findTorrentByGameId } = getters;
+    async [START_GAME]({ state }, { gameId }) {
+      // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
+      //  the game will be installed to `gameInstalationPath`
       const { game } = state;
       if (!game) {
         return;
       }
-      const { magnetURI } = game;
+      const gamePath = path.join(installPath, `${gameId}`, 'Beglitched.exe');
+      if (!fs.existsSync(gamePath))
+        alert('Game is not installed');
+      shell.openItem(gamePath);
+    },
+
+    async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
+      const { findTorrentByGameId } = getters;
+      let torrent = findTorrentByGameId(gameId);
+      let magnetURI;
+      if (!torrent) {
+        const { game } = state;
+        if (!game) {
+          console.error(`START_DOWNLOAD_GAME: game id=${gameId} not found`);
+          return;
+        }
+        ({ magnetURI } = game);
+      } else {
+        ({ torrentURL: magnetURI } = torrent);
+      }
       if (!magnetURI) {
+        console.error(`START_DOWNLOAD_GAME: no magnetURI for game id=${gameId}`);
         return;
       }
-      let torrent = findTorrentByGameId(gameId);
       let torrentKey;
 
         const gameInstallPath = path.join(installPath, `${gameId}`);
@@ -812,7 +833,6 @@ const demoData = {
             fs.mkdirSync(gameDownloadPath, { recursive: true });
         if (!fs.existsSync(gameInstallPath))
             fs.mkdirSync(gameInstallPath, { recursive: true });
-
 
       if (torrent) {
         ({ torrentKey } = torrent);
@@ -845,9 +865,6 @@ const demoData = {
 
       const { torrentFile, torrentURL } = torrent;
       const torrentId = torrentFile || torrentURL;
-
-      // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
-      //  the game will be installed to `gameInstalationPath`
 
       ipcRenderer.send(
         'wt-start-torrenting',
@@ -1035,6 +1052,7 @@ const stores = deepMerge.all(
   [
     games,
     demoData,
+    users,
   ],
 );
 

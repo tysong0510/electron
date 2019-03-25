@@ -2,7 +2,7 @@
   <div>
     <b-card
       no-body
-      class="flex-row pb-3 mb-2"
+      class="flex-row pb-3 mb-2 border-0"
     >
       <b-card-img
         :src="avatar"
@@ -34,9 +34,9 @@
       </b-card-body>
     </b-card>
 
-    <b-row class="pb-5 mb-5 border-bottom">
+    <b-row class="pb-5 mb-5">
       <b-col class="col-8 mr-auto text-white">
-        <p class="pb-5">
+        <p v-if="user.bio" class="pb-5">
           {{ user.bio }}
         </p>
         <b-row class="pb-4 mb-3">
@@ -47,7 +47,7 @@
             >
               Profile statistic
             </h4>
-            <div class="d-inline pl-5">
+            <div class="d-inline pl-3">
               <b-select
                 v-model="filterStatistics.selected"
                 class="filter-period w-auto text-white font-weight-light"
@@ -74,10 +74,56 @@
         </b-row>
       </b-col>
       <b-col class="col-4 d-inline text-white">
-        <h3 class="d-inline">
+        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
           Friends
-        </h3>
+        </h4>
         <span class="d-inline float-right">0</span>
+      </b-col>
+    </b-row>
+
+    <b-row class="pb-5 mb-4 border-bottom">
+      <b-col>
+        <b-row class="pb-2">
+          <b-col>
+            <h4 class="display-4 d-inline text-white" style="font-size: 1.5rem;">
+              File Statistic
+            </h4>
+          </b-col>
+        </b-row>
+        <b-row v-if="pending.userFilesStatistic">
+          <b-col>
+            Loading...
+          </b-col>
+        </b-row>
+        <b-row v-else>
+          <b-col>
+            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white"
+                     striped @row-clicked="rowStatisticDetailsToggle"
+            >
+              <template slot="game" slot-scope="row">
+                {{ row.value.title }}
+              </template>
+              <template slot="units" slot-scope="row">
+                {{ row.value }}
+              </template>
+              <template slot="usersCount" slot-scope="row">
+                {{ row.value }}
+              </template>
+              <template slot="row-details" slot-scope="row">
+                <b-card no-body class="border-0" style="background-color: #ffffff10">
+                  <b-table :fields="statisticGameFields" show-empty :items="row.item.seedingSessions" class="text-white">
+                    <template slot="userId" slot-scope="child">
+                      Peer{{ child.value }}
+                    </template>
+                    <template slot="sessionDate" slot-scope="child">
+                      {{ child.value | dateFormat('DD MMM YYYY HH:mm') }}
+                    </template>
+                  </b-table>
+                </b-card>
+              </template>
+            </b-table>
+          </b-col>
+        </b-row>
       </b-col>
     </b-row>
 
@@ -346,6 +392,7 @@
 </template>
 
 <script>
+import {mapActions, mapState} from 'vuex';
 import HorizontalView from '../components/View/HorizontalView.vue';
 import store from '../mixins/store';
 import date from '../mixins/date';
@@ -360,6 +407,16 @@ export default {
   mixins: [store, date, currency],
   data() {
     return {
+      statisticFields: [
+        {key: 'game', name: 'Game'},
+        {key: 'seededUnitsTotal', name: 'Units Count Total'},
+        {key: 'usersCount', name: 'Users Count'}
+      ],
+      statisticGameFields: [
+        {key: 'userId', name: 'User'},
+        {key: 'sessionDate', name: 'Date'},
+        {key: 'unitsCount', name: 'Units Count'}
+      ],
       filterStatistics: {
         selected: 'day',
         options: [
@@ -413,6 +470,11 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      userFilesStatistic: state => state.userFilesStatistic,
+      pending: state => state.pending,
+      error: state => state.error,
+    }),
     user: {
       get() {
         return this.$auth.user();
@@ -436,12 +498,68 @@ export default {
       get() {
         return `${this.user.firstName} ${this.user.lastName}`
       }
+    },
+    statistic: {
+      get() {
+        // let data = [
+        //   {
+        //     'game': {
+        //       gameId: '1',
+        //       title: 'Test'
+        //     },
+        //     seededUnitsTotal: 321,
+        //     usersCount: 23,
+        //     seedingSessions: [
+        //       {
+        //         userId: 1,
+        //         sessionDate: '2019-02-02',
+        //         unitsCount: 222
+        //       }
+        //     ]
+        //   },
+        //   {
+        //     'game': {
+        //       gameId: '2',
+        //       title: 'Test1'
+        //     },
+        //     seededUnitsTotal: 121,
+        //     usersCount: 23,
+        //     seedingSessions: [
+        //       {
+        //         userId: 1,
+        //         sessionDate: '2019-02-02',
+        //         unitsCount: 222
+        //       }
+        //     ]
+        //   }
+        // ]
+
+        let data = this.userFilesStatistic.slice(0);
+
+        for (let item of this.userFilesStatistic) {
+          if (typeof item._showDetails === "undefined") {
+            this.$set(item, '_showDetails', false);
+            // item._showDetails = false;
+          }
+        }
+
+        return data;
+      }
     }
+  },
+  watch: {
+    // 'pending.userFilesStatistic'() {
+    //   if (!this.pending.userFilesStatistic) {
+    //     // this.getData(this.currentStore);
+    //   }
+    // }
   },
   created() {
     this.getGames();
+    this.getUserFilesStatistic();
   },
   methods: {
+    ...mapActions(['getUserFilesStatistic']),
     getUrlByRoute(route) {
       return this.$router.resolve(route).href;
     },
@@ -458,6 +576,9 @@ export default {
       Object.assign(this.recentlyPlayedStore, this.$store.getters.getRatingStoreByName('recently-played'));
       this.storeSort(this.recentlyPlayedStore);
     },
+    rowStatisticDetailsToggle(row) {
+      this.$set(row, '_showDetails', !row._showDetails);
+    }
   },
 };
 </script>
@@ -504,6 +625,13 @@ export default {
     border-radius: 50%;
     /*   margin: 10px auto; */
   }
+
+  /*tr:focus {
+    outline: 0;
+  }
+  tr:hover {
+    cursor: pointer;
+  }*/
 
   .pulse {
     box-shadow: 0 0 0 0 #696E80;

@@ -252,6 +252,13 @@
         if (!this.pending.featuredGames && this.currentStore === 'store-featured') {
           this.getData(this.currentStore);
         }
+      },
+      'pending.topGames'() {
+        console.log(this.topGames);
+        if (!this.pending.topGames && this.currentStore === 'store-top') {
+          console.log('Is store top');
+          this.getData(this.currentStore);
+        }
       }
     },
     mounted() {
@@ -262,6 +269,8 @@
 
       if (this.currentStore === 'store-featured') {
         this.getFeatured();
+      } else if (this.currentStore === 'store-top') {
+        this.getTopGames();
       }
     },
     beforeDestroy() {
@@ -297,7 +306,7 @@
 
         this.storeTitle = store.title;
 
-        if (storeName !== 'store-featured') {
+        if (!['store-featured', 'store-top'].includes(storeName)) {
           const filter = this.$store.getters.getFilterByName(storeName);
           if (filter) {
             this.filter = filter;
@@ -307,8 +316,14 @@
           this.storeSort(store);
         }
 
-        if (!this.pending.featuredGames && storeName === 'store-featured') {
-          store.content = this.featuredGames || [];
+        if (storeName === 'store-featured') {
+          if (!this.pending.featuredGames) {
+            store.content = this.featuredGames || [];
+          }
+        } else if(storeName === 'store-top') {
+          if (!this.pending.topGames) {
+            store.content = this.topGames || [];
+          }
         }
 
         this.store = store;

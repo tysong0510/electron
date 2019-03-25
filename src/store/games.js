@@ -22,4 +22,8 @@ export default new Vapi({
   action: 'getFeatured',
   property: 'featuredGames',
   path: '/games/filter/featured'
+}).get({
+  action: 'getTopGames',
+  property: 'topGames',
+  path: '/games/filter/top'
 }).getStore();

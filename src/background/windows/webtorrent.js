@@ -30,6 +30,9 @@ export function getInstance () {
     // createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./webtorrent.html');
+    if (process.env.NODE_ENV === 'development') {
+      win.webContents.openDevTools({ mode: 'detach' });
+    }
   }
 
   // Prevent killing the WebTorrent process
