@@ -18,10 +18,6 @@ const routes = [
     redirect: '/store',
     children: [
       {
-        path: 'login',
-        name: 'login',
-      },
-      {
         path: 'store',
         name: 'store',
         redirect: '/store/top',
@@ -63,7 +59,7 @@ const routes = [
         path: 'profile',
         name: 'profile',
         component: Profile,
-        meta: { auth: true }
+        // meta: { requireAuth }
       },
       {
         path: 'profile/top-games',
