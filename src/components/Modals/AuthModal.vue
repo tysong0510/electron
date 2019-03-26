@@ -6,6 +6,7 @@
     no-close-on-backdrop
     no-close-on-esc
     content-class="rounded-lg"
+    @hide="removeAuthQuery"
   >
     <div class="h-100 d-flex">
       <div class="m-auto">
@@ -315,6 +316,12 @@
       this.$root.$on('unauthorized', this.showModal);
     },
     methods: {
+      removeAuthQuery() {
+        let query = Object.assign({}, this.$route.query);
+        delete query.auth;
+
+        this.$router.push({query: query, name: this.$route.name});
+      },
       showModal(params) {
         this.noRedirect = params && !!params.noRedirect;
 

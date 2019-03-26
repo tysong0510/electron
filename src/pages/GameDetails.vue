@@ -5,7 +5,7 @@
     </div>
 
     <div v-if="!pending.game && game" class="content">
-      <b-card no-body class="no-border">
+      <b-card no-body class="no-border mb-4 pb-4">
         <b-row no-gutters>
           <b-col cols="5">
             {{ /* TODO add placeholder image to src/assets */ }}
@@ -115,7 +115,7 @@
                     />
                   </b-col>
                 </b-row>
-                <b-row class="mt-3" size="sm">
+                <b-row class="mt-2" size="sm">
                   <b-col>
                     <b-button variant="outline-secondary" class="btn-voted">
                       Voted
@@ -353,8 +353,8 @@
   @import '~vue-progress-path/dist/vue-progress-path.css';
 
   /deep/ .VueCarousel-pagination {
-    text-align: left;
-    float: left;
+    text-align: left !important;
+    float: left !important;
 
     .VueCarousel-dot-container {
       margin-top: 10px !important;
@@ -468,9 +468,8 @@
     font-size: 75%;
   }
 
-  .b-torrent-info {
+  /deep/ .b-torrent-info {
     &__no-peers {
-      /* FIXME: style override doesn't work */
       .vue-progress-path .progress {
           stroke: #EED202;
       }

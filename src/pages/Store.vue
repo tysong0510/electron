@@ -56,7 +56,7 @@
       <b-row class="border-bottom">
         <b-col
           v-for="(game, index) in content.slice(0, 3)"
-          :key="index"
+          :key="currentStore + index"
           class="p-2 rounded-lg game mb-4 mt-2"
           tag="a"
           :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href"
@@ -127,7 +127,7 @@
         </b-col>
       </b-row>
       <b-row v-for="(game, index) in content.slice(3)"
-             :key="index"
+             :key="currentStore + index"
              class="border-bottom limited-height-row mt-3 pb-3"
       >
         <b-col
@@ -254,9 +254,7 @@
         }
       },
       'pending.topGames'() {
-        console.log(this.topGames);
         if (!this.pending.topGames && this.currentStore === 'store-top') {
-          console.log('Is store top');
           this.getData(this.currentStore);
         }
       }
@@ -320,7 +318,7 @@
           if (!this.pending.featuredGames) {
             store.content = this.featuredGames || [];
           }
-        } else if(storeName === 'store-top') {
+        } else if (storeName === 'store-top') {
           if (!this.pending.topGames) {
             store.content = this.topGames || [];
           }
@@ -356,11 +354,11 @@
     }
 
     .col-img {
-      height: 200px;
-      max-height: 200px;
+      height: auto;
+      max-height: 280px;
 
       img {
-        max-height: 200px;
+        max-height: 280px;
       }
     }
 
@@ -370,12 +368,12 @@
   }
 
   .limited-height-row {
-    max-height: 150px;
+    max-height: 300px;
 
     .game {
       img {
-        max-height: 75px;
-        max-width: 120px;
+        max-height: 300px;
+        max-width: 300px;
       }
     }
   }
@@ -384,6 +382,30 @@
     -webkit-box-flex: 0;
     flex: 0 0 20%;
     max-width: 20%;
+  }
+
+  @media (max-width: 2000px) {
+    .game {
+      .col-img {
+        height: 200px;
+        max-height: 200px;
+
+        img {
+          max-height: 200px;
+        }
+      }
+    }
+
+    .limited-height-row {
+      max-height: 180px;
+
+      .game {
+        img {
+          max-height: 150px;
+          max-width: 220px;
+        }
+      }
+    }
   }
 
   @media (max-width: 1500px) {

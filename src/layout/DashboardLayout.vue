@@ -165,6 +165,7 @@
 
         > .vsm-icon {
           background-color: transparent !important;
+          margin-top: -0.09em;
         }
       }
     }
@@ -190,13 +191,22 @@
 
       &.open-arrow {
         transform: translateY(-50%) translateX(-30%) rotate(90deg);
-        margin-top: 0.5em;
+        margin-top: 0.4em;
       }
     }
 
-    .vsm-item.first-item.open-item > .vsm-link {
-      background-color: transparent !important;
-      box-shadow: inset 3px 0 0 0 white;
+    .vsm-item {
+      &.first-item {
+        &.open-item > .vsm-link {
+          background-color: transparent !important;
+          box-shadow: inset -3px 0 0 0 white;
+        }
+
+        &.active-item > .vsm-link {
+          background-color: transparent !important;
+          box-shadow: inset -3px 0 0 0 white;
+        }
+      }
     }
 
     &:not(.vsm-collapsed) .vsm-dropdown {
@@ -227,7 +237,7 @@
 
     .vsm-dropdown {
       > .vsm-list {
-        background-color: #151a2d;
+        background-color: #06091E;
       }
     }
 

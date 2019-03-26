@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 
 let win = null;
-export function getInstance () {
+export function getInstance ({ debug } = {}) {
   if (win) {
     return win;
   }
@@ -30,7 +30,7 @@ export function getInstance () {
     // createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./webtorrent.html');
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG === 'true' || process.argv.includes('--debug') || debug) {
       win.webContents.openDevTools({ mode: 'detach' });
     }
   }

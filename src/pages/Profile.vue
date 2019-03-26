@@ -73,7 +73,7 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col class="col-4 d-inline text-white">
+      <b-col class="col-4 d-inline text-white border-left">
         <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
           Friends
         </h4>
@@ -90,14 +90,14 @@
             </h4>
           </b-col>
         </b-row>
-        <b-row v-if="pending.userFilesStatistic">
+        <b-row v-if="pending.userFilesStatistic && !statistic">
           <b-col>
             Loading...
           </b-col>
         </b-row>
         <b-row v-else>
           <b-col>
-            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white"
+            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white statistic-table"
                      striped @row-clicked="rowStatisticDetailsToggle"
             >
               <template slot="game" slot-scope="row">
@@ -143,7 +143,7 @@
     <!--</div>-->
 
     <horizontal-view
-      v-if="!pending.games"
+      v-if="!pending.games && topGamesStore.content"
       v-once
       title="Your top games"
       class="text-white pb-5 mb-4 border-bottom"
@@ -154,7 +154,7 @@
       <b-col
         v-for="(game, index) in topGamesStore.content.slice(0, maxElements)"
         :key="index"
-        class="pl-2 pr-2 item rounded-lg pb-2"
+        class="px-2 item rounded-lg pb-2"
         :style="{'max-width': (100 / maxElements) + '%'}"
         tag="a"
         :href="getUrlByRoute({name: 'my-game-details', params: {id: game.id}})"
@@ -209,7 +209,7 @@
     <!--</div>-->
 
     <horizontal-view
-      v-if="!pending.games"
+      v-if="!pending.games && yourFilesStore.content"
       v-once
       title="Your files"
       class="text-white pb-5 mb-4 border-bottom"
@@ -275,7 +275,7 @@
     <!--</div>-->
 
     <horizontal-view
-      v-if="!pending.games"
+      v-if="!pending.games && yourRecommendationStore.content"
       v-once
       title="Your recommendation"
       class="text-white pb-5 mb-4 border-bottom"
@@ -339,7 +339,7 @@
     <!--v-once/>-->
 
     <horizontal-view
-      v-if="!pending.games"
+      v-if="!pending.games && recentlyPlayedStore.content"
       v-once
       title="Recently played"
       class="text-white pb-5 mb-4 border-bottom"
@@ -586,6 +586,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   @import "../assets/scss/partials/store";
+
+  /deep/ .statistic-table > tbody > [role=row]:not(.b-table-details) {
+    cursor: pointer;
+  }
 
   .card-body .card-text .text-recently-played {
     font-size: 0.3em !important;

@@ -1,3 +1,5 @@
+/* global __static */
+
 import path from 'path';
 import fs from 'fs';
 import { app, remote, protocol, BrowserWindow, ipcMain } from 'electron';
@@ -14,6 +16,7 @@ const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
 const installPath = path.join(userDataPath, 'apps');
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const enableDebug = process.env.DEBUG === 'true' || (process.argv.includes('--debug'));
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -22,13 +25,17 @@ let win, torrentWin;
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true });
 
-function createWindow() {
+function createWindow({ debug }) {
   // Create the browser window.
   win = new BrowserWindow({
     width: 1144,
     height: 720,
     minWidth: 1144,
     minHeight: 720,
+    icon: path.join(__static, 'icon.png'),
+    webPreferences: {
+      nodeIntegration: true,
+    }
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -39,10 +46,21 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
-    if (isDevelopment) {
+    if (isDevelopment || enableDebug || debug) {
       win.webContents.openDevTools({ mode: 'detach' });
     }
   }
+
+  win.on('close', e => {
+    if (process.platform !== 'darwin') {
+      console.log('quitting1');
+      app.quit();
+    }
+    if (!app.isQuitting) {
+      e.preventDefault();
+      win.hide();
+    }
+  })
 
   win.on('closed', () => {
     win = null;
@@ -84,13 +102,14 @@ async function init() {
   app.isQuitting = false
 
   // Quit when all windows are closed.
-  app.on('window-all-closed', () => {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
+  // app.on('window-all-closed', () => {
+  //   // On macOS it is common for applications and their menu bar
+  //   // to stay active until the user quits explicitly with Cmd + Q
+  //   if (process.platform !== 'darwin') {
+  // console.log('quitting2');//
+  // app.quit();
+  //   }
+  // });
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
@@ -109,9 +128,12 @@ async function init() {
     e.preventDefault()
     if (win) {
       win.send('dispatch', STATE_SAVE_IMMEDIATE) // try to save state on exit
-      ipcMain.once('stateSaved', () => app.quit())
+      console.log('quitting3');
+      ipcMain.once('stateSaved', () =>
+      app.quit())
       setTimeout(() => {
         console.error('Saving state took too long. Quitting.')
+        console.log('quitting4');
         app.quit()
       }, 4000) // quit after 4 secs, at most
     }
@@ -143,7 +165,7 @@ async function init() {
   }
 
   createWindow(appState);
-  torrentWin = webtorrent.getInstance();
+  torrentWin = webtorrent.getInstance(appState);
 
   // To keep app startup fast, some code is delayed.
   setTimeout(() => {
@@ -163,18 +185,35 @@ async function init() {
   });
 }
 
-init();
+const gotInstanceLock = app.requestSingleInstanceLock();
+app.on('second-instance', (e, newArgv) => {
+  if (app.ipcReady) {
+    console.log('Second app instance opened, but was prevented:', newArgv);
+    win.show();
+    win.isMinimized() && win.restore();
+    win.focus();
+  }
+});
+
+if (!gotInstanceLock) {
+  console.log('quitting');
+  app.quit()
+} else {
+  init();
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', (data) => {
       if (data === 'graceful-exit') {
+        console.log('quitting5');
         app.quit();
       }
     });
   } else {
     process.on('SIGTERM', () => {
+      console.log('quitting6');
       app.quit();
     });
   }

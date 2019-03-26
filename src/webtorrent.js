@@ -182,6 +182,12 @@ function addTorrentEvents(torrent) {
     console.log('connected to peer with address ' + addr)
     ipc.send('wt-wire-connect', torrent.key, addr);
 
+    wire.on('interested', () => {
+    });
+
+    wire.on('uninterested', () => {
+    });
+
     wire.on('handshake', (infoHash, peerId, extensions) => {
       console.log('wire handshake', {infoHash, peerId, extensions});
     });
