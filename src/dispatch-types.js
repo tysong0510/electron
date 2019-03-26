@@ -1,3 +1,6 @@
 export const STATE_SAVE = 'STATE_SAVE';
 export const STATE_SAVE_IMMEDIATE = 'STATE_SAVE_IMMEDIATE';
 export const UNCAUGHT_ERROR = 'UNCAUGHT_ERROR';
+export const UNZIP_GAME = 'UNZIP_GAME';
+export const UNZIP_GAME_FAIL = 'UNZIP_GAME_FAIL';
+export const UNZIP_GAME_OK = 'UNZIP_GAME_OK';

@@ -10,7 +10,7 @@ import {
 
 import { webtorrent } from './background/windows';
 import { State } from './state';
-import { STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR } from './dispatch-types';
+import { STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME, UNZIP_GAME_OK, UNZIP_GAME_FAIL } from './dispatch-types';
 
 const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
@@ -273,3 +273,24 @@ ipc.emit = function (name, e) {
   // Emit all other events normally
   oldEmit.call.apply(oldEmit, [ ipc, name, e ].concat( args ))
 }
+
+ipc.on(UNZIP_GAME, (e, msg) => {
+  const { gameId, src, dst } = msg;
+  const unzip = require('extract-zip')
+
+   src.forEach(function (file) {
+    if (/\.zip$/.test(file)) {
+      unzip(file, {
+        dir: dst
+      }, function (err) {
+        console.log('unzip done', err);
+        if (!err) {
+          e.sender.send(UNZIP_GAME_OK, gameId);
+        } else {
+          console.error('Unzip error', err);
+          e.sender.send(UNZIP_GAME_FAIL, gameId);
+        }
+      })
+    }
+  });
+});

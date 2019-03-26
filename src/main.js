@@ -14,8 +14,7 @@ import i18n from './i18n';
 import Dashboard from './plugins/dashboard';
 import { baseURL, authConfig } from './apiConfig';
 import VueSidebarMenu from 'vue-sidebar-menu'
-
-import { UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED } from './store/mutation-types';
+import { UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, UPDATE_TORRENT_PROGRESS } from './store/mutation-types';
 import './registerServiceWorker';
 const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -64,7 +63,7 @@ window.app = app;
 
 import electron from 'electron';
 import { State } from './state';
-import { STATE_SAVE, STATE_SAVE_IMMEDIATE } from './dispatch-types';
+import { STATE_SAVE, STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME_OK, UNZIP_GAME_FAIL } from './dispatch-types';
 
 const { ipcRenderer } = electron;
 // Save is restored on app load and saved before quitting
@@ -106,6 +105,9 @@ const dispatchHandlers = {
   [STATE_SAVE_IMMEDIATE]: () => State.saveImmediate(getSavedState()),
   'error': (err) => {
     console.error(err.stack || err);
+  },
+  [UNCAUGHT_ERROR]: (err) => {
+    console.error('Uncaught error', err.stack || err);
   }
 }
 
@@ -116,7 +118,7 @@ function dispatch (action, ...args) {
 }
 
 import deepEqual from 'deep-equal';
-import { START_DOWNLOAD_GAME } from './store/actions-types';
+import { START_DOWNLOAD_GAME, UNARCHIVE_GAME } from './store/actions-types';
 
 function setupIpc() {
   ipcRenderer.on('wt-infohash', (e, torrentKey, infoHash) => {
@@ -128,7 +130,7 @@ function setupIpc() {
       return dispatch('error', 'Cannot add duplicate torrent');
     }
     commit({
-      type: UPDATE_TORRENT,
+      type: UPDATE_TORRENT_INFOHASH,
       payload: {
         torrentKey,
         infoHash
@@ -181,26 +183,34 @@ function setupIpc() {
       const {commit, getters} = app.$store;
       const { findTorrentByKey } = getters;
       const torrent = findTorrentByKey(torrentKey);
-      if (torrent && !deepEqual(torrent.progress, p)) {
+      // Skip progress update if torrent is not ready
+      if (torrent && !deepEqual(torrent.progress, p) && p.ready) {
+        if (torrent.downloaded && p.progress !== 1) {
+          // Reset done
+          commit({
+            type: UPDATE_TORRENT,
+            payload: {
+              torrentKey,
+              downloaded: false
+            }
+          });
+        }
         const patch = {
           torrentKey,
           progress: p
         };
-        if (torrent.downloaded && p.progress !== 1) {
-          // Reset done
-          patch.downloaded = false;
-        }
         commit({
-          type: UPDATE_TORRENT,
+          type: UPDATE_TORRENT_PROGRESS,
           payload: patch
         });
       }
     });
   });
 
-  ipcRenderer.on('wt-done', (e, torrentKey) => {
-    const {commit, getters} = app.$store;
+  ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
+    const {commit, getters, dispatch} = app.$store;
     const { findTorrentByKey } = getters;
+    const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
     // console.log('wt-done', torrentKey, torrent);
     if (torrent) {
@@ -209,10 +219,43 @@ function setupIpc() {
         payload: {
           torrentKey,
           downloaded: true,
-          state: 'seeding'
+          state: 'seeding',
+          files
         }
       });
     }
+
+    if (torrentInfo.bytesReceived > 0) {
+      commit({
+        type: TORRENT_DOWNLOADED,
+        payload: {
+          torrentKey,
+        }
+      });
+
+      // Autorun unzip
+      dispatch(UNARCHIVE_GAME, {
+        gameId: torrent.gameId
+      });
+      // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
+    }
+  });
+
+  ipcRenderer.on(UNZIP_GAME_OK, (e, gameId) => {
+    console.log('UNARCHIVE_OK', gameId);
+    const {commit} = app.$store;
+    commit({
+      type: UNARCHIVE_OK,
+      payload: {gameId}
+    });
+  });
+  ipcRenderer.on(UNZIP_GAME_FAIL, (e, gameId) => {
+    console.log('UNARCHIVE_FAIL', gameId)
+    const {commit} = app.$store;
+    commit({
+      type: UNARCHIVE_FAIL,
+      payload: {gameId}
+    });
   });
 
   ipcRenderer.on('wt-warning', (e, torrentKey, message) => {

@@ -16,8 +16,6 @@ const path = require('path')
 const WebTorrent = require('webtorrent')
 import ExtendableError from 'es6-error';
 
-const unzip = require('extract-zip')
-
 // const crashReporter = require('../crash-reporter')
 const config = require('./config')
 const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST // require('create-torrent').announceList
@@ -83,11 +81,6 @@ let client = window.client = new WebTorrent({
 
 // Used for diffing, so we only send progress updates when necessary
 let prevProgress = null
-
-const {app, remote} = electron;
-const userDataPath = (app || remote.app).getPath('userData');
-// const downloadPath = path.join(userDataPath, 'downloads');
-const installPath = path.join(userDataPath, 'apps');
 
 init()
 
@@ -232,21 +225,7 @@ function addTorrentEvents(torrent) {
       if (err) return onError(err)
       ipc.send('wt-file-modtimes', torrent.key, fileModtimes)
     })
-    torrent.files.forEach(function (file) {
-      if (/\.zip$/.test(file.name)) {
-        const gameInstallPath = path.join(installPath, `${torrent.key}`);
-        const gameDownloadPath = path.join(torrent.path, file.name);
 
-        console.log("GAME install PATH ", gameInstallPath)
-        console.log("GAME download PATH ", gameDownloadPath)
-
-        unzip(gameDownloadPath, {
-          dir: gameInstallPath
-        }, function (err) {
-          console.log('Error', err);
-        })
-      }
-    });
   }
 }
 

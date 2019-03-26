@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from './actions-types';
-import { ADD_TORRENT, UPDATE_TORRENT, NEXT_TORRENT_KEY_USED } from './mutation-types';
+import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME } from './actions-types';
+import { ADD_TORRENT, UPDATE_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_START, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, TORRENT_DOWNLOADING, UPDATE_TORRENT_PROGRESS } from './mutation-types';
 const electron = require('electron');
 const { ipcRenderer, app, remote, shell } = electron;
 import path from 'path';
@@ -9,6 +9,7 @@ import fs from 'fs';
 
 import games from './games';
 import users from './users';
+import { UNZIP_GAME } from '../dispatch-types';
 
 Vue.use(Vuex);
 const userDataPath = (app || remote.app).getPath('userData');
@@ -789,8 +790,46 @@ const demoData = {
         throw new Error('keys not found in UPDATE_TORRENT payload');
       }
     },
+    [UPDATE_TORRENT_INFOHASH] (state, { payload }) {
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, { infoHash: payload.infoHash, torrentKey: payload.torrentKey }, 'torrentKey'
+      );
+    },
+    [TORRENT_DOWNLOADING] (state, { payload }) {
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, {state: 'downloading', torrentKey: payload.torrentKey }, 'torrentKey'
+      );
+    },
+    [UPDATE_TORRENT_PROGRESS] (state, { payload }) {
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, {progress: payload.progress, torrentKey: payload.torrentKey }, 'torrentKey'
+      );
+    },
+    [TORRENT_DOWNLOADED] (state, { payload }) {
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, { downloaded: true, torrentKey: payload.torrentKey }, 'torrentKey'
+      );
+    },
     [NEXT_TORRENT_KEY_USED] (state) {
       state.nextTorrentKey++;
+    },
+    [UNARCHIVE_START] (state, { payload }) {
+      const {gameId} = payload;
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, { unarchiving: true, unarchiveError: false, gameId }, 'gameId'
+      );
+    },
+    [UNARCHIVE_OK] (state, { payload }) {
+      const {gameId} = payload;
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, { unarchiving: false, unarchived: true, gameId }, 'gameId'
+      );
+    },
+    [UNARCHIVE_FAIL] (state, { payload }) {
+      const {gameId} = payload;
+      state.torrents = patchCollectionItemByKey(
+        state.torrents, { unarchiving: false, unarchived: false, unarchiveError: true, gameId }, 'gameId'
+      );
     }
   },
   actions: {
@@ -841,9 +880,8 @@ const demoData = {
           return;
         }
         commit({
-          type: UPDATE_TORRENT,
+          type: TORRENT_DOWNLOADING,
           payload: {
-            state: 'downloading',
             torrentKey
           }
         });
@@ -896,6 +934,27 @@ const demoData = {
       } else {
         // metadata hasn't been parsed yet. when metadata will be received torrent will be paused
       }
+    },
+
+    async [UNARCHIVE_GAME]({ commit, getters }, { gameId }) {
+      const { findTorrentByGameId, getGameInstallPath } = getters;
+      const torrent = findTorrentByGameId(gameId);
+      if (!torrent) {
+        return;
+      }
+      commit({
+        type: UNARCHIVE_START,
+        payload: { gameId }
+      });
+
+      const src = torrent.files.map(torrentFile => path.join( torrent.path, torrentFile.path))
+        .filter(absPath => path.extname(absPath).toLowerCase() === '.zip')
+
+      ipcRenderer.send(UNZIP_GAME, {
+        gameId, // s
+        src,
+        dst: getGameInstallPath(gameId)
+      });
     }
   },
   getters: {
@@ -1041,7 +1100,9 @@ const demoData = {
     getGameDownloadProgress:  (state, getters) => (gameId) => {
       const torrent = getters.findTorrentByGameId(gameId);
       return torrent && torrent.progress ? torrent.progress.progress : 0;
-    }
+    },
+    getGameDownloadPath: () => (gameId) => path.join(downloadPath, `${gameId}`),
+    getGameInstallPath: () => (gameId) => path.join(installPath, `${gameId}`)
   },
 };
 
