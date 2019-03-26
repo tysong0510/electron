@@ -6,6 +6,7 @@
     no-close-on-backdrop
     no-close-on-esc
     content-class="rounded-lg"
+    @hide="onHide"
   >
     <div class="h-100 d-flex">
       <div class="m-auto">
@@ -315,6 +316,9 @@
       this.$root.$on('unauthorized', this.showModal);
     },
     methods: {
+      onHide() {
+        this.$authModal.showModal = false;
+      },
       showModal(params) {
         this.noRedirect = params && !!params.noRedirect;
 

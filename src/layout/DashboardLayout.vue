@@ -7,7 +7,7 @@
     <!--</ul>-->
     <!--<hr>-->
     <!--</div>-->
-    <sidebar-menu :menu="menu" width="290px" :collapsed="collapsed" @collapse="onCollapse" />
+    <sidebar-menu :menu="menu" width="290px" :collapsed="collapsed" @collapse="onCollapse" @itemClick="sidebarItemClick" />
     <!--<side-bar>-->
     <!--<template slot="links">-->
     <!--<sidebar-link-->
@@ -143,6 +143,16 @@
       this.collapsed = JSON.parse(localStorage.getItem('collapsed'));
     },
     methods: {
+      sidebarItemClick(event, item) {
+        if (item) {
+          let { route } = this.$router.resolve(item.href);
+
+          if (route && route.meta && route.meta.auth && !this.$auth.check()) {
+            event.preventDefault();
+            item.disabled = true;
+          }
+        }
+      },
       toggleSidebar() {
         if (this.$sidebar.showSidebar) {
           this.$sidebar.displaySidebar(false);
