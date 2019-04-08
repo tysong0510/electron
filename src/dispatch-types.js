@@ -4,3 +4,7 @@ export const UNCAUGHT_ERROR = 'UNCAUGHT_ERROR';
 export const UNZIP_GAME = 'UNZIP_GAME';
 export const UNZIP_GAME_FAIL = 'UNZIP_GAME_FAIL';
 export const UNZIP_GAME_OK = 'UNZIP_GAME_OK';
+export const DRM_MODE_ENCRYPT = 'DRM_MODE_ENCRYPT';
+export const DRM_MODE_DECRYPT = 'DRM_MODE_DECRYPT';
+export const UNAUTHORIZED = 'UNAUTHORIZED';
+export const AUTHORIZED = 'AUTHORIZED';

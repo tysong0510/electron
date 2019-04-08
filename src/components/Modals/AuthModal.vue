@@ -257,6 +257,8 @@
 </template>
 
 <script>
+  import { ipcRenderer } from 'electron';
+  import {AUTHORIZED} from "../../dispatch-types";
 
   const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
 
@@ -364,6 +366,7 @@
             console.log('Authorized');
 
             this.$root.$emit('authorized');
+            ipcRenderer.send(AUTHORIZED);
 
             if (!this.$route.query['no-redirect']) {
               this.$router.push(this.$route.query.redirect || {name: 'profile'});
