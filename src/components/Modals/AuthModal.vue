@@ -345,8 +345,6 @@
         this.loginValid = true;
 
         this.$auth.login({
-          // url: '/auth',
-          // method: 'post',
           params: { // Vue-resource
             username: this.username,
             password: this.password

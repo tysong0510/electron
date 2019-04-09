@@ -229,8 +229,11 @@
         return `${Math.round(this.progress * 100)}%`
       },
       showBuyBtn() {
-        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-        return !torrent;
+        if (this.$auth.check()) {
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          return !torrent;
+        }
+        return true;
       },
       showPauseBtn() {
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
@@ -242,8 +245,11 @@
         return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
       },
       showPlayBtn() {
-        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-        return torrent && torrent.downloaded;
+        if (this.$auth.check()) {
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          return torrent && torrent.downloaded;
+        }
+        return false;
       },
       showDownloadProgress() {
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
