@@ -10,7 +10,7 @@ import {
 
 import { webtorrent } from './background/windows';
 import { State } from './state';
-import { STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME, UNZIP_GAME_OK, UNZIP_GAME_FAIL } from './dispatch-types';
+import { STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME, UNZIP_GAME_OK, UNZIP_GAME_FAIL, DRM_MODE_ENCRYPT, DRM_MODE_DECRYPT, AUTHORIZED, UNAUTHORIZED } from './dispatch-types';
 
 const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
@@ -60,15 +60,53 @@ function createWindow({ debug }) {
       e.preventDefault();
       win.hide();
     }
-  })
+  });
 
   win.on('closed', () => {
     win = null;
   });
 }
 
+function dummyDRM(mode = DRM_MODE_ENCRYPT) {
+  let findExt = '';
+  let newExt = '';
+
+  switch (mode) {
+    case DRM_MODE_DECRYPT:
+      findExt = '.drm';
+      newExt = '.exe';
+      break;
+    case DRM_MODE_ENCRYPT:
+    default:
+      findExt = '.exe';
+      newExt = '.drm';
+  }
+
+  let dirs = fs.readdirSync(installPath, { withFileTypes: true });
+
+  for (let dir of dirs) {
+    if (dir.isDirectory()) {
+      let dirPath = path.join(installPath, dir.name);
+      let dirContent = fs.readdirSync(dirPath, { withFileTypes: true });
+
+      for (let file of dirContent) {
+        if (file.isFile()) {
+          if (path.extname(file.name) === findExt) {
+            let oldPath = path.parse(path.join(dirPath, file.name));
+            let newName = path.parse(path.join(dirPath, file.name));
+            delete newName.base;
+            newName.ext = newExt;
+
+            fs.renameSync(path.format(oldPath), path.format(newName));
+          }
+        }
+      }
+    }
+  }
+}
+
 function delayedInit () {
-  if (app.isQuitting) return
+  if (app.isQuitting) return;
 
   // const announcement = require('./announcement')
   // const dock = require('./dock')
@@ -97,9 +135,9 @@ function delayedInit () {
 }
 
 async function init() {
-  let isReady = false // app ready, windows can be created
-  app.ipcReady = false // main window has finished loading and IPC is ready
-  app.isQuitting = false
+  let isReady = false; // app ready, windows can be created
+  app.ipcReady = false; // main window has finished loading and IPC is ready
+  app.isQuitting = false;
 
   // Quit when all windows are closed.
   // app.on('window-all-closed', () => {
@@ -122,22 +160,26 @@ async function init() {
   });
 
   app.on('before-quit', function (e) {
-    if (app.isQuitting) return
+    if (app.isQuitting) return;
 
-    app.isQuitting = true
-    e.preventDefault()
+    app.isQuitting = true;
+    e.preventDefault();
     if (win) {
-      win.send('dispatch', STATE_SAVE_IMMEDIATE) // try to save state on exit
+      console.log('Encrypting apps');
+      dummyDRM(DRM_MODE_ENCRYPT);
+      console.log('Apps are encrypted');
+
+      win.send('dispatch', STATE_SAVE_IMMEDIATE); // try to save state on exit
       console.log('quitting3');
       ipcMain.once('stateSaved', () =>
-      app.quit())
+      app.quit());
       setTimeout(() => {
-        console.error('Saving state took too long. Quitting.')
+        console.error('Saving state took too long. Quitting.');
         console.log('quitting4');
         app.quit()
       }, 4000) // quit after 4 secs, at most
     }
-  })
+  });
 
   // /apps and /downloads folders need to be created manually
   if (!fs.existsSync(downloadPath))
@@ -174,11 +216,11 @@ async function init() {
 
   // Report uncaught exceptions
   process.on('uncaughtException', (err) => {
-    console.error(err)
+    console.error(err);
     const error = {
       message: err.message,
       stack: err.stack
-    }
+    };
     if (win) {
       win.send('dispatch', UNCAUGHT_ERROR, 'main', error);
     }
@@ -221,29 +263,29 @@ if (isDevelopment) {
 
 const ipc = ipcMain;
 // Messages from the main process, to be sent once the WebTorrent process starts
-const messageQueueMainToWebTorrent = []
+const messageQueueMainToWebTorrent = [];
 
 ipc.once('ipcReady', function () {
-  app.ipcReady = true
+  app.ipcReady = true;
   app.emit('ipcReady')
-})
+});
 
 ipc.once('ipcReadyWebTorrent', function () {
-  app.ipcReadyWebTorrent = true
+  app.ipcReadyWebTorrent = true;
   console.log('sending %d queued messages from the main win to the webtorrent window',
-    messageQueueMainToWebTorrent.length)
+    messageQueueMainToWebTorrent.length);
   messageQueueMainToWebTorrent.forEach(function (message) {
     var ref;
 
-    (ref = torrentWin).send.apply(ref, [ message.name ].concat( message.args ))
+    (ref = torrentWin).send.apply(ref, [ message.name ].concat( message.args ));
     console.log('webtorrent: sent queued %s', message.name)
   })
-})
+});
 
 /**
  * Message proxying
  */
-const oldEmit = ipc.emit
+const oldEmit = ipc.emit;
 ipc.emit = function (name, e) {
   var ref, ref$1;
 
@@ -253,18 +295,18 @@ ipc.emit = function (name, e) {
   if (name.startsWith('wt-') && !app.isQuitting) {
     if (e.sender.browserWindowOptions.title === 'webtorrent-hidden-window') {
       // Send message to main window
-      (ref = win).send.apply(ref, [ name ].concat( args ))
+      (ref = win).send.apply(ref, [ name ].concat( args ));
       console.log('webtorrent: got %s', name)
     } else if (app.ipcReadyWebTorrent) {
       // Send message to webtorrent window
-      (ref$1 = torrentWin).send.apply(ref$1, [ name ].concat( args ))
+      (ref$1 = torrentWin).send.apply(ref$1, [ name ].concat( args ));
       console.log('webtorrent: sent %s', name)
     } else {
       // Queue message for webtorrent window, it hasn't finished loading yet
       messageQueueMainToWebTorrent.push({
         name: name,
         args: args
-      })
+      });
       console.log('webtorrent: queueing %s', name)
     }
     return
@@ -272,11 +314,11 @@ ipc.emit = function (name, e) {
 
   // Emit all other events normally
   oldEmit.call.apply(oldEmit, [ ipc, name, e ].concat( args ))
-}
+};
 
 ipc.on(UNZIP_GAME, (e, msg) => {
   const { gameId, src, dst } = msg;
-  const unzip = require('extract-zip')
+  const unzip = require('extract-zip');
 
    src.forEach(function (file) {
     if (/\.zip$/.test(file)) {
@@ -293,4 +335,14 @@ ipc.on(UNZIP_GAME, (e, msg) => {
       })
     }
   });
+});
+
+ipc.on(AUTHORIZED, () => {
+  console.log('ipc: ', AUTHORIZED);
+  dummyDRM(DRM_MODE_DECRYPT);
+});
+
+ipc.on(UNAUTHORIZED, () => {
+  console.log('ipc: ', UNAUTHORIZED);
+  dummyDRM(DRM_MODE_ENCRYPT);
 });

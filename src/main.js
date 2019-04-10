@@ -51,7 +51,7 @@ const app = new Vue({
   i18n,
   mounted() {
     // Prevent blank screen in Electron builds
-    this.$router.push('/')
+    this.$router.push({name: 'home'});
 
     if (IS_DEV) {
       // require('devtron').install();
@@ -63,7 +63,13 @@ window.app = app;
 
 import electron from 'electron';
 import { State } from './state';
-import { STATE_SAVE, STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME_OK, UNZIP_GAME_FAIL } from './dispatch-types';
+import {
+  STATE_SAVE,
+  STATE_SAVE_IMMEDIATE,
+  UNCAUGHT_ERROR,
+  UNZIP_GAME_OK,
+  UNZIP_GAME_FAIL
+} from './dispatch-types';
 
 const { ipcRenderer } = electron;
 // Save is restored on app load and saved before quitting
@@ -109,11 +115,11 @@ const dispatchHandlers = {
   [UNCAUGHT_ERROR]: (err) => {
     console.error('Uncaught error', err.stack || err);
   }
-}
+};
 
 function dispatch (action, ...args) {
-  const handler = dispatchHandlers[action]
-  if (handler) handler(...args)
+  const handler = dispatchHandlers[action];
+  if (handler) handler(...args);
   else console.error('Missing dispatch handler: ' + action)
 }
 
@@ -160,7 +166,7 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-file-saved', (e, torrentKey, torrentFileName) => {
-    console.log('torrent file saved %s: %s', torrentKey, torrentFileName)
+    console.log('torrent file saved %s: %s', torrentKey, torrentFileName);
 
     const {commit, getters} = app.$store;
     const { findTorrentByKey } = getters;
@@ -250,7 +256,7 @@ function setupIpc() {
     });
   });
   ipcRenderer.on(UNZIP_GAME_FAIL, (e, gameId) => {
-    console.log('UNARCHIVE_FAIL', gameId)
+    console.log('UNARCHIVE_FAIL', gameId);
     const {commit} = app.$store;
     commit({
       type: UNARCHIVE_FAIL,
@@ -276,7 +282,7 @@ function setupIpc() {
     });
   });
 
-  ipcRenderer.on('dispatch', (e, ...args) => dispatch(...args))
+  ipcRenderer.on('dispatch', (e, ...args) => dispatch(...args));
   State.on('stateSaved', () => ipcRenderer.send('stateSaved'))
 }
 

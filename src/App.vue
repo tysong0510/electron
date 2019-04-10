@@ -4,6 +4,8 @@
 
 <script>
 import axios from 'axios';
+import { ipcRenderer } from 'electron';
+import {AUTHORIZED, UNAUTHORIZED} from "./dispatch-types";
 
 export default {
   created() {
@@ -17,6 +19,7 @@ export default {
         switch (err.response.status) {
           case 401:
             this.$root.$emit('unauthorized');
+            ipcRenderer.send(UNAUTHORIZED);
             return err;
           default:
             throw err;
@@ -28,22 +31,37 @@ export default {
   },
   mounted() {
     this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
+
+    if (this.$auth.check()) {
+      ipcRenderer.send(AUTHORIZED);
+    }
   },
   updated() {
     if (!this.$auth.check() && this.$route.query.auth) {
       this.$root.$emit('bv::show::modal', 'modal-authorize');
     }
+
+    this.authenticated();
   },
   methods: {
     toggleNavOpen() {
       const root = document.getElementsByTagName('html')[0];
       root.classList.toggle('nav-open');
     },
+    authenticated() {
+      if (this.$auth.check()) {
+        ipcRenderer.send(AUTHORIZED);
+      } else {
+        ipcRenderer.send(UNAUTHORIZED);
+      }
+    },
     logout() {
       this.$auth.logout({
         makeRequest: false,
         redirect: false
       });
+
+      ipcRenderer.send(UNAUTHORIZED);
     },
   },
 };

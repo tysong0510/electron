@@ -20,10 +20,10 @@ const routes = [
       {
         path: 'login',
         name: 'login',
-        // redirect: {
-        //   name: 'store-top',
-        //   query: {auth: 'select'}
-        // }
+        redirect: {
+          name: 'store-top',
+          query: {auth: 'select'}
+        }
       },
       {
         path: 'store',
