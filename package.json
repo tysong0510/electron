@@ -38,6 +38,7 @@
     "vue-router": "^3.0.1",
     "vue-sidebar-menu": "^3.6.2",
     "vuex": "^3.0.1",
+    "vuex-electron": "^1.0.3",
     "vuex-rest-api": "^2.10.0",
     "webtorrent": "^0.103.1",
     "ws": "^6.2.1"

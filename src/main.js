@@ -13,7 +13,7 @@ import store from './store';
 import i18n from './i18n';
 import Dashboard from './plugins/dashboard';
 import { baseURL, authConfig } from './apiConfig';
-import VueSidebarMenu from 'vue-sidebar-menu'
+import VueSidebarMenu from 'vue-sidebar-menu';
 import { UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, UPDATE_TORRENT_PROGRESS } from './store/mutation-types';
 import './registerServiceWorker';
 const IS_DEV = process.env.NODE_ENV === 'development';

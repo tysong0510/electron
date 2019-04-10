@@ -15,6 +15,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const WebTorrent = require('webtorrent')
 import ExtendableError from 'es6-error';
+import store from "./store";
 
 // const crashReporter = require('../crash-reporter')
 const config = require('./config')
@@ -427,3 +428,5 @@ function reset() {
 
 // Manual reset for dev
 window.reset = reset;
+
+console.log(store);

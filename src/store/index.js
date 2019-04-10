@@ -15,6 +15,7 @@ Vue.use(Vuex);
 const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
 const installPath = path.join(userDataPath, 'apps');
+import { createPersistedState, createSharedMutations } from "vuex-electron"
 
 /**
  * Library for deep merging objects
@@ -957,6 +958,10 @@ const demoData = {
       });
     }
   },
+  plugins: [
+    createPersistedState(),
+    createSharedMutations()
+  ],
   getters: {
     news: (state) => {
       const news = [];
