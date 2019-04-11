@@ -236,13 +236,19 @@
         return true;
       },
       showPauseBtn() {
-        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-        return torrent && !torrent.downloaded &&
-          ['loading-metadata', 'downloading'].includes(torrent.state);
+        if (this.$auth.check()) {
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          return torrent && !torrent.downloaded &&
+            ['loading-metadata', 'downloading'].includes(torrent.state);
+        }
+        return false;
       },
       showResumeBtn() {
-        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-        return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
+        if (this.$auth.check()) {
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
+        }
+        return false;
       },
       showPlayBtn() {
         if (this.$auth.check()) {
@@ -252,8 +258,11 @@
         return false;
       },
       showDownloadProgress() {
-        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-        return torrent;
+        if (this.$auth.check()) {
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          return torrent;
+        }
+        return false;
       },
       isProgressIndeterminate() {
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);

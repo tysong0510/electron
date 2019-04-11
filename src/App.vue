@@ -5,7 +5,7 @@
 <script>
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
-import {AUTHORIZED, UNAUTHORIZED} from "./dispatch-types";
+import { AUTHORIZED, UNAUTHORIZED } from './dispatch-types';
 
 export default {
   created() {
@@ -57,7 +57,8 @@ export default {
     },
     logout() {
       this.$auth.logout({
-        makeRequest: false,
+        method: 'get',
+        makeRequest: true,
         redirect: false
       });
 

@@ -15,7 +15,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const WebTorrent = require('webtorrent')
 import ExtendableError from 'es6-error';
-import store from "./store";
+import store from './store';
 
 // const crashReporter = require('../crash-reporter')
 const config = require('./config')
@@ -173,13 +173,16 @@ function addTorrentEvents(torrent) {
   torrent.on('ready', torrentReady)
   torrent.on('done', torrentDone)
   torrent.on('wire', (wire, addr) => {
+    console.log(wire);
     console.log('connected to peer with address ' + addr)
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
+      console.log(`peer ${addr} is now interested`);
     });
 
     wire.on('uninterested', () => {
+      console.log(`peer ${addr} is no longer interested`);
     });
 
     wire.on('handshake', (infoHash, peerId, extensions) => {
@@ -407,8 +410,6 @@ window.testOfflineMode = function () {
 window.wtClient = client;
 // Download torrent and seed it
 
-// ipc.on('wt-');
-
 function reset() {
   console.log('reset');
   if (!client || !client.torrents.length) {
@@ -427,6 +428,6 @@ function reset() {
 }
 
 // Manual reset for dev
-window.reset = reset;
+// window.reset = reset;
 
 console.log(store);

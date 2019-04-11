@@ -1,11 +1,13 @@
 // import devtools from '@vue/devtools'
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import BootstrapVue from 'bootstrap-vue';
-import Vs from 'd3-vs';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+import BootstrapVue from 'bootstrap-vue';
+import Vs from 'd3-vs';
 import VueProgress from 'vue-progress-path';
+import VueSidebarMenu from 'vue-sidebar-menu';
+import electron from 'electron';
 
 import App from './App.vue';
 import router from './router';
@@ -13,36 +15,45 @@ import store from './store';
 import i18n from './i18n';
 import Dashboard from './plugins/dashboard';
 import { baseURL, authConfig } from './apiConfig';
-import VueSidebarMenu from 'vue-sidebar-menu';
-import { UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, UPDATE_TORRENT_PROGRESS } from './store/mutation-types';
+import { State } from './state';
+import {
+  STATE_SAVE,
+  STATE_SAVE_IMMEDIATE,
+  UNCAUGHT_ERROR,
+  UNZIP_GAME_OK,
+  UNZIP_GAME_FAIL
+} from './dispatch-types';
+import {
+  UPDATE_TORRENT,
+  ADD_TORRENT,
+  NEXT_TORRENT_KEY_USED,
+  UNARCHIVE_OK,
+  UNARCHIVE_FAIL,
+  TORRENT_DOWNLOADED,
+  UPDATE_TORRENT_INFOHASH,
+  UPDATE_TORRENT_PROGRESS
+} from './store/mutation-types';
 import './registerServiceWorker';
-const IS_DEV = process.env.NODE_ENV === 'development';
 
-Vue.use(VueProgress);
+import './assets/scss/main.scss';
+
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 Vue.router = router;
 
 Vue.use(VueAxios, axios);
-
 Vue.axios.defaults.baseURL = baseURL;
 
+Vue.use(VueProgress);
 Vue.use(require('@websanova/vue-auth'), {
   auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
   http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
   router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
   ...authConfig});
-
 Vue.use(VueSidebarMenu);
-
-import './assets/scss/main.scss';
-
-/* import test from './fs';
-test.test(); */
-
 Vue.use(BootstrapVue);
 Vue.use(Dashboard);
 Vue.use(VueRouter);
-
 Vue.use(Vs);
 
 const app = new Vue({
@@ -60,16 +71,6 @@ const app = new Vue({
   render: h => h(App),
 }).$mount('#app');
 window.app = app;
-
-import electron from 'electron';
-import { State } from './state';
-import {
-  STATE_SAVE,
-  STATE_SAVE_IMMEDIATE,
-  UNCAUGHT_ERROR,
-  UNZIP_GAME_OK,
-  UNZIP_GAME_FAIL
-} from './dispatch-types';
 
 const { ipcRenderer } = electron;
 // Save is restored on app load and saved before quitting
@@ -186,7 +187,7 @@ function setupIpc() {
   ipcRenderer.on('wt-progress', (e, progressInfo) => {
     progressInfo.torrents.forEach((p) => {
       const { torrentKey } = p;
-      const {commit, getters} = app.$store;
+      const { commit, getters } = app.$store;
       const { findTorrentByKey } = getters;
       const torrent = findTorrentByKey(torrentKey);
       // Skip progress update if torrent is not ready
@@ -218,7 +219,7 @@ function setupIpc() {
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
-    // console.log('wt-done', torrentKey, torrent);
+    console.log('wt-done', torrentKey, torrent);
     if (torrent) {
       commit({
         type: UPDATE_TORRENT,

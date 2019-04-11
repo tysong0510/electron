@@ -15,7 +15,7 @@ Vue.use(Vuex);
 const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
 const installPath = path.join(userDataPath, 'apps');
-import { createPersistedState, createSharedMutations } from "vuex-electron"
+import { createPersistedState, createSharedMutations } from 'vuex-electron';
 
 /**
  * Library for deep merging objects
@@ -866,13 +866,12 @@ const demoData = {
         return;
       }
       let torrentKey;
-
-        const gameInstallPath = path.join(installPath, `${gameId}`);
-        const gameDownloadPath = path.join(downloadPath, `${gameId}`);
-        if (!fs.existsSync(gameDownloadPath))
-            fs.mkdirSync(gameDownloadPath, { recursive: true });
-        if (!fs.existsSync(gameInstallPath))
-            fs.mkdirSync(gameInstallPath, { recursive: true });
+      const gameInstallPath = path.join(installPath, `${gameId}`);
+      const gameDownloadPath = path.join(downloadPath, `${gameId}`);
+      if (!fs.existsSync(gameDownloadPath))
+          fs.mkdirSync(gameDownloadPath, { recursive: true });
+      if (!fs.existsSync(gameInstallPath))
+          fs.mkdirSync(gameInstallPath, { recursive: true });
 
       if (torrent) {
         ({ torrentKey } = torrent);
@@ -949,7 +948,7 @@ const demoData = {
       });
 
       const src = torrent.files.map(torrentFile => path.join( torrent.path, torrentFile.path))
-        .filter(absPath => path.extname(absPath).toLowerCase() === '.zip')
+        .filter(absPath => path.extname(absPath).toLowerCase() === '.zip');
 
       ipcRenderer.send(UNZIP_GAME, {
         gameId, // s
