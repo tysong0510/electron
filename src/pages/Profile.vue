@@ -29,15 +29,15 @@
         </b-row>
 
         <p class="card-subtitle text-white pb-4 border-bottom">
-          {{ user.category }}
+          {{ USER.category }}
         </p>
       </b-card-body>
     </b-card>
 
     <b-row class="pb-5 mb-5">
       <b-col class="col-8 mr-auto text-white">
-        <p v-if="user.bio" class="pb-5">
-          {{ user.bio }}
+        <p v-if="USER.bio" class="pb-5">
+          {{ USER.bio }}
         </p>
         <b-row class="pb-4 mb-3">
           <b-col class="col-8 d-inline mr-auto">
@@ -397,14 +397,16 @@ import HorizontalView from '../components/View/HorizontalView.vue';
 import store from '../mixins/store';
 import date from '../mixins/date';
 import currency from '../mixins/currency';
+import user from '../mixins/user';
 
 import { baseURL } from '../apiConfig';
+import {USER} from "../store/modules/auth";
 
 export default {
   components: {
     HorizontalView,
   },
-  mixins: [store, date, currency],
+  mixins: [store, date, currency, user],
   data() {
     return {
       statisticFields: [
@@ -475,17 +477,12 @@ export default {
       pending: state => state.pending,
       error: state => state.error,
     }),
-    user: {
-      get() {
-        return this.$auth.user();
-      }
-    },
     avatar: {
       get() {
-        let userAvatar = this.user && this.user.images && this.user.images.main;
+        let userAvatar = this[USER] && this[USER].images && this[USER].images.main;
 
         if (userAvatar) {
-          return baseURL + `/profile/${this.user.id}/${userAvatar}`;
+          return baseURL + `/profile/${this[USER].id}/${userAvatar}`;
         } else {
           /**
            * Return 1x1 transparent PNG pixel
@@ -496,7 +493,7 @@ export default {
     },
     name: {
       get() {
-        return `${this.user.firstName} ${this.user.lastName}`
+        return `${this[USER].firstName} ${this[USER].lastName}`
       }
     },
     statistic: {

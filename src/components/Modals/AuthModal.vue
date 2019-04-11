@@ -257,8 +257,9 @@
 </template>
 
 <script>
-  import { ipcRenderer } from 'electron';
-  import {AUTHORIZED} from "../../dispatch-types";
+  import {ACTION_LOGIN, ACTION_REGISTER} from "../../store/modules/auth";
+  // import { UNAUTHORIZED } from "../../dispatch-types";
+  // import { ipcRenderer } from 'electron';
 
   const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
 
@@ -346,40 +347,63 @@
 
         this.loginValid = true;
 
-        this.$auth.login({
-          // url: '/auth',
-          // method: 'post',
-          params: { // Vue-resource
-            username: this.username,
-            password: this.password
-          },
-          data: { // Axios
-            username: this.username,
-            password: this.password
-          },
-          rememberMe: this.rememberMe,
-          redirect: false,
-          fetchUser: true,
-          success: function () {
-            this.$authModal.showModal = false;
+        this.$store.dispatch(ACTION_LOGIN, {
+          username: this.username,
+          password: this.password
+        }).then(() => {
+          this.$authModal.showModal = false;
 
-            console.log('Authorized');
+          console.log('Authorized');
 
-            this.$root.$emit('authorized');
-            ipcRenderer.send(AUTHORIZED);
+          // ipcRenderer.send(AUTHORIZED);
 
-            if (!this.$route.query['no-redirect']) {
-              this.$router.push(this.$route.query.redirect || {name: 'profile'});
-            }
-          },
-          error: function (err) {
-            let res = err.response;
+          if (!this.$route.query['no-redirect']) {
+            this.$router.push(this.$route.query.redirect || {name: 'profile'});
+          }
 
-            if (res.status === 404) {
-              this.loginValid = false;
-            }
+          this.$root.$emit('authorized');
+        }).catch((err) => {
+          let res = err.response;
+
+          if (res.status === 404) {
+            this.loginValid = false;
           }
         });
+
+        // this.$auth.login({
+        //   // url: '/auth',
+        //   // method: 'post',
+        //   params: { // Vue-resource
+        //     username: this.username,
+        //     password: this.password
+        //   },
+        //   data: { // Axios
+        //     username: this.username,
+        //     password: this.password
+        //   },
+        //   rememberMe: this.rememberMe,
+        //   redirect: false,
+        //   fetchUser: true,
+        //   success: function () {
+        //     this.$authModal.showModal = false;
+        //
+        //     console.log('Authorized');
+        //
+        //     this.$root.$emit('authorized');
+        //     ipcRenderer.send(AUTHORIZED);
+        //
+        //     if (!this.$route.query['no-redirect']) {
+        //       this.$router.push(this.$route.query.redirect || {name: 'profile'});
+        //     }
+        //   },
+        //   error: function (err) {
+        //     let res = err.response;
+        //
+        //     if (res.status === 404) {
+        //       this.loginValid = false;
+        //     }
+        //   }
+        // });
 
         // localStorage.auth = 1;
       },
@@ -388,40 +412,60 @@
 
         let that = this;
 
-        this.$auth.register({
-          // url: '/auth',
-          // method: 'post',
-          params: { // Vue-resource
+        this.$store.dispatch(ACTION_REGISTER, { // Vue-resource
             firstName: this.firstName,
             lastName: this.lastName,
             email: this.email,
             username: this.username,
             password: this.password
-          },
-          data: { // Axios
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            username: this.username,
-            password: this.password
-          },
-          redirect: false,
-          success: function () {
+          }).then(() => {
             that.$authModal.showModal = false;
 
             console.log('Registered');
 
             this.goTo('confirm');
-          },
-          error: function (err) {
+          }).catch((err) => {
             let res = err.response;
 
             if (res.status === 404) {
               console.log('Incorrect username or password');
             }
             console.log(err.response);
-          }
-        });
+          });
+        // this.$auth.register({
+        //   // url: '/auth',
+        //   // method: 'post',
+        //   params: { // Vue-resource
+        //     firstName: this.firstName,
+        //     lastName: this.lastName,
+        //     email: this.email,
+        //     username: this.username,
+        //     password: this.password
+        //   },
+        //   data: { // Axios
+        //     firstName: this.firstName,
+        //     lastName: this.lastName,
+        //     email: this.email,
+        //     username: this.username,
+        //     password: this.password
+        //   },
+        //   redirect: false,
+        //   success: function () {
+        //     that.$authModal.showModal = false;
+        //
+        //     console.log('Registered');
+        //
+        //     this.goTo('confirm');
+        //   },
+        //   error: function (err) {
+        //     let res = err.response;
+        //
+        //     if (res.status === 404) {
+        //       console.log('Incorrect username or password');
+        //     }
+        //     console.log(err.response);
+        //   }
+        // });
       },
     },
   };

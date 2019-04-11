@@ -56,8 +56,11 @@
 </template>
 
 <script>
+import user from '../mixins/user';
+
 export default {
   name: 'News',
+  mixins: [user],
   data() {
     return {
       // news: {

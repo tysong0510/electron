@@ -73,10 +73,11 @@
 <script>
 import store from '../mixins/store';
 import date from '../mixins/date';
+import user from '../mixins/user';
 
 export default {
   name: 'Games',
-  mixins: [store, date],
+  mixins: [store, date, user],
   data() {
     return {
 

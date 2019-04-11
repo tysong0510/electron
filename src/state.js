@@ -10,7 +10,7 @@ const { readFileSync, writeFileSync, renameSync } = fs;
 // ['readFile', 'writeFile', 'rename'].forEach(name => { fs[`${name}Async`] = promisify(fs[name]) })
 // const { readFileAsync, writeFileAsync, renameAsync } = fs;
 
-const SAVE_DEBOUNCE_INTERVAL = 1000
+const SAVE_DEBOUNCE_INTERVAL = 1000;
 // const appConfig = ApplicationConfigFactory('voxpop');
 // appConfig.filePath = path.join(config.CONFIG_PATH, 'config.json')
 // appConfig.readAsync = promisify(appConfig.read);
@@ -44,7 +44,7 @@ async function readFile() {
     }
     raw = '{}';
   }
-  result = JSON.parse(raw)
+  result = JSON.parse(raw);
 
   return result;
 }
@@ -82,10 +82,10 @@ State.load = async function load() {
 
 State.save = async function save(state) {
   // Perf optimization: Lazy-require debounce (and it's dependencies)
-  const debounce = require('debounce')
+  const debounce = require('debounce');
   // After first State.save() invokation, future calls go straight to the
   // debounced function
-  State.save = debounce(State.saveImmediate, SAVE_DEBOUNCE_INTERVAL)
+  State.save = debounce(State.saveImmediate, SAVE_DEBOUNCE_INTERVAL);
   State.save(state);
 };
 

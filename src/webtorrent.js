@@ -4,7 +4,7 @@
 
 // To keep the UI snappy, we run WebTorrent in its own hidden window, a separate
 // process from the main window.
-console.time('init')
+console.time('init');
 
 const crypto = require('crypto')
 const deepEqual = require('deep-equal')
@@ -36,7 +36,7 @@ class TorrentKeyNotFoundError extends TorrentError {
 // crashReporter.init()
 
 // Send & receive messages from the main window
-const ipc = electron.ipcRenderer
+const ipc = electron.ipcRenderer;
 
 // Force use of webtorrent trackers on all torrents
 global.WEBTORRENT_ANNOUNCE = defaultAnnounceList
@@ -86,10 +86,13 @@ let prevProgress = null
 init()
 
 function init() {
-  listenToClientEvents()
+  listenToClientEvents();
 
-  ipc.on('wt-start-torrenting', (e, torrentKey, torrentID, path, fileModtimes, selections) =>
-    startTorrenting(torrentKey, torrentID, path, fileModtimes, selections))
+  ipc.on('wt-start-torrenting', (e, torrentKey, torrentID, path, fileModtimes, selections) => {
+    console.log(e, torrentKey, torrentID, path, fileModtimes, selections)
+    startTorrenting(torrentKey, torrentID, path, fileModtimes, selections)
+  })
+
   ipc.on('wt-stop-torrenting', (e, infoHash) =>
     stopTorrenting(infoHash))
   ipc.on('wt-create-torrent', (e, torrentKey, options) =>

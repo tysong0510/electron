@@ -17,7 +17,8 @@ const downloadPath = path.join(userDataPath, 'downloads');
 const installPath = path.join(userDataPath, 'apps');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const enableDebug = process.env.DEBUG === 'true' || (process.argv.includes('--debug'));
-import './store';
+import store from './store';
+import {ACTION_REFRESH} from "./store/modules/auth";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -243,6 +244,8 @@ if (!gotInstanceLock) {
   app.quit()
 } else {
   init();
+
+  store.dispatch(ACTION_REFRESH);
 }
 
 // Exit cleanly on request from parent process in development mode.
@@ -294,7 +297,7 @@ ipc.emit = function (name, e) {
   while ( len-- > 0 ) args[ len ] = arguments[ len + 2 ];
   // Relay messages between the main window and the WebTorrent hidden window
   if (name.startsWith('wt-') && !app.isQuitting) {
-    if (e.sender.browserWindowOptions.title === 'webtorrent-hidden-window') {
+    if (e && e.sender && e.sender.browserWindowOptions.title === 'webtorrent-hidden-window') {
       // Send message to main window
       (ref = win).send.apply(ref, [ name ].concat( args ));
       console.log('webtorrent: got %s', name)
@@ -343,7 +346,12 @@ ipc.on(AUTHORIZED, () => {
   dummyDRM(DRM_MODE_DECRYPT);
 });
 
-ipc.on(UNAUTHORIZED, () => {
+ipc.on(UNAUTHORIZED, (event) => {
+  // Dummy protection
+  if (!event) {
+    return;
+  }
+  console.log(event);
   console.log('ipc: ', UNAUTHORIZED);
   dummyDRM(DRM_MODE_ENCRYPT);
 });

@@ -5,9 +5,12 @@
 <script>
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
-import {AUTHORIZED, UNAUTHORIZED} from "./dispatch-types";
+import {UNAUTHORIZED} from "./dispatch-types";
+import user from './mixins/user';
+import {IS_LOGGED_IN} from "./store/modules/auth";
 
 export default {
+  mixins: [user],
   created() {
     axios.interceptors.response.use(
       response => response,
@@ -18,6 +21,7 @@ export default {
 
         switch (err.response.status) {
           case 401:
+            console.log(err.request);
             this.$root.$emit('unauthorized');
             ipcRenderer.send(UNAUTHORIZED);
             return err;
@@ -32,35 +36,21 @@ export default {
   mounted() {
     this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
 
-    if (this.$auth.check()) {
-      ipcRenderer.send(AUTHORIZED);
-    }
+    // if (this.$auth.check()) {
+    //   ipcRenderer.send(AUTHORIZED);
+    // }
   },
   updated() {
-    if (!this.$auth.check() && this.$route.query.auth) {
+    if (!this[IS_LOGGED_IN] && this.$route.query.auth) {
       this.$root.$emit('bv::show::modal', 'modal-authorize');
     }
-
-    this.authenticated();
   },
   methods: {
     toggleNavOpen() {
       const root = document.getElementsByTagName('html')[0];
       root.classList.toggle('nav-open');
     },
-    authenticated() {
-      if (this.$auth.check()) {
-        ipcRenderer.send(AUTHORIZED);
-      } else {
-        ipcRenderer.send(UNAUTHORIZED);
-      }
-    },
     logout() {
-      this.$auth.logout({
-        makeRequest: false,
-        redirect: false
-      });
-
       ipcRenderer.send(UNAUTHORIZED);
     },
   },

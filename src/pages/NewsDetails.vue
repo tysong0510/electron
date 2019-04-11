@@ -77,6 +77,7 @@
 
 <script>
 import { Carousel, Slide } from 'vue-carousel';
+import user from '../mixins/user';
 
 const carouselOptions = {
   autoplay: true,
@@ -94,6 +95,7 @@ export default {
     Carousel,
     Slide,
   },
+  mixins: [user],
   data() {
     return {
       carouselOptions: null,

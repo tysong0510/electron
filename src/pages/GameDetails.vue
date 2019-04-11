@@ -168,6 +168,8 @@
   import VoteBar from '../components/Progress/VoteBar.vue';
   import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from '../store/actions-types';
   import {baseURL} from '../apiConfig';
+  import user from '../mixins/user';
+  import {IS_LOGGED_IN} from "../store/modules/auth";
 
   const carouselOptions = {
     autoplay: true,
@@ -188,7 +190,7 @@
       Slide
     },
 
-    mixins: [currency],
+    mixins: [currency, user],
 
     data() {
       return {
@@ -298,7 +300,7 @@
       gameBuy() {
         // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
         // this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }) });
-        if (!this.$auth.check()) {
+        if (!this[IS_LOGGED_IN]) {
           this.$root.$emit('unauthorized', {noRedirect: true});
           this.$root.$once('authorized', this.gameBuy);
         } else {

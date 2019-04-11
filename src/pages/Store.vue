@@ -208,6 +208,7 @@
 <script>
   import store from '../mixins/store';
   import currency from '../mixins/currency';
+  import user from '../mixins/user';
 
   let colCounter = 0;
 
@@ -215,7 +216,7 @@
     // components: {
     //   GameCarousel
     // },
-    mixins: [store, currency],
+    mixins: [store, currency, user],
     data() {
       return {
         name: 'Store',

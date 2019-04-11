@@ -3,7 +3,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import BootstrapVue from 'bootstrap-vue';
 import Vs from 'd3-vs';
-import axios from 'axios';
+import Axios from 'axios';
 import VueAxios from 'vue-axios';
 import VueProgress from 'vue-progress-path';
 
@@ -12,7 +12,7 @@ import router from './router';
 import store from './store';
 import i18n from './i18n';
 import Dashboard from './plugins/dashboard';
-import { baseURL, authConfig } from './apiConfig';
+import { baseURL } from './apiConfig';
 import VueSidebarMenu from 'vue-sidebar-menu';
 import { UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, UPDATE_TORRENT_PROGRESS } from './store/mutation-types';
 import './registerServiceWorker';
@@ -22,22 +22,27 @@ Vue.use(VueProgress);
 
 Vue.router = router;
 
-Vue.use(VueAxios, axios);
+Vue.use(VueAxios, Axios);
 
 Vue.axios.defaults.baseURL = baseURL;
 
-Vue.use(require('@websanova/vue-auth'), {
-  auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
-  http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
-  router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
-  ...authConfig});
+// Vue.use(require('@websanova/vue-auth'), {
+//   auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
+//   http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
+//   router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
+//   ...authConfig});
+
+// Vue.$http = Axios;
+
+// const token = localStorage.getItem('token');
+//
+// if (token) {
+//   Vue.prototype.$http.defaults.headers.common['Authorization'] = token;
+// }
 
 Vue.use(VueSidebarMenu);
 
 import './assets/scss/main.scss';
-
-/* import test from './fs';
-test.test(); */
 
 Vue.use(BootstrapVue);
 Vue.use(Dashboard);
@@ -60,6 +65,10 @@ const app = new Vue({
   render: h => h(App),
 }).$mount('#app');
 window.app = app;
+
+if (IS_DEV) {
+  window.require('devtron').install();
+}
 
 import electron from 'electron';
 import { State } from './state';
@@ -128,14 +137,14 @@ import { START_DOWNLOAD_GAME, UNARCHIVE_GAME } from './store/actions-types';
 
 function setupIpc() {
   ipcRenderer.on('wt-infohash', (e, torrentKey, infoHash) => {
-    const { getters, commit } = app.$store;
+    const { getters, dispatch } = app.$store;
     const { findTorrentByInfoHash } = getters;
     const existingTorrent = findTorrentByInfoHash(infoHash);
     if (existingTorrent && existingTorrent.torrentKey !== torrentKey) {
       ipcRenderer.send('wt-stop-torrenting', infoHash);
       return dispatch('error', 'Cannot add duplicate torrent');
     }
-    commit({
+    dispatch({
       type: UPDATE_TORRENT_INFOHASH,
       payload: {
         torrentKey,
@@ -145,11 +154,11 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-metadata', (e, torrentKey, torrentInfo) => {
-    const {commit, getters} = app.$store;
+    const {getters, dispatch} = app.$store;
     const { findTorrentByKey } = getters;
     const torrent = findTorrentByKey(torrentKey);
     if (torrent) {
-      commit({
+      dispatch({
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
@@ -168,11 +177,11 @@ function setupIpc() {
   ipcRenderer.on('wt-file-saved', (e, torrentKey, torrentFileName) => {
     console.log('torrent file saved %s: %s', torrentKey, torrentFileName);
 
-    const {commit, getters} = app.$store;
+    const {getters} = app.$store;
     const { findTorrentByKey } = getters;
     const torrent = findTorrentByKey(torrentKey);
     if (torrent) {
-      commit({
+      app.$store.dispatch({
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
@@ -186,14 +195,14 @@ function setupIpc() {
   ipcRenderer.on('wt-progress', (e, progressInfo) => {
     progressInfo.torrents.forEach((p) => {
       const { torrentKey } = p;
-      const {commit, getters} = app.$store;
+      const {getters, dispatch} = app.$store;
       const { findTorrentByKey } = getters;
       const torrent = findTorrentByKey(torrentKey);
       // Skip progress update if torrent is not ready
       if (torrent && !deepEqual(torrent.progress, p) && p.ready) {
         if (torrent.downloaded && p.progress !== 1) {
           // Reset done
-          commit({
+          dispatch({
             type: UPDATE_TORRENT,
             payload: {
               torrentKey,
@@ -205,7 +214,7 @@ function setupIpc() {
           torrentKey,
           progress: p
         };
-        commit({
+        dispatch({
           type: UPDATE_TORRENT_PROGRESS,
           payload: patch
         });
@@ -214,13 +223,13 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
-    const {commit, getters, dispatch} = app.$store;
+    const {getters, dispatch} = app.$store;
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
     // console.log('wt-done', torrentKey, torrent);
     if (torrent) {
-      commit({
+      dispatch({
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
@@ -232,7 +241,7 @@ function setupIpc() {
     }
 
     if (torrentInfo.bytesReceived > 0) {
-      commit({
+      dispatch({
         type: TORRENT_DOWNLOADED,
         payload: {
           torrentKey,
@@ -249,16 +258,16 @@ function setupIpc() {
 
   ipcRenderer.on(UNZIP_GAME_OK, (e, gameId) => {
     console.log('UNARCHIVE_OK', gameId);
-    const {commit} = app.$store;
-    commit({
+    const {dispatch} = app.$store;
+    dispatch({
       type: UNARCHIVE_OK,
       payload: {gameId}
     });
   });
   ipcRenderer.on(UNZIP_GAME_FAIL, (e, gameId) => {
     console.log('UNARCHIVE_FAIL', gameId);
-    const {commit} = app.$store;
-    commit({
+    const {dispatch} = app.$store;
+    dispatch({
       type: UNARCHIVE_FAIL,
       payload: {gameId}
     });
@@ -272,7 +281,8 @@ function setupIpc() {
     console.error('wt-error',torrentKey, message);
     // const torrent = store.getters.findTorrentByKey(torrentKey);
     // const { state } = torrent;
-    store.commit({
+    const {dispatch} = app.$store;
+    dispatch({
       type: UPDATE_TORRENT,
       payload: {
         torrentKey,
@@ -300,14 +310,14 @@ ipcRenderer.once('wt-reset-ok', () => {
       app.$router.push(state.vue.route);
     }
     const { torrents = [] } = state;
-    const {state: storeState, commit, dispatch} = app.$store;
+    const {state: storeState, dispatch} = app.$store;
     torrents.forEach(t => {
       if (!t || !t.infoHash) {
         console.warn(`Badly saved torrent`, t);
         return;
       }
       const torrentKey = storeState.nextTorrentKey;
-      commit(NEXT_TORRENT_KEY_USED);
+      dispatch(NEXT_TORRENT_KEY_USED);
       const originalState = t.state;
       const torrent = {
         ...t,
@@ -320,7 +330,7 @@ ipcRenderer.once('wt-reset-ok', () => {
         notpaused: originalState !== 'paused',
         start: t.downloaded || originalState !== 'paused'
       });
-      commit({
+      dispatch({
         type: ADD_TORRENT,
         payload: torrent
       });

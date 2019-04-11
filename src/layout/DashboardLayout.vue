@@ -43,6 +43,8 @@
 <script>
   import DashboardContent from './Content.vue';
   import Logo from '../components/SideBar/Logo.vue';
+  import user from '../mixins/user';
+  import {IS_LOGGED_IN} from "../store/modules/auth";
   // import AuthModal from '../components/Modals/AuthModal.vue';
 
   export default {
@@ -52,6 +54,7 @@
       // eslint-disable-next-line
       Logo
     },
+    mixins: [user],
     data() {
       return {
         menu: [
@@ -147,7 +150,7 @@
         if (item) {
           let { route } = this.$router.resolve(item.href);
 
-          if (route && route.meta && route.meta.auth && !this.$auth.check()) {
+          if (route && route.meta && route.meta.auth && !this[IS_LOGGED_IN]) {
             event.preventDefault();
             item.disabled = true;
           }

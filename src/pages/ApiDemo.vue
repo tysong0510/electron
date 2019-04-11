@@ -28,9 +28,11 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import user from '../mixins/user';
 
 export default {
   name: 'ApiDemo',
+  mixins: [user],
   data() {
     return {
       modalShow: false,
