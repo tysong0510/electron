@@ -872,6 +872,10 @@ const demoData = {
       commit(ADD_TORRENT, data);
     },
 
+    [TORRENT_DOWNLOADED]({ commit }, data) {
+      commit(TORRENT_DOWNLOADED, data);
+    },
+
     [UPDATE_TORRENT]({ commit }, data) {
       commit(UPDATE_TORRENT, data);
     },
