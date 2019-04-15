@@ -22,8 +22,8 @@ const routes = [
         name: 'login',
         redirect: {
           name: 'store-top',
-          query: {auth: 'select'}
-        }
+          query: { auth: 'select' },
+        },
       },
       {
         path: 'store',
@@ -67,7 +67,7 @@ const routes = [
         path: 'profile',
         name: 'profile',
         component: Profile,
-        meta: { auth: true }
+        meta: { auth: true },
       },
       {
         path: 'profile/top-games',

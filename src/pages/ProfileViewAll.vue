@@ -175,11 +175,12 @@
 import store from '../mixins/store';
 import date from '../mixins/date';
 import currency from '../mixins/currency';
+import user from '../mixins/user';
 
 export default {
   name: 'ProfileViewAll',
   filters: {},
-  mixins: [store, date, currency],
+  mixins: [store, date, currency, user],
   data() {
     return {
       storeTitle: '',
@@ -208,7 +209,7 @@ export default {
   },
 
   created() {
-    this.getGames()
+    this.getGames();
   },
 
   methods: {

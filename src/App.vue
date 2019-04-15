@@ -3,66 +3,56 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { ipcRenderer } from 'electron';
-import { AUTHORIZED, UNAUTHORIZED } from './dispatch-types';
+  import axios from 'axios';
+  import { ipcRenderer } from 'electron';
+  import { UNAUTHORIZED } from './dispatch-types';
+  import user from './mixins/user';
+  import { IS_LOGGED_IN } from './store/modules/auth';
 
-export default {
-  created() {
-    axios.interceptors.response.use(
-      response => response,
-      (err) => {
-        if (!err.response) {
-          throw err;
-        }
-
-        switch (err.response.status) {
-          case 401:
-            this.$root.$emit('unauthorized');
-            ipcRenderer.send(UNAUTHORIZED);
-            return err;
-          default:
+  export default {
+    mixins: [user],
+    created() {
+      axios.interceptors.response.use(
+        response => response,
+        (err) => {
+          if (!err.response) {
             throw err;
-        }
-      },
-    );
-    // this.$root.$on('unauthorized', this.logout); // TODO revert, fix auth flow on Game Buy button
-  },
-  mounted() {
-    this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
+          }
 
-    if (this.$auth.check()) {
-      ipcRenderer.send(AUTHORIZED);
-    }
-  },
-  updated() {
-    if (!this.$auth.check() && this.$route.query.auth) {
-      this.$root.$emit('bv::show::modal', 'modal-authorize');
-    }
+          switch (err.response.status) {
+            case 401:
+              console.log(err.request);
+              this.$root.$emit('unauthorized');
+              ipcRenderer.send(UNAUTHORIZED);
+              return err;
+            default:
+              throw err;
+          }
+        },
+      );
 
-    this.authenticated();
-  },
-  methods: {
-    toggleNavOpen() {
-      const root = document.getElementsByTagName('html')[0];
-      root.classList.toggle('nav-open');
+      this.$root.$on('unauthorized', this.logout);
     },
-    authenticated() {
-      if (this.$auth.check()) {
-        ipcRenderer.send(AUTHORIZED);
-      } else {
-        ipcRenderer.send(UNAUTHORIZED);
+    mounted() {
+      this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
+
+      // if (this.$auth.check()) {
+      //   ipcRenderer.send(AUTHORIZED);
+      // }
+    },
+    updated() {
+      if (!this[IS_LOGGED_IN] && this.$route.query.auth) {
+        this.$root.$emit('bv::show::modal', 'modal-authorize');
       }
     },
-    logout() {
-      this.$auth.logout({
-        method: 'get',
-        makeRequest: true,
-        redirect: false
-      });
-
-      ipcRenderer.send(UNAUTHORIZED);
+    methods: {
+      toggleNavOpen() {
+        const root = document.getElementsByTagName('html')[0];
+        root.classList.toggle('nav-open');
+      },
+      logout() {
+        ipcRenderer.send(UNAUTHORIZED);
+      },
     },
-  },
-};
+  };
 </script>

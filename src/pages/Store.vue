@@ -206,128 +206,129 @@
 </template>
 
 <script>
-  import store from '../mixins/store';
-  import currency from '../mixins/currency';
+import store from '../mixins/store';
+import currency from '../mixins/currency';
+import user from '../mixins/user';
 
-  let colCounter = 0;
+let colCounter = 0;
 
-  export default {
-    // components: {
-    //   GameCarousel
-    // },
-    mixins: [store, currency],
-    data() {
-      return {
-        name: 'Store',
-        filterSelected: 'day',
-        storeTitle: '',
-        store: null,
-        filter: null,
-      };
-    },
+export default {
+  // components: {
+  //   GameCarousel
+  // },
+  mixins: [store, currency, user],
+  data() {
+    return {
+      name: 'Store',
+      filterSelected: 'day',
+      storeTitle: '',
+      store: null,
+      filter: null,
+    };
+  },
 
-    computed: {
-      content: {
-        get() {
-          if (!this.store) {
-            this.getData(this.currentStore);
-          }
-
-          if (this.store && this.store.hasOwnProperty('content')) {
-            if (this.filter) {
-              return this.store.content[this.filterSelected] || [];
-            }
-            if (Array.isArray(this.store.content)) {
-              return this.store.content;
-            }
-            return this.store.content[Object.keys(this.store.content)
-              .pop()];
-          }
-          return [];
-        },
-      },
-    },
-    watch: {
-      'pending.featuredGames'() {
-        if (!this.pending.featuredGames && this.currentStore === 'store-featured') {
+  computed: {
+    content: {
+      get() {
+        if (!this.store) {
           this.getData(this.currentStore);
         }
-      },
-      'pending.topGames'() {
-        if (!this.pending.topGames && this.currentStore === 'store-top') {
-          this.getData(this.currentStore);
+
+        if (this.store && this.store.hasOwnProperty('content')) {
+          if (this.filter) {
+            return this.store.content[this.filterSelected] || [];
+          }
+          if (Array.isArray(this.store.content)) {
+            return this.store.content;
+          }
+          return this.store.content[Object.keys(this.store.content)
+            .pop()];
         }
+        return [];
+      },
+    },
+  },
+  watch: {
+    'pending.featuredGames': function () {
+      if (!this.pending.featuredGames && this.currentStore === 'store-featured') {
+        this.getData(this.currentStore);
       }
     },
-    mounted() {
-
-    },
-    created() {
-      this.getGames();
-
-      if (this.currentStore === 'store-featured') {
-        this.getFeatured();
-      } else if (this.currentStore === 'store-top') {
-        this.getTopGames();
+    'pending.topGames': function () {
+      if (!this.pending.topGames && this.currentStore === 'store-top') {
+        this.getData(this.currentStore);
       }
     },
-    beforeDestroy() {
+  },
+  mounted() {
+
+  },
+  created() {
+    this.getGames();
+
+    if (this.currentStore === 'store-featured') {
+      this.getFeatured();
+    } else if (this.currentStore === 'store-top') {
+      this.getTopGames();
+    }
+  },
+  beforeDestroy() {
+  },
+  methods: {
+    getCols(index) {
+      if (index === 0) {
+        colCounter = 0;
+      }
+
+      colCounter += 1;
+
+      if (colCounter < 4) {
+        return '4';
+      }
+      return '2_5';
     },
-    methods: {
-      getCols(index) {
-        if (index === 0) {
-          colCounter = 0;
-        }
+    textCutter(text = null) {
+      let cuttedText = '';
 
-        colCounter += 1;
+      if (text && text.length > 140) {
+        cuttedText = text
+          .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
+          .replace(/[.,\s]*?$/, '...');
+      } else {
+        cuttedText = text || '';
+      }
 
-        if (colCounter < 4) {
-          return '4';
-        }
-        return '2_5';
-      },
-      textCutter(text = null) {
-        let cuttedText = '';
-
-        if (text && text.length > 140) {
-          cuttedText = text
-            .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-            .replace(/[.,\s]*?$/, '...');
-        } else {
-          cuttedText = text || '';
-        }
-
-        return cuttedText;
-      },
-      getData(storeName) {
-        const store = this.$store.getters.getRatingStoreByName(storeName) || {};
-
-        this.storeTitle = store.title;
-
-        if (!['store-featured', 'store-top'].includes(storeName)) {
-          const filter = this.$store.getters.getFilterByName(storeName);
-          if (filter) {
-            this.filter = filter;
-            this.filterSelected = this.filter.default;
-          }
-
-          this.storeSort(store);
-        }
-
-        if (storeName === 'store-featured') {
-          if (!this.pending.featuredGames) {
-            store.content = this.featuredGames || [];
-          }
-        } else if (storeName === 'store-top') {
-          if (!this.pending.topGames) {
-            store.content = this.topGames || [];
-          }
-        }
-
-        this.store = store;
-      },
+      return cuttedText;
     },
-  };
+    getData(storeName) {
+      const store = this.$store.getters.getRatingStoreByName(storeName) || {};
+
+      this.storeTitle = store.title;
+
+      if (!['store-featured', 'store-top'].includes(storeName)) {
+        const filter = this.$store.getters.getFilterByName(storeName);
+        if (filter) {
+          this.filter = filter;
+          this.filterSelected = this.filter.default;
+        }
+
+        this.storeSort(store);
+      }
+
+      if (storeName === 'store-featured') {
+        if (!this.pending.featuredGames) {
+          store.content = this.featuredGames || [];
+        }
+      } else if (storeName === 'store-top') {
+        if (!this.pending.topGames) {
+          store.content = this.topGames || [];
+        }
+      }
+
+      this.store = store;
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -29,15 +29,15 @@
         </b-row>
 
         <p class="card-subtitle text-white pb-4 border-bottom">
-          {{ user.category }}
+          {{ USER.category }}
         </p>
       </b-card-body>
     </b-card>
 
     <b-row class="pb-5 mb-5">
       <b-col class="col-8 mr-auto text-white">
-        <p v-if="user.bio" class="pb-5">
-          {{ user.bio }}
+        <p v-if="USER.bio" class="pb-5">
+          {{ USER.bio }}
         </p>
         <b-row class="pb-4 mb-3">
           <b-col class="col-8 d-inline mr-auto">
@@ -392,30 +392,32 @@
 </template>
 
 <script>
-import {mapActions, mapState} from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import HorizontalView from '../components/View/HorizontalView.vue';
 import store from '../mixins/store';
 import date from '../mixins/date';
 import currency from '../mixins/currency';
+import user from '../mixins/user';
 
 import { baseURL } from '../apiConfig';
+import { USER } from '../store/modules/auth';
 
 export default {
   components: {
     HorizontalView,
   },
-  mixins: [store, date, currency],
+  mixins: [store, date, currency, user],
   data() {
     return {
       statisticFields: [
-        {key: 'game', name: 'Game'},
-        {key: 'seededUnitsTotal', name: 'Units Count Total'},
-        {key: 'usersCount', name: 'Users Count'}
+        { key: 'game', name: 'Game' },
+        { key: 'seededUnitsTotal', name: 'Units Count Total' },
+        { key: 'usersCount', name: 'Users Count' },
       ],
       statisticGameFields: [
-        {key: 'userId', name: 'User'},
-        {key: 'sessionDate', name: 'Date'},
-        {key: 'unitsCount', name: 'Units Count'}
+        { key: 'userId', name: 'User' },
+        { key: 'sessionDate', name: 'Date' },
+        { key: 'unitsCount', name: 'Units Count' },
       ],
       filterStatistics: {
         selected: 'day',
@@ -475,29 +477,23 @@ export default {
       pending: state => state.pending,
       error: state => state.error,
     }),
-    user: {
-      get() {
-        return this.$auth.user();
-      }
-    },
     avatar: {
       get() {
-        let userAvatar = this.user && this.user.images && this.user.images.main;
+        const userAvatar = this[USER] && this[USER].images && this[USER].images.main;
 
         if (userAvatar) {
-          return baseURL + `/profile/${this.user.id}/${userAvatar}`;
-        } else {
-          /**
+          return `${baseURL}/profile/${this[USER].id}/${userAvatar}`;
+        }
+        /**
            * Return 1x1 transparent PNG pixel
            */
-          return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-        }
-      }
+        return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+      },
     },
     name: {
       get() {
-        return `${this.user.firstName} ${this.user.lastName}`
-      }
+        return `${this[USER].firstName} ${this[USER].lastName}`;
+      },
     },
     statistic: {
       get() {
@@ -534,18 +530,18 @@ export default {
         //   }
         // ]
 
-        let data = this.userFilesStatistic.slice(0);
+        const data = this.userFilesStatistic.slice(0);
 
-        for (let item of this.userFilesStatistic) {
-          if (typeof item._showDetails === "undefined") {
+        for (const item of this.userFilesStatistic) {
+          if (typeof item._showDetails === 'undefined') {
             this.$set(item, '_showDetails', false);
             // item._showDetails = false;
           }
         }
 
         return data;
-      }
-    }
+      },
+    },
   },
   watch: {
     // 'pending.userFilesStatistic'() {
@@ -578,7 +574,7 @@ export default {
     },
     rowStatisticDetailsToggle(row) {
       this.$set(row, '_showDetails', !row._showDetails);
-    }
+    },
   },
 };
 </script>

@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 
 let win = null;
-export function getInstance ({ debug } = {}) {
+export function getInstance({ debug } = {}) {
   if (win) {
     return win;
   }
@@ -19,8 +19,8 @@ export function getInstance ({ debug } = {}) {
     skipTaskbar: true,
     title: 'webtorrent-hidden-window',
     useContentSize: true,
-    width: 150
-  })
+    width: 150,
+  });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -36,32 +36,32 @@ export function getInstance ({ debug } = {}) {
   }
 
   // Prevent killing the WebTorrent process
-  win.on('close', function (e) {
+  win.on('close', (e) => {
     if (app.isQuitting) {
-      return
+      return;
     }
-    e.preventDefault()
-    win.hide()
-  })
+    e.preventDefault();
+    win.hide();
+  });
   return win;
 }
 
-export function show () {
-  if (!win) return
-  win.show()
+export function show() {
+  if (!win) return;
+  win.show();
 }
 
-export function send (...args) {
-  if (!win) return
-  win.send(...args)
+export function send(...args) {
+  if (!win) return;
+  win.send(...args);
 }
 
-export function toggleDevTools () {
-  if (!win) return
+export function toggleDevTools() {
+  if (!win) return;
   if (win.webContents.isDevToolsOpened()) {
-    win.webContents.closeDevTools()
-    win.hide()
+    win.webContents.closeDevTools();
+    win.hide();
   } else {
-    win.webContents.openDevTools({ mode: 'detach' })
+    win.webContents.openDevTools({ mode: 'detach' });
   }
 }

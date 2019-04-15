@@ -1,16 +1,17 @@
 import { EventEmitter } from 'events';
 // import { promisify } from 'util';
 // import * as ApplicationConfigFactory from 'application-config';
-import * as config from './config';
 import electron from 'electron';
 // import config from './config';
 import * as fs from 'fs';
 import path from 'path';
+import * as config from './config';
+
 const { readFileSync, writeFileSync, renameSync } = fs;
 // ['readFile', 'writeFile', 'rename'].forEach(name => { fs[`${name}Async`] = promisify(fs[name]) })
 // const { readFileAsync, writeFileAsync, renameAsync } = fs;
 
-const SAVE_DEBOUNCE_INTERVAL = 1000
+const SAVE_DEBOUNCE_INTERVAL = 1000;
 // const appConfig = ApplicationConfigFactory('voxpop');
 // appConfig.filePath = path.join(config.CONFIG_PATH, 'config.json')
 // appConfig.readAsync = promisify(appConfig.read);
@@ -21,7 +22,7 @@ async function createNewState() {
     torrents: [],
     torrentsToResume: [],
     // To allow migrations in future
-    version: config.APP_VERSION
+    version: config.APP_VERSION,
   };
 }
 
@@ -39,19 +40,19 @@ async function readFile() {
   try {
     raw = readFileSync(settingsFile, 'utf8');
   } catch (err) {
-    if (err.code !=='ENOENT') {
+    if (err.code !== 'ENOENT') {
       throw err;
     }
     raw = '{}';
   }
-  result = JSON.parse(raw)
+  result = JSON.parse(raw);
 
   return result;
 }
 
 async function writeFile(data) {
-  const tempFilePath = settingsFile + Math.random().toString().substr(2) +
-    Date.now().toString();
+  const tempFilePath = settingsFile + Math.random().toString().substr(2)
+    + Date.now().toString();
   writeFileSync(tempFilePath, JSON.stringify(data, void 0, 2));
   renameSync(tempFilePath, settingsFile);
 }
@@ -70,7 +71,6 @@ State.load = async function load() {
     isNewState = true;
     result = await createNewState();
     // console.warn('new state', result);
-
   }
   if (!isNewState) {
     result = await applyLoadedState(result);
@@ -82,19 +82,19 @@ State.load = async function load() {
 
 State.save = async function save(state) {
   // Perf optimization: Lazy-require debounce (and it's dependencies)
-  const debounce = require('debounce')
+  const debounce = require('debounce');
   // After first State.save() invokation, future calls go straight to the
   // debounced function
-  State.save = debounce(State.saveImmediate, SAVE_DEBOUNCE_INTERVAL)
+  State.save = debounce(State.saveImmediate, SAVE_DEBOUNCE_INTERVAL);
   State.save(state);
 };
 
-State.saveImmediate = async function saveImmediate (state) {
+State.saveImmediate = async function saveImmediate(state) {
   try {
     // await appConfig.writeAsync(copy);
     await writeFile(state);
     State.emit('stateSaved');
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
 };

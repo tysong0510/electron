@@ -17,6 +17,6 @@ export default {
     },
     dateFormat(date, format = 'DD MMM YYYY', options = {}) {
       return dateFns.format(date, format, options);
-    }
+    },
   },
 };

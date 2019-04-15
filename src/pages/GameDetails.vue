@@ -161,13 +161,15 @@
 </template>
 
 <script>
-  import {mapGetters, mapActions, mapState} from 'vuex';
+  import { mapGetters, mapActions, mapState } from 'vuex';
   import { Carousel, Slide } from 'vue-carousel';
   import currency from '../mixins/currency';
 
   import VoteBar from '../components/Progress/VoteBar.vue';
   import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from '../store/actions-types';
-  import {baseURL} from '../apiConfig';
+  import { baseURL } from '../apiConfig';
+  import user from '../mixins/user';
+  import { IS_LOGGED_IN } from '../store/modules/auth';
 
   const carouselOptions = {
     autoplay: true,
@@ -185,10 +187,10 @@
     components: {
       VoteBar,
       Carousel,
-      Slide
+      Slide,
     },
 
-    mixins: [currency],
+    mixins: [currency, user],
 
     data() {
       return {
@@ -229,14 +231,14 @@
         return `${Math.round(this.progress * 100)}%`
       },
       showBuyBtn() {
-        if (this.$auth.check()) {
+        if (this.$store.getters[IS_LOGGED_IN]) {
           const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return !torrent;
+          return !torrent
         }
         return true;
       },
       showPauseBtn() {
-        if (this.$auth.check()) {
+        if (this.$store.getters[IS_LOGGED_IN]) {
           const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
           return torrent && !torrent.downloaded &&
             ['loading-metadata', 'downloading'].includes(torrent.state);
@@ -244,21 +246,21 @@
         return false;
       },
       showResumeBtn() {
-        if (this.$auth.check()) {
+        if (this.$store.getters[IS_LOGGED_IN]) {
           const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
           return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
         }
         return false;
       },
       showPlayBtn() {
-        if (this.$auth.check()) {
+        if (this.$store.getters[IS_LOGGED_IN]) {
           const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
           return torrent && torrent.downloaded;
         }
         return false;
       },
       showDownloadProgress() {
-        if (this.$auth.check()) {
+        if (this.$store.getters[IS_LOGGED_IN]) {
           const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
           return torrent;
         }
@@ -297,24 +299,25 @@
       },
       startDownloading() {
         this[START_DOWNLOAD_GAME]({
-          gameId: this.game.id
+          gameId: this.game.id,
         });
       },
       pauseDownloading() {
         this[PAUSE_DOWNLOAD_GAME]({
-          gameId: this.game.id
+          gameId: this.game.id,
         });
       },
       resumeDownloading() {
         this[START_DOWNLOAD_GAME]({
-          gameId: this.game.id
+          gameId: this.game.id,
         });
       },
       gameBuy() {
         // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
         // this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }) });
-        if (!this.$auth.check()) {
-          this.$root.$emit('unauthorized', {noRedirect: true});
+        if (!this.$store.getters[IS_LOGGED_IN]) {
+          this.$root.$emit('unauthorized', { noRedirect: true });
+          // ipcRenderer.once(AUTHORIZED, this.gameBuy);
           this.$root.$once('authorized', this.gameBuy);
         } else {
           if (this.game.magnetURI) this.startDownloading();
@@ -323,15 +326,15 @@
       },
       playGame() {
         this[START_GAME]({
-          gameId: this.game.id
+          gameId: this.game.id,
         });
       },
       uninstallGame() {
-        confirm(`Please confirm to remove the game`);
+        confirm('Please confirm to remove the game');
       },
       fetchData() {
         const gameId = this.$route.params.id || 0;
-        this.getGame({params: {id: gameId}});
+        this.getGame({ params: { id: gameId } });
         // this.game = this.$store.getters.getGameById(gameId);
         // HACK to work is server is down
         // this.$store.state.game = this.$store.getters.getGameById(gameId);
@@ -343,9 +346,9 @@
               return game.images.main ? `${baseURL}/apps/${game.id}/${game.images.main}` : null;
             case 'slides':
               if (game.images.slides || game.images.images) {
-                let slides = [];
+                const slides = [];
 
-                for (let slide of game.images.slides || game.images.images) {
+                for (const slide of game.images.slides || game.images.images) {
                   slides.push(`${baseURL}/apps/${game.id}/${slide}`);
                 }
 
@@ -358,8 +361,8 @@
           return null;
         }
       },
-      ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME])
-    }
+      ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME]),
+    },
   };
 </script>
 

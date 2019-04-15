@@ -258,9 +258,11 @@
 
 <script>
   import { ipcRenderer } from 'electron';
-  import {AUTHORIZED} from "../../dispatch-types";
+  import { ACTION_LOGIN, ACTION_REGISTER } from '../../store/modules/auth';
+  // import { UNAUTHORIZED } from '../../dispatch-types';
+  import { AUTHORIZED } from '../../dispatch-types';
 
-  const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
+  const modalTypes = [ 'select', 'sign-in', 'confirm', 'registration' ];
 
   const modals = {
     select: {
@@ -311,11 +313,12 @@
         },
         set(value) {
           this.$authModal.showModal = value;
-        }
-      }
+        },
+      },
     },
     mounted() {
       this.$root.$on('unauthorized', this.showModal);
+      ipcRenderer.on(AUTHORIZED, () => { this.$authModal.showModal = false; });
     },
     methods: {
       onHide() {
@@ -336,46 +339,36 @@
           return;
         }
 
-        this.$router.push({query: Object.assign({}, this.$route.query, {auth: modal}, this.noRedirect ? {'no-redirect': true} : {})});
+        this.$router.push({ query: Object.assign({}, this.$route.query, { auth: modal }, this.noRedirect ? { 'no-redirect': true } : {}) });
       },
       goBack() {
-        this.$router.replace({query: Object.assign({}, this.$route.query, {auth: 'select'}, this.noRedirect ? {'no-redirect': true} : {})});
+        this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }, this.noRedirect ? { 'no-redirect': true } : {}) });
       },
       login(evt) {
         evt.preventDefault();
 
         this.loginValid = true;
 
-        this.$auth.login({
-          params: { // Vue-resource
-            username: this.username,
-            password: this.password
-          },
-          data: { // Axios
-            username: this.username,
-            password: this.password
-          },
-          rememberMe: this.rememberMe,
-          redirect: false,
-          fetchUser: true,
-          success: function () {
-            this.$authModal.showModal = false;
+        this.$store.dispatchPromise(ACTION_LOGIN, {
+          username: this.username,
+          password: this.password,
+        }).then(() => {
+          this.$authModal.showModal = false;
 
-            console.log('Authorized');
+          console.log('Authorized');
 
-            this.$root.$emit('authorized');
-            ipcRenderer.send(AUTHORIZED);
+          // ipcRenderer.send(AUTHORIZED);
 
-            if (!this.$route.query['no-redirect']) {
-              this.$router.push(this.$route.query.redirect || {name: 'profile'});
-            }
-          },
-          error: function (err) {
-            let res = err.response;
+          if (!this.$route.query['no-redirect']) {
+            this.$router.push(this.$route.query.redirect || { name: 'profile' });
+          }
 
-            if (res.status === 404) {
-              this.loginValid = false;
-            }
+          this.$root.$emit('authorized');
+        }).catch((err) => {
+          const res = err.response;
+
+          if (res.status === 404) {
+            this.loginValid = false;
           }
         });
 
@@ -384,41 +377,27 @@
       register(evt) {
         evt.preventDefault();
 
-        let that = this;
+        const that = this;
 
-        this.$auth.register({
-          // url: '/auth',
-          // method: 'post',
-          params: { // Vue-resource
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            username: this.username,
-            password: this.password
-          },
-          data: { // Axios
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            username: this.username,
-            password: this.password
-          },
-          redirect: false,
-          success: function () {
-            that.$authModal.showModal = false;
+        this.$store.dispatchPromise(ACTION_REGISTER, { // Vue-resource
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          username: this.username,
+          password: this.password,
+        }).then(() => {
+          that.$authModal.showModal = false;
 
-            console.log('Registered');
+          console.log('Registered');
 
-            this.goTo('confirm');
-          },
-          error: function (err) {
-            let res = err.response;
+          this.goTo('confirm');
+        }).catch((err) => {
+          const res = err.response;
 
-            if (res.status === 404) {
-              console.log('Incorrect username or password');
-            }
-            console.log(err.response);
+          if (res.status === 404) {
+            console.log('Incorrect username or password');
           }
+          console.log(err.response);
         });
       },
     },

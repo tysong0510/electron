@@ -1,21 +1,41 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME } from './actions-types';
-import { ADD_TORRENT, UPDATE_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_START, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, TORRENT_DOWNLOADING, UPDATE_TORRENT_PROGRESS } from './mutation-types';
-const electron = require('electron');
-const { ipcRenderer, app, remote, shell } = electron;
 import path from 'path';
 import fs from 'fs';
+import { createSharedMutations } from 'vuex-electron';
+import {
+  PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,
+} from './actions-types';
+import {
+  ADD_TORRENT,
+  NEXT_TORRENT_KEY_USED,
+  TORRENT_DOWNLOADED,
+  TORRENT_DOWNLOADING,
+  UNARCHIVE_FAIL,
+  UNARCHIVE_OK,
+  UNARCHIVE_START,
+  UPDATE_TORRENT,
+  UPDATE_TORRENT_INFOHASH,
+  UPDATE_TORRENT_PROGRESS,
+} from './mutation-types';
 
 import games from './games';
 import users from './users';
 import { UNZIP_GAME } from '../dispatch-types';
+import createPromiseAction from '../plugins/promiseAction';
+import auth from './modules/auth';
+// import sharedMutation from '../plugins/shared-mutations';
+
+const electron = require('electron');
+
+const {
+  ipcMain, ipcRenderer, app, remote, shell,
+} = electron;
 
 Vue.use(Vuex);
 const userDataPath = (app || remote.app).getPath('userData');
 const downloadPath = path.join(userDataPath, 'downloads');
 const installPath = path.join(userDataPath, 'apps');
-import { createPersistedState, createSharedMutations } from 'vuex-electron';
 
 /**
  * Library for deep merging objects
@@ -759,29 +779,29 @@ const demoData = {
               value: 'all',
               text: 'All Time',
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     },
     nextTorrentKey: 1, // identify torrents for IPC between the main and webtorrent windows
     torrents: [],
   },
   mutations: {
-    [ADD_TORRENT] (state, { payload }) {
+    [ADD_TORRENT](state, { payload }) {
       const defaults = {
         state: 'pending',
         downloaded: false,
       };
       const data = {
         ...defaults,
-        ...payload
+        ...payload,
       };
 
       state.torrents = [...state.torrents, data];
     },
-    [UPDATE_TORRENT] (state, { payload }) {
+    [UPDATE_TORRENT](state, { payload }) {
       const keys = ['torrentKey', 'infoHash'];
-      if (!keys.some(keyName => {
+      if (!keys.some((keyName) => {
         const keyValue = payload[keyName];
         if (keyValue !== void 0) {
           state.torrents = patchCollectionItemByKey(state.torrents, payload, keyName);
@@ -791,47 +811,49 @@ const demoData = {
         throw new Error('keys not found in UPDATE_TORRENT payload');
       }
     },
-    [UPDATE_TORRENT_INFOHASH] (state, { payload }) {
+    [UPDATE_TORRENT_INFOHASH](state, { payload }) {
       state.torrents = patchCollectionItemByKey(
-        state.torrents, { infoHash: payload.infoHash, torrentKey: payload.torrentKey }, 'torrentKey'
+        state.torrents, { infoHash: payload.infoHash, torrentKey: payload.torrentKey }, 'torrentKey',
       );
     },
-    [TORRENT_DOWNLOADING] (state, { payload }) {
+    [TORRENT_DOWNLOADING](state, { payload }) {
       state.torrents = patchCollectionItemByKey(
-        state.torrents, {state: 'downloading', torrentKey: payload.torrentKey }, 'torrentKey'
+        state.torrents, { state: 'downloading', torrentKey: payload.torrentKey }, 'torrentKey',
       );
     },
-    [UPDATE_TORRENT_PROGRESS] (state, { payload }) {
+    [UPDATE_TORRENT_PROGRESS](state, { payload }) {
       state.torrents = patchCollectionItemByKey(
-        state.torrents, {progress: payload.progress, torrentKey: payload.torrentKey }, 'torrentKey'
+        state.torrents, { progress: payload.progress, torrentKey: payload.torrentKey }, 'torrentKey',
       );
     },
-    [TORRENT_DOWNLOADED] (state, { payload }) {
+    [TORRENT_DOWNLOADED](state, { payload }) {
       state.torrents = patchCollectionItemByKey(
-        state.torrents, { downloaded: true, torrentKey: payload.torrentKey }, 'torrentKey'
+        state.torrents, { downloaded: true, torrentKey: payload.torrentKey }, 'torrentKey',
       );
     },
-    [NEXT_TORRENT_KEY_USED] (state) {
+    [NEXT_TORRENT_KEY_USED](state) {
       state.nextTorrentKey++;
     },
-    [UNARCHIVE_START] (state, { payload }) {
-      const {gameId} = payload;
+    [UNARCHIVE_START](state, { payload }) {
+      const { gameId } = payload;
       state.torrents = patchCollectionItemByKey(
-        state.torrents, { unarchiving: true, unarchiveError: false, gameId }, 'gameId'
+        state.torrents, { unarchiving: true, unarchiveError: false, gameId }, 'gameId',
       );
     },
-    [UNARCHIVE_OK] (state, { payload }) {
-      const {gameId} = payload;
+    [UNARCHIVE_OK](state, { payload }) {
+      const { gameId } = payload;
       state.torrents = patchCollectionItemByKey(
-        state.torrents, { unarchiving: false, unarchived: true, gameId }, 'gameId'
+        state.torrents, { unarchiving: false, unarchived: true, gameId }, 'gameId',
       );
     },
-    [UNARCHIVE_FAIL] (state, { payload }) {
-      const {gameId} = payload;
+    [UNARCHIVE_FAIL](state, { payload }) {
+      const { gameId } = payload;
       state.torrents = patchCollectionItemByKey(
-        state.torrents, { unarchiving: false, unarchived: false, unarchiveError: true, gameId }, 'gameId'
+        state.torrents, {
+          unarchiving: false, unarchived: false, unarchiveError: true, gameId,
+        }, 'gameId',
       );
-    }
+    },
   },
   actions: {
     async [START_GAME]({ state }, { gameId }) {
@@ -842,9 +864,32 @@ const demoData = {
         return;
       }
       const gamePath = path.join(installPath, `${gameId}`, 'Beglitched.exe');
-      if (!fs.existsSync(gamePath))
-        alert('Game is not installed');
+      if (!fs.existsSync(gamePath)) alert('Game is not installed');
       shell.openItem(gamePath);
+    },
+
+    [ADD_TORRENT]({ commit }, data) {
+      commit(ADD_TORRENT, data);
+    },
+
+    [TORRENT_DOWNLOADED]({ commit }, data) {
+      commit(TORRENT_DOWNLOADED, data);
+    },
+
+    [UPDATE_TORRENT]({ commit }, data) {
+      commit(UPDATE_TORRENT, data);
+    },
+
+    [UPDATE_TORRENT_PROGRESS]({ commit }, data) {
+      commit(UPDATE_TORRENT_PROGRESS, data);
+    },
+
+    [NEXT_TORRENT_KEY_USED]({ commit }) {
+      commit(NEXT_TORRENT_KEY_USED);
+    },
+
+    [UPDATE_TORRENT_INFOHASH]({ commit }, data) {
+      commit(UPDATE_TORRENT_INFOHASH, data);
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
@@ -866,12 +911,11 @@ const demoData = {
         return;
       }
       let torrentKey;
+
       const gameInstallPath = path.join(installPath, `${gameId}`);
       const gameDownloadPath = path.join(downloadPath, `${gameId}`);
-      if (!fs.existsSync(gameDownloadPath))
-          fs.mkdirSync(gameDownloadPath, { recursive: true });
-      if (!fs.existsSync(gameInstallPath))
-          fs.mkdirSync(gameInstallPath, { recursive: true });
+      if (!fs.existsSync(gameDownloadPath)) fs.mkdirSync(gameDownloadPath, { recursive: true });
+      if (!fs.existsSync(gameInstallPath)) fs.mkdirSync(gameInstallPath, { recursive: true });
 
       if (torrent) {
         ({ torrentKey } = torrent);
@@ -882,8 +926,8 @@ const demoData = {
         commit({
           type: TORRENT_DOWNLOADING,
           payload: {
-            torrentKey
-          }
+            torrentKey,
+          },
         });
       } else {
         torrentKey = state.nextTorrentKey;
@@ -894,8 +938,8 @@ const demoData = {
             gameId,
             state: 'loading-metadata',
             torrentURL: magnetURI,
-            torrentKey
-          }
+            torrentKey,
+          },
         };
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
@@ -904,12 +948,22 @@ const demoData = {
       const { torrentFile, torrentURL } = torrent;
       const torrentId = torrentFile || torrentURL;
 
+      if (!ipcRenderer) {
+        ipcMain.emit('wt-start-torrenting',
+          null,
+          torrentKey, // key
+          torrentId,
+          gameDownloadPath,
+          null);
+        return;
+      }
+
       ipcRenderer.send(
         'wt-start-torrenting',
         torrentKey, // key
         torrentId,
         gameDownloadPath,
-        null
+        null,
         // select all torrent files by default
       );
     },
@@ -926,10 +980,14 @@ const demoData = {
         payload: {
           state: 'paused',
           infoHash,
-          torrentKey
-        }
+          torrentKey,
+        },
       });
       if (infoHash) {
+        if (!ipcRenderer) {
+          ipcMain.emit('wt-stop-torrenting', null, infoHash);
+          return;
+        }
         ipcRenderer.send('wt-stop-torrenting', infoHash);
       } else {
         // metadata hasn't been parsed yet. when metadata will be received torrent will be paused
@@ -944,23 +1002,37 @@ const demoData = {
       }
       commit({
         type: UNARCHIVE_START,
-        payload: { gameId }
+        payload: { gameId },
       });
 
-      const src = torrent.files.map(torrentFile => path.join( torrent.path, torrentFile.path))
+      const src = torrent.files.map(torrentFile => path.join(torrent.path, torrentFile.path))
         .filter(absPath => path.extname(absPath).toLowerCase() === '.zip');
+
+      if (!ipcRenderer) {
+        ipcMain.emit(UNZIP_GAME, null, {
+          gameId, // s
+          src,
+          dst: getGameInstallPath(gameId),
+        });
+        return;
+      }
 
       ipcRenderer.send(UNZIP_GAME, {
         gameId, // s
         src,
-        dst: getGameInstallPath(gameId)
+        dst: getGameInstallPath(gameId),
       });
-    }
+    },
   },
   plugins: [
-    createPersistedState(),
-    createSharedMutations()
+    // createPersistedState(),
+    createSharedMutations(),
+    createPromiseAction(),
+    // sharedMutation()
   ],
+  modules: {
+    auth,
+  },
   getters: {
     news: (state) => {
       const news = [];
@@ -1009,7 +1081,7 @@ const demoData = {
           rating = state.demoData.rating[name];
         }
 
-        const games = state.games;
+        const { games } = state;
 
         if (typeof rating === 'object') {
           for (const key in rating) {
@@ -1082,18 +1154,10 @@ const demoData = {
         title: storeInfo ? (storeInfo.title || name) : name,
       };
     },
-    findTorrentByGameId: (state) => (id)  => {
-      return state.torrents.filter(torrent => torrent.gameId === id).shift();
-    },
-    findTorrentByKey: (state) => (key)  => {
-      return state.torrents.filter(torrent => torrent.torrentKey === key).shift();
-    },
-    findTorrentByMagnetURI: (state) => (magnetURI)  => {
-      return state.torrents.filter(torrent => torrent.magnetURI === magnetURI).shift();
-    },
-    findTorrentByInfoHash: (state) => (infoHash)  => {
-      return state.torrents.filter(torrent => torrent.infoHash === infoHash).shift();
-    },
+    findTorrentByGameId: state => id => state.torrents.filter(torrent => torrent.gameId === id).shift(),
+    findTorrentByKey: state => key => state.torrents.filter(torrent => torrent.torrentKey === key).shift(),
+    findTorrentByMagnetURI: state => magnetURI => state.torrents.filter(torrent => torrent.magnetURI === magnetURI).shift(),
+    findTorrentByInfoHash: state => infoHash => state.torrents.filter(torrent => torrent.infoHash === infoHash).shift(),
     isGameDownloaded: (state, getters) => (gameId) => {
       const torrent = getters.findTorrentByGameId(gameId);
       if (!torrent) {
@@ -1101,12 +1165,12 @@ const demoData = {
       }
       return torrent.progress && torrent.progress.done;
     },
-    getGameDownloadProgress:  (state, getters) => (gameId) => {
+    getGameDownloadProgress: (state, getters) => (gameId) => {
       const torrent = getters.findTorrentByGameId(gameId);
       return torrent && torrent.progress ? torrent.progress.progress : 0;
     },
-    getGameDownloadPath: () => (gameId) => path.join(downloadPath, `${gameId}`),
-    getGameInstallPath: () => (gameId) => path.join(installPath, `${gameId}`)
+    getGameDownloadPath: () => gameId => path.join(downloadPath, `${gameId}`),
+    getGameInstallPath: () => gameId => path.join(installPath, `${gameId}`),
   },
 };
 
@@ -1123,12 +1187,24 @@ const stores = deepMerge.all(
 
 function patchCollectionItemByKey(items, itemPatch, keyName) {
   const needleKey = itemPatch[keyName];
-  return items.map(item => {
+  return items.map((item) => {
     if (item[keyName] !== needleKey) {
       return item;
     }
-    return {...item, ...itemPatch};
+    return { ...item, ...itemPatch };
   });
 }
 
+//
+// if (ipcMain) {
+//   ipcMain.on("GLOBAL_STORE_TEST", (event, GLOBAL_STORE_TEST) => {
+//     global.GLOBAL_STORE_TEST = GLOBAL_STORE_TEST;
+//   });
+// } else if (ipcRenderer) {
+//   ipcRenderer.on("GLOBAL_STORE_TEST", (event, GLOBAL_STORE_TEST) => {
+//     global.GLOBAL_STORE_TEST = GLOBAL_STORE_TEST;
+//   });
+// }
+//
+// console.log(global.GLOBAL_STORE_TEST);
 export default new Vuex.Store(stores);
