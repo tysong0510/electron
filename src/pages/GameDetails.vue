@@ -35,58 +35,38 @@
                 </b-col>
                 <b-col cols="5" class="text-center">
                   <div v-if="currentRouteIs('game-details')">
-                    <b-button
-                      v-if="showBuyBtn"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="gameBuy()"
-                    >
-                      {{ game.price | currency(game.currency) }}
-                    </b-button>
-                    <b-button
-                      v-if="!showBuyBtn && showPauseBtn"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="!showBuyBtn && pauseDownloading()"
-                    >
-                      Pause
-                    </b-button>
-                    <b-button
-                      v-if="!showBuyBtn && showResumeBtn"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="resumeDownloading()"
-                    >
-                      Resume
-                    </b-button>
-                    <b-button
-                      v-if="!showBuyBtn && showPlayBtn"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="playGame()"
-                    >
-                      Play
-                    </b-button>
-                    <transition>
-                      <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
-                        <loading-progress
-                          v-if="!showBuyBtn && showDownloadProgress"
-                          :progress="progress"
-                          :indeterminate="isProgressIndeterminate"
-                          shape="line"
-                          size="160"
-                          width="160"
-                          height="6"
-                        />
-                        <div v-if="showDownloadProgress" class="torrent-info">
-                          Peers: {{ numberOfPeers }}
+                    <div v-if="showBuyBtn">
+                      <b-button variant="primary" size="lg" class="btn-buy" @click="gameBuy()">
+                        {{ game.price | currency(game.currency) }}
+                      </b-button>
+                    </div>
+                    <div v-if="!showBuyBtn">
+                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
+                        Pause
+                      </b-button>
+                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
+                        Resume
+                      </b-button>
+                      <b-button v-if="showPlayBtn" variant="primary" size="lg" class="btn-buy" @click="playGame()">
+                        Play
+                      </b-button>
+                      <transition>
+                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                          <loading-progress
+                            v-if="showDownloadProgress"
+                            :progress="progress"
+                            :indeterminate="isProgressIndeterminate"
+                            shape="line"
+                            size="160"
+                            width="160"
+                            height="6"
+                          />
+                          <div v-if="showDownloadProgress" class="torrent-info">
+                            Peers: {{ numberOfPeers }}
+                          </div>
                         </div>
-                      </div>
-                    </transition>
+                      </transition>
+                    </div>
                   </div>
                   <b-button
                     v-else-if="currentRouteIs('my-game-details')"
@@ -234,7 +214,6 @@
         if (!this.$store.getters[IS_LOGGED_IN]) {
           return true;
         }
-
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
         return !torrent
       },
@@ -252,10 +231,6 @@
         return torrent && torrent.downloaded;
       },
       showDownloadProgress() {
-        if (!this.$store.getters[IS_LOGGED_IN]) {
-          return false;
-        }
-
         return this.$store.getters.findTorrentByGameId(this.game.id);
       },
       isProgressIndeterminate() {
@@ -290,26 +265,25 @@
         return '';
       },
       startDownloading() {
-        console.log(`startDownloading: ${this.user}`)
+        console.log('startDownloading')
         this[START_DOWNLOAD_GAME]({
           gameId: this.game.id,
         });
       },
       pauseDownloading() {
+        console.log('pauseDownloading')
         this[PAUSE_DOWNLOAD_GAME]({
           gameId: this.game.id,
         });
       },
       resumeDownloading() {
+        console.log('resumeDownloading')
         this[START_DOWNLOAD_GAME]({
           gameId: this.game.id,
         });
       },
       gameBuy() {
         // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
-        // this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }) });
-        console.log('gameBuy')
-        console.log(this.$store.getters[IS_LOGGED_IN])
         if (!this.$store.getters[IS_LOGGED_IN]) {
           this.$root.$emit('unauthorized', { noRedirect: true });
           // ipcRenderer.once(AUTHORIZED, this.gameBuy);
