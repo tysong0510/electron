@@ -26,8 +26,7 @@ export default {
         }
       },
     );
-
-    this.$root.$on('unauthorized', this.logout);
+    // this.$root.$on('unauthorized', this.logout); // TODO revert, fix auth flow on Game Buy button
   },
   mounted() {
     this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
