@@ -41,131 +41,131 @@
 </template>
 
 <script>
-  import DashboardContent from './Content.vue';
-  import Logo from '../components/SideBar/Logo.vue';
-  import user from '../mixins/user';
-  import {IS_LOGGED_IN} from "../store/modules/auth";
-  // import AuthModal from '../components/Modals/AuthModal.vue';
+import DashboardContent from './Content.vue';
+import Logo from '../components/SideBar/Logo.vue';
+import user from '../mixins/user';
+import { IS_LOGGED_IN } from '../store/modules/auth';
+// import AuthModal from '../components/Modals/AuthModal.vue';
 
-  export default {
-    components: {
-      // AuthModal,
-      DashboardContent,
-      // eslint-disable-next-line
+export default {
+  components: {
+    // AuthModal,
+    DashboardContent,
+    // eslint-disable-next-line
       Logo
-    },
-    mixins: [user],
-    data() {
-      return {
-        menu: [
-          {
-            header: true,
-            title: 'VoxPop',
-            component: Logo,
-            visibleOnCollapse: true
-          },
-          {
-            title: 'Store',
-            icon: 'icon icon-store',
-            href: '/store',
-            child: [
-              {
-                href: '/store/top',
-                title: 'Top',
-              },
-              {
-                href: '/store/featured',
-                title: 'Featured',
-              },
-              {
-                href: '/store/all',
-                title: 'All',
-              }
-            ]
-          },
-          {
-            href: '/games',
-            title: 'My Games',
-            icon: 'icon icon-game',
-          },
-          {
-            href: '/profile',
-            title: 'Profile',
-            icon: 'icon icon-user',
-            child: [
-              {
-                href: '/profile/top-games',
-                title: 'My top games',
-              },
-              {
-                href: '/profile/files',
-                title: 'My files',
-              },
-              {
-                href: '/profile/recommendation',
-                title: 'My recommendation',
-              },
-              {
-                href: '/profile/recently-played',
-                title: 'Recently played',
-              }
-            ]
-            // badge: {
-            //     text: 'new',
-            //     // class:''
-            // }
-          },
-          {
-            href: '/news',
-            title: 'News',
-            icon: 'icon icon-news',
-            /*
+  },
+  mixins: [user],
+  data() {
+    return {
+      menu: [
+        {
+          header: true,
+          title: 'VoxPop',
+          component: Logo,
+          visibleOnCollapse: true,
+        },
+        {
+          title: 'Store',
+          icon: 'icon icon-store',
+          href: '/store',
+          child: [
+            {
+              href: '/store/top',
+              title: 'Top',
+            },
+            {
+              href: '/store/featured',
+              title: 'Featured',
+            },
+            {
+              href: '/store/all',
+              title: 'All',
+            },
+          ],
+        },
+        {
+          href: '/games',
+          title: 'My Games',
+          icon: 'icon icon-game',
+        },
+        {
+          href: '/profile',
+          title: 'Profile',
+          icon: 'icon icon-user',
+          child: [
+            {
+              href: '/profile/top-games',
+              title: 'My top games',
+            },
+            {
+              href: '/profile/files',
+              title: 'My files',
+            },
+            {
+              href: '/profile/recommendation',
+              title: 'My recommendation',
+            },
+            {
+              href: '/profile/recently-played',
+              title: 'Recently played',
+            },
+          ],
+          // badge: {
+          //     text: 'new',
+          //     // class:''
+          // }
+        },
+        {
+          href: '/news',
+          title: 'News',
+          icon: 'icon icon-news',
+          /*
             disabled: true
             badge: {
                 text: 'new',
                 // class:''
             }
             */
-          },
-        ],
-        sidebarCollapsed: false
-      }
-    },
-    computed: {
-      collapsed: {
-        get() {
-          return this.sidebarCollapsed;
         },
-        set(value) {
-          this.sidebarCollapsed = value;
-          localStorage.setItem('collapsed', value);
-        }
-      }
+      ],
+      sidebarCollapsed: false,
+    };
+  },
+  computed: {
+    collapsed: {
+      get() {
+        return this.sidebarCollapsed;
+      },
+      set(value) {
+        this.sidebarCollapsed = value;
+        localStorage.setItem('collapsed', value);
+      },
     },
-    created() {
-      this.collapsed = JSON.parse(localStorage.getItem('collapsed'));
-    },
-    methods: {
-      sidebarItemClick(event, item) {
-        if (item) {
-          let { route } = this.$router.resolve(item.href);
+  },
+  created() {
+    this.collapsed = JSON.parse(localStorage.getItem('collapsed'));
+  },
+  methods: {
+    sidebarItemClick(event, item) {
+      if (item) {
+        const { route } = this.$router.resolve(item.href);
 
-          if (route && route.meta && route.meta.auth && !this[IS_LOGGED_IN]) {
-            event.preventDefault();
-            item.disabled = true;
-          }
+        if (route && route.meta && route.meta.auth && !this[IS_LOGGED_IN]) {
+          event.preventDefault();
+          item.disabled = true;
         }
-      },
-      toggleSidebar() {
-        if (this.$sidebar.showSidebar) {
-          this.$sidebar.displaySidebar(false);
-        }
-      },
-      onCollapse(collapsed) {
-        this.collapsed = collapsed;
       }
     },
-  };
+    toggleSidebar() {
+      if (this.$sidebar.showSidebar) {
+        this.$sidebar.displaySidebar(false);
+      }
+    },
+    onCollapse(collapsed) {
+      this.collapsed = collapsed;
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">

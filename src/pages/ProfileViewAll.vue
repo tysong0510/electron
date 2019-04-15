@@ -209,7 +209,7 @@ export default {
   },
 
   created() {
-    this.getGames()
+    this.getGames();
   },
 
   methods: {

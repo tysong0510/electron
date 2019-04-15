@@ -7,10 +7,12 @@ import { baseURL } from '../apiConfig';
 export default new Vapi({
   baseURL,
   state: {
-    userFilesStatistic: []
+    userFilesStatistic: [],
   },
-}).get({
-  action: 'getUserFilesStatistic',
-  property: 'userFilesStatistic',
-  path: '/users/games/statistic',
-}).getStore();
+})
+  .get({
+    action: 'getUserFilesStatistic',
+    property: 'userFilesStatistic',
+    path: '/users/games/statistic',
+  })
+  .getStore();

@@ -3,7 +3,7 @@
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 module.exports = {
-  lintOnSave: undefined,
+  lintOnSave: true,
   publicPath: undefined,
   outputDir: undefined,
   assetsDir: undefined,

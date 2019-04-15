@@ -18,7 +18,7 @@ export default {
        * If price value invalid than return free
        * @type {string}
        */
-      let defaultPrice = 'FREE';
+      const defaultPrice = 'FREE';
 
       /**
        * Parse not valid price
@@ -30,9 +30,9 @@ export default {
       /**
        * @type {Intl.NumberFormat}
        */
-      let formatter = Intl.NumberFormat(locales, {style: 'currency', currency: currency});
+      const formatter = Intl.NumberFormat(locales, { style: 'currency', currency });
 
       return formatter.format(value);
-    }
+    },
   },
 };

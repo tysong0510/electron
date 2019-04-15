@@ -1,5 +1,5 @@
-import {baseURL} from "../apiConfig";
-import {mapActions, mapState} from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import { baseURL } from '../apiConfig';
 
 export default {
   computed: {
@@ -20,11 +20,11 @@ export default {
     }),
   },
   watch: {
-    'pending.games'() {
+    'pending.games': function () {
       if (!this.pending.games) {
         this.getData(this.currentStore);
       }
-    }
+    },
   },
   methods: {
     ...mapActions(['getGames', 'getFeatured', 'getTopGames']),
@@ -36,7 +36,7 @@ export default {
      * @return void
      */
     storeSort(store, options = {}) {
-      let {byField, order, sort} = options;
+      let { byField, order, sort } = options;
 
       /**
        * Sort store by default
@@ -96,16 +96,15 @@ export default {
             return game.images.main ? `${baseURL}/apps/${game.id}/${game.images.main}` : null;
           case 'slides':
             if (game.images.slides || game.images.images) {
-              let slides = [];
+              const slides = [];
 
-              for (let slide of game.images.slides || game.images.images) {
+              for (const slide of game.images.slides || game.images.images) {
                 slides.push(`${baseURL}/apps/${game.id}/${slide}`);
               }
 
               return slides;
-            } else {
-              return null;
             }
+            return null;
         }
       } else {
         return null;

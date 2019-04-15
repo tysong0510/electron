@@ -2,7 +2,7 @@ import VueRouter from 'vue-router';
 
 import routes from './routes';
 import store from '../store';
-import {IS_LOGGED_IN} from "../store/modules/auth";
+import { IS_LOGGED_IN } from '../store/modules/auth';
 
 const router = new VueRouter({
   routes,
@@ -10,10 +10,10 @@ const router = new VueRouter({
 
   scrollBehavior: (to) => {
     if (to.hash) {
-      return {selector: to.hash};
+      return { selector: to.hash };
     }
 
-    return {x: 0, y: 0};
+    return { x: 0, y: 0 };
   },
 });
 
@@ -31,26 +31,26 @@ router.beforeEach((to, from, next) => {
       params: name ? {} : from.params,
       query: {
         auth: 'select',
-      }
+      },
     });
-  } else {
-    if (!router.app.$store.getters[IS_LOGGED_IN] && to.query.auth) {
-      router.app.$authModal.showModal = true;
-    }
-
-    if (to.matched.some(record => record.meta.auth)) {
-      if (store.getters[IS_LOGGED_IN]) {
-        next();
-        return
-      }
-
-      router.app.$authModal.showModal = true;
-
-      return next(false);
-    }
-
-    return next(true);
   }
+  if (!router.app.$store.getters[IS_LOGGED_IN] && to.query.auth) {
+    router.app.$authModal.showModal = true;
+  }
+
+  if (to.matched.some(record => record.meta.auth)) {
+    if (store.getters[IS_LOGGED_IN]) {
+      next();
+      return;
+    }
+
+    router.app.$authModal.showModal = true;
+
+    return next(false);
+  }
+
+  return next(true);
+
 
   // if (to.meta.hasOwnProperty('auth') && to.meta.auth) {
   //   if (router.app.$auth.check()) {
