@@ -45,16 +45,16 @@
                       {{ game.price | currency(game.currency) }}
                     </b-button>
                     <b-button
-                      v-if="showPauseBtn"
+                      v-if="!showBuyBtn && showPauseBtn"
                       variant="primary"
                       size="lg"
                       class="btn-buy"
-                      @click="pauseDownloading()"
+                      @click="!showBuyBtn && pauseDownloading()"
                     >
                       Pause
                     </b-button>
                     <b-button
-                      v-if="showResumeBtn"
+                      v-if="!showBuyBtn && showResumeBtn"
                       variant="primary"
                       size="lg"
                       class="btn-buy"
@@ -63,7 +63,7 @@
                       Resume
                     </b-button>
                     <b-button
-                      v-if="showPlayBtn"
+                      v-if="!showBuyBtn && showPlayBtn"
                       variant="primary"
                       size="lg"
                       class="btn-buy"
@@ -74,7 +74,7 @@
                     <transition>
                       <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                         <loading-progress
-                          v-if="showDownloadProgress"
+                          v-if="!showBuyBtn && showDownloadProgress"
                           :progress="progress"
                           :indeterminate="isProgressIndeterminate"
                           shape="line"
@@ -231,40 +231,32 @@
         return `${Math.round(this.progress * 100)}%`
       },
       showBuyBtn() {
-        if (this.$store.getters[IS_LOGGED_IN]) {
-          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return !torrent
+        if (!this.$store.getters[IS_LOGGED_IN]) {
+          return true;
         }
-        return true;
+
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return !torrent
       },
       showPauseBtn() {
-        if (this.$store.getters[IS_LOGGED_IN]) {
-          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return torrent && !torrent.downloaded &&
-            ['loading-metadata', 'downloading'].includes(torrent.state);
-        }
-        return false;
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && !torrent.downloaded &&
+          ['loading-metadata', 'downloading'].includes(torrent.state);
       },
       showResumeBtn() {
-        if (this.$store.getters[IS_LOGGED_IN]) {
-          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
-        }
-        return false;
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && !torrent.downloaded && (['paused', 'error'].includes(torrent.state));
       },
       showPlayBtn() {
-        if (this.$store.getters[IS_LOGGED_IN]) {
-          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return torrent && torrent.downloaded;
-        }
-        return false;
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        return torrent && torrent.downloaded;
       },
       showDownloadProgress() {
-        if (this.$store.getters[IS_LOGGED_IN]) {
-          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-          return torrent;
+        if (!this.$store.getters[IS_LOGGED_IN]) {
+          return false;
         }
-        return false;
+
+        return this.$store.getters.findTorrentByGameId(this.game.id);
       },
       isProgressIndeterminate() {
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
@@ -298,6 +290,7 @@
         return '';
       },
       startDownloading() {
+        console.log(`startDownloading: ${this.user}`)
         this[START_DOWNLOAD_GAME]({
           gameId: this.game.id,
         });
@@ -315,6 +308,8 @@
       gameBuy() {
         // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
         // this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }) });
+        console.log('gameBuy')
+        console.log(this.$store.getters[IS_LOGGED_IN])
         if (!this.$store.getters[IS_LOGGED_IN]) {
           this.$root.$emit('unauthorized', { noRedirect: true });
           // ipcRenderer.once(AUTHORIZED, this.gameBuy);
