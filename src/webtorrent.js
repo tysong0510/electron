@@ -6,6 +6,7 @@
 // process from the main window.
 import ExtendableError from 'es6-error';
 import store from './store';
+import { USER } from './store/modules/auth';
 
 console.time('init');
 
@@ -172,13 +173,16 @@ function addTorrentEvents(torrent) {
   torrent.on('ready', torrentReady);
   torrent.on('done', torrentDone);
   torrent.on('wire', (wire, addr) => {
+    console.log(wire);
     console.log(`connected to peer with address ${addr}`);
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
+      console.log(`peer ${addr} is now interested`);
     });
 
     wire.on('uninterested', () => {
+      console.log(`peer ${addr} is no longer interested`);
     });
 
     wire.on('handshake', (infoHash, peerId, extensions) => {
@@ -252,22 +256,24 @@ function getTorrentFileInfo(file) {
 // it on next startup. Starting with the full torrent metadata will be faster
 // than re-fetching it from peers using ut_metadata.
 function saveTorrentFile(torrentKey) {
+  const user = store.getters[USER];
   const torrent = getTorrent(torrentKey);
   const torrentsDir = path.join(
     (electron.app || electron.remote.app).getPath('userData'),
     'torrents',
-  ); // config.TORRENT_PATH,
-  const torrentPath = path.join(torrentsDir,
-    `${torrent.infoHash}.torrent`);
+  );
+  const torrentsUserDir = path.join(torrentsDir, user.username);
+  if (!fs.existsSync(torrentsDir)) fs.mkdirSync(torrentsDir, { recursive: true });
 
+  const fileName = `${torrent.infoHash}.torrent`;
+  const torrentPath = path.join(torrentsUserDir, fileName);
   fs.access(torrentPath, fs.constants.R_OK, (err) => {
-    const fileName = `${torrent.infoHash}.torrent`;
     if (!err) {
       // We've already saved the file
       return ipc.send('wt-file-saved', torrentKey, fileName);
     }
 
-    mkdirp(torrentsDir, () => {
+    mkdirp(torrentsUserDir, () => {
       fs.writeFile(torrentPath, torrent.torrentFile, (err) => {
         if (err) return console.log('error saving torrent file %s: %o', torrentPath, err);
         console.log('saved torrent file %s', torrentPath);
