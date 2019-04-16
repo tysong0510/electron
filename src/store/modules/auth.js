@@ -167,7 +167,11 @@ export default {
             const token = resp.headers.authorization;
 
             commit(MUTATION_AUTH_TOKEN, token);
-            commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+
+            if (ipcMain) {
+              commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+            }
+
             dispatch(ACTION_USER);
             commit(MUTATION_AUTH_SUCCESS);
 
