@@ -7,6 +7,7 @@
     no-close-on-esc
     content-class="rounded-lg"
     @hide="onHide"
+    @shown="focusInput"
   >
     <div class="h-100 d-flex">
       <div class="m-auto">
@@ -32,6 +33,7 @@
                   >
                     <b-form-input
                       id="username"
+                      ref="sign-in"
                       v-model="username"
                       name="username"
                       required
@@ -103,6 +105,7 @@
                   >
                     <b-form-input
                       id="firstName"
+                      ref="registration"
                       v-model="firstName"
                       name="firstName"
                       required
@@ -328,6 +331,13 @@
         this.noRedirect = params && !!params.noRedirect;
 
         this.$authModal.showModal = true;
+      },
+      focusInput() {
+        let input = this.$refs[this.modalType];
+
+        if (input) {
+          input.focus();
+        }
       },
       // modalChangeState() {
       //   // if (!localStorage.auth && this.$route.query.auth) {
