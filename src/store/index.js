@@ -39,7 +39,6 @@ const {
 Vue.use(Vuex);
 // const userDataPath = (app || remote.app).getPath('userData');
 // const downloadPath = path.join(userDataPath, 'downloads');
-// const installPath = path.join(userDataPath, 'apps');
 
 /**
  * Library for deep merging objects
@@ -861,16 +860,13 @@ const demoData = {
   },
   actions: {
     async [START_GAME]({ state, getters }, { gameId }) {
+      const { game } = state;
+      if (!game) return;
+
       // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
       //  the game will be installed to `gameInstalationPath`
-      const { game } = state;
-      if (!game) {
-        return;
-      }
-      // const gamePath = path.join(installPath, `${gameId}`, 'Beglitched.exe');
       const gamePath = path.join(getters[GAME_INSTALL_PATH](gameId), 'Beglitched.exe');
-      if (!fs.existsSync(gamePath)) alert('Game is not installed');
-      shell.openItem(gamePath);
+      if (fs.existsSync(gamePath)) shell.openItem(gamePath);
     },
 
     [ADD_TORRENT]({ commit }, data) {
