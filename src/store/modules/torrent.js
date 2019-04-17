@@ -1,8 +1,13 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import {PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME} from "../actions-types";
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
+import {
+  PAUSE_DOWNLOAD_GAME,
+  START_DOWNLOAD_GAME,
+  START_GAME,
+  UNARCHIVE_GAME
+} from '../actions-types';
 import {
   ADD_TORRENT,
   NEXT_TORRENT_KEY_USED,
@@ -14,8 +19,8 @@ import {
   UPDATE_TORRENT,
   UPDATE_TORRENT_INFOHASH,
   UPDATE_TORRENT_PROGRESS
-} from "../mutation-types";
-import {UNZIP_GAME} from "../../dispatch-types";
+} from '../mutation-types';
+import { UNZIP_GAME } from '../../dispatch-types';
 
 const electron = require('electron');
 
