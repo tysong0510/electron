@@ -260,12 +260,12 @@
 </template>
 
 <script>
-  import {ipcRenderer} from 'electron';
-  import {ACTION_LOGIN, ACTION_REGISTER} from '../../store/modules/auth';
-  // import { UNAUTHORIZED } from '../../dispatch-types';
-  import {AUTHORIZED} from '../../dispatch-types';
+import { ipcRenderer } from 'electron';
+import { ACTION_LOGIN, ACTION_REGISTER } from '../../store/modules/auth';
+// import { UNAUTHORIZED } from '../../dispatch-types';
+import { AUTHORIZED } from '../../dispatch-types';
 
-  const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
+const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
 
 const modals = {
   select: {

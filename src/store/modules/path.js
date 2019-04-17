@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import {app, remote} from 'electron';
+import { app, remote } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import {USER} from './auth';
+import { USER } from './auth';
 
 Vue.use(Vuex);
 

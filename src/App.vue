@@ -3,13 +3,13 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import {ipcRenderer} from 'electron';
-  import {UNAUTHORIZED} from './dispatch-types';
-  import user from './mixins/user';
-  import {IS_LOGGED_IN} from './store/modules/auth';
+import axios from 'axios';
+import { ipcRenderer } from 'electron';
+import { UNAUTHORIZED } from './dispatch-types';
+import user from './mixins/user';
+import { IS_LOGGED_IN } from './store/modules/auth';
 
-  export default {
+export default {
   mixins: [user],
   created() {
     axios.interceptors.response.use(

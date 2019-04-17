@@ -141,17 +141,17 @@
 </template>
 
 <script>
-  import {mapActions, mapGetters, mapState} from 'vuex';
-  import {Carousel, Slide} from 'vue-carousel';
-  import currency from '../mixins/currency';
+import { mapActions, mapGetters, mapState } from 'vuex';
+import { Carousel, Slide } from 'vue-carousel';
+import currency from '../mixins/currency';
 
-  import VoteBar from '../components/Progress/VoteBar.vue';
-  import {PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME} from '../store/actions-types';
-  import {baseURL} from '../apiConfig';
-  import user from '../mixins/user';
-  import {IS_LOGGED_IN} from '../store/modules/auth';
+import VoteBar from '../components/Progress/VoteBar.vue';
+import { PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME } from '../store/actions-types';
+import { baseURL } from '../apiConfig';
+import user from '../mixins/user';
+import { IS_LOGGED_IN } from '../store/modules/auth';
 
-  const carouselOptions = {
+const carouselOptions = {
   autoplay: true,
   autoplayHoverPause: true,
   autoplayTimeout: 5000,

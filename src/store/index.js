@@ -2,8 +2,11 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import path from 'path';
 import fs from 'fs';
-import {createSharedMutations} from 'vuex-electron';
-import {PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,} from './actions-types';
+import Axios from 'axios';
+import { createSharedMutations } from 'vuex-electron';
+import {
+  PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,
+} from './actions-types';
 import {
   ADD_TORRENT,
   NEXT_TORRENT_KEY_USED,
@@ -19,11 +22,12 @@ import {
 
 import games from './games';
 import users from './users';
-import {UNZIP_GAME} from '../dispatch-types';
+import { UNZIP_GAME } from '../dispatch-types';
 import createPromiseAction from '../plugins/promiseAction';
 import auth from './modules/auth';
 // import torrent from './modules/torrent';
-import storePathModule, {GAME_DOWNLOAD_PATH, GAME_INSTALL_PATH} from './modules/path';
+import storePathModule, { GAME_DOWNLOAD_PATH, GAME_INSTALL_PATH } from './modules/path';
+import { USER } from './modules/auth';
 // import sharedMutation from '../plugins/shared-mutations';
 
 const electron = require('electron');
@@ -911,6 +915,10 @@ const demoData = {
         console.error(`START_DOWNLOAD_GAME: no magnetURI for game id=${gameId}`);
         return;
       }
+
+      const user = getters[USER];
+      if (!user.username) console.log('TRY AGAIN');
+      console.log(`user ${user.username}`);
       let torrentKey;
 
       // const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
@@ -925,6 +933,7 @@ const demoData = {
           // nothing to do
           return;
         }
+        await Axios({ url: `/games/${gameId}/stats`, params: { state: 'downloading', torrentKey }, method: 'POST' });
         commit({
           type: TORRENT_DOWNLOADING,
           payload: {
@@ -943,6 +952,7 @@ const demoData = {
             torrentKey,
           },
         };
+        await Axios({ url: `/games/${gameId}/stats`, params: { state: 'loading-metadata', torrentKey }, method: 'POST' });
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }

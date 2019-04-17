@@ -1,9 +1,9 @@
 import Axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import {ipcMain, ipcRenderer} from 'electron';
-import {baseURL} from '../../apiConfig';
-import {AUTHORIZED, UNAUTHORIZED} from '../../dispatch-types';
+import { ipcMain, ipcRenderer } from 'electron';
+import { baseURL } from '../../apiConfig';
+import { AUTHORIZED, UNAUTHORIZED } from '../../dispatch-types';
 
 export const MUTATION_AUTH_REQUEST = 'MUTATION_AUTH_REQUEST';
 export const MUTATION_AUTH_SUCCESS = 'MUTATION_AUTH_SUCCESS';

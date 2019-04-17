@@ -6,7 +6,7 @@
 // process from the main window.
 import ExtendableError from 'es6-error';
 import store from './store';
-import {USER} from './store/modules/auth';
+import { USER } from './store/modules/auth';
 
 console.time('init');
 

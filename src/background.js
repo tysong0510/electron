@@ -2,11 +2,13 @@
 
 import path from 'path';
 import fs from 'fs';
-import {app, BrowserWindow, ipcMain, protocol,} from 'electron';
-import {createProtocol, installVueDevtools,} from 'vue-cli-plugin-electron-builder/lib';
+import {
+  app, BrowserWindow, ipcMain, protocol,
+} from 'electron';
+import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 
-import {webtorrent} from './background/windows';
-import {State} from './state';
+import { webtorrent } from './background/windows';
+import { State } from './state';
 import {
   AUTHORIZED,
   DRM_MODE_DECRYPT,
@@ -19,8 +21,8 @@ import {
   UNZIP_GAME_OK,
 } from './dispatch-types';
 import store from './store';
-import {ACTION_REFRESH} from './store/modules/auth';
-import {INSTALL_PATH} from './store/modules/path';
+import { ACTION_REFRESH } from './store/modules/auth';
+import { INSTALL_PATH } from './store/modules/path';
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
