@@ -13,7 +13,7 @@ export default new Vapi({
   .get({
     action: 'getUserFilesStatistic',
     property: 'userFilesStatistic',
-    path: '/users/games/statistic',
+    path: '/users/games/stats',
   })
   .get({
     action: 'getUserGames',
