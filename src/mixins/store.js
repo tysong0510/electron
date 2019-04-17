@@ -13,6 +13,7 @@ export default {
     },
     ...mapState({
       games: state => state.games,
+      userGames: state => state.userGames,
       featuredGames: state => state.featuredGames,
       topGames: state => state.topGames,
       pending: state => state.pending,
@@ -27,7 +28,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['getGames', 'getFeatured', 'getTopGames']),
+    ...mapActions(['getGames', 'getFeatured', 'getTopGames', 'getUserGames']),
     /**
      * Sort store by options
      *

@@ -1,7 +1,13 @@
 <template>
   <div>
     <b-row>
-      <template v-for="(game, index) in games">
+      <b-col v-if="pending.userGames">
+        Loading...
+      </b-col>
+      <b-col v-else-if="!userGames">
+        No games :(
+      </b-col>
+      <template v-for="(game, index) in userGames">
         <b-col
           :key="'game-' + index"
           cols="6"
@@ -86,7 +92,7 @@ export default {
   computed: {
   },
   created() {
-    this.getGames();
+    this.getUserGames();
   },
   methods: {
     getData() {

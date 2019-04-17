@@ -15,4 +15,9 @@ export default new Vapi({
     property: 'userFilesStatistic',
     path: '/users/games/statistic',
   })
+  .get({
+    action: 'getUserGames',
+    property: 'userGames',
+    path: '/users/games',
+  })
   .getStore();
