@@ -2,10 +2,8 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import path from 'path';
 import fs from 'fs';
-import { createSharedMutations } from 'vuex-electron';
-import {
-  PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,
-} from './actions-types';
+import {createSharedMutations} from 'vuex-electron';
+import {PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,} from './actions-types';
 import {
   ADD_TORRENT,
   NEXT_TORRENT_KEY_USED,
@@ -21,21 +19,23 @@ import {
 
 import games from './games';
 import users from './users';
-import { UNZIP_GAME } from '../dispatch-types';
+import {UNZIP_GAME} from '../dispatch-types';
 import createPromiseAction from '../plugins/promiseAction';
 import auth from './modules/auth';
+// import torrent from './modules/torrent';
+import storePathModule, {GAME_DOWNLOAD_PATH, GAME_INSTALL_PATH} from './modules/path';
 // import sharedMutation from '../plugins/shared-mutations';
 
 const electron = require('electron');
 
 const {
-  ipcMain, ipcRenderer, app, remote, shell,
+  ipcMain, ipcRenderer, /* app, remote, */ shell,
 } = electron;
 
 Vue.use(Vuex);
-const userDataPath = (app || remote.app).getPath('userData');
-const downloadPath = path.join(userDataPath, 'downloads');
-const installPath = path.join(userDataPath, 'apps');
+// const userDataPath = (app || remote.app).getPath('userData');
+// const downloadPath = path.join(userDataPath, 'downloads');
+// const installPath = path.join(userDataPath, 'apps');
 
 /**
  * Library for deep merging objects
@@ -856,14 +856,15 @@ const demoData = {
     },
   },
   actions: {
-    async [START_GAME]({ state }, { gameId }) {
+    async [START_GAME]({ state, getters }, { gameId }) {
       // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
       //  the game will be installed to `gameInstalationPath`
       const { game } = state;
       if (!game) {
         return;
       }
-      const gamePath = path.join(installPath, `${gameId}`, 'Beglitched.exe');
+      // const gamePath = path.join(installPath, `${gameId}`, 'Beglitched.exe');
+      const gamePath = path.join(getters[GAME_INSTALL_PATH](gameId), 'Beglitched.exe');
       if (!fs.existsSync(gamePath)) alert('Game is not installed');
       shell.openItem(gamePath);
     },
@@ -912,10 +913,11 @@ const demoData = {
       }
       let torrentKey;
 
-      const gameInstallPath = path.join(installPath, `${gameId}`);
-      const gameDownloadPath = path.join(downloadPath, `${gameId}`);
-      if (!fs.existsSync(gameDownloadPath)) fs.mkdirSync(gameDownloadPath, { recursive: true });
-      if (!fs.existsSync(gameInstallPath)) fs.mkdirSync(gameInstallPath, { recursive: true });
+      // const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
+      // const gameDownloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+
+      // if (!fs.existsSync(gameDownloadPath)) fs.mkdirSync(gameDownloadPath, { recursive: true });
+      // if (!fs.existsSync(gameInstallPath)) fs.mkdirSync(gameInstallPath, { recursive: true });
 
       if (torrent) {
         ({ torrentKey } = torrent);
@@ -953,7 +955,7 @@ const demoData = {
           null,
           torrentKey, // key
           torrentId,
-          gameDownloadPath,
+          getters[GAME_DOWNLOAD_PATH](gameId),
           null);
         return;
       }
@@ -962,7 +964,7 @@ const demoData = {
         'wt-start-torrenting',
         torrentKey, // key
         torrentId,
-        gameDownloadPath,
+        getters[GAME_DOWNLOAD_PATH](gameId),
         null,
         // select all torrent files by default
       );
@@ -995,7 +997,7 @@ const demoData = {
     },
 
     async [UNARCHIVE_GAME]({ commit, getters }, { gameId }) {
-      const { findTorrentByGameId, getGameInstallPath } = getters;
+      const { findTorrentByGameId } = getters;
       const torrent = findTorrentByGameId(gameId);
       if (!torrent) {
         return;
@@ -1012,7 +1014,7 @@ const demoData = {
         ipcMain.emit(UNZIP_GAME, null, {
           gameId, // s
           src,
-          dst: getGameInstallPath(gameId),
+          dst: getters[GAME_INSTALL_PATH](gameId),
         });
         return;
       }
@@ -1020,7 +1022,7 @@ const demoData = {
       ipcRenderer.send(UNZIP_GAME, {
         gameId, // s
         src,
-        dst: getGameInstallPath(gameId),
+        dst: getters[GAME_INSTALL_PATH](gameId),
       });
     },
   },
@@ -1032,6 +1034,7 @@ const demoData = {
   ],
   modules: {
     auth,
+    path: storePathModule,
   },
   getters: {
     news: (state) => {
@@ -1169,8 +1172,8 @@ const demoData = {
       const torrent = getters.findTorrentByGameId(gameId);
       return torrent && torrent.progress ? torrent.progress.progress : 0;
     },
-    getGameDownloadPath: () => gameId => path.join(downloadPath, `${gameId}`),
-    getGameInstallPath: () => gameId => path.join(installPath, `${gameId}`),
+    // getGameDownloadPath: () => gameId => path.join(downloadPath, `${gameId}`),
+    // getGameInstallPath: () => gameId => path.join(installPath, `${gameId}`),
   },
 };
 

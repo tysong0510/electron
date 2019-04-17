@@ -1,9 +1,9 @@
 import Axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { ipcMain, ipcRenderer } from 'electron';
-import { baseURL } from '../../apiConfig';
-import { AUTHORIZED, UNAUTHORIZED } from '../../dispatch-types';
+import {ipcMain, ipcRenderer} from 'electron';
+import {baseURL} from '../../apiConfig';
+import {AUTHORIZED, UNAUTHORIZED} from '../../dispatch-types';
 
 export const MUTATION_AUTH_REQUEST = 'MUTATION_AUTH_REQUEST';
 export const MUTATION_AUTH_SUCCESS = 'MUTATION_AUTH_SUCCESS';
@@ -36,6 +36,7 @@ export default {
   state: {
     status: '',
     token: '',
+    authorized: false,
     user: {},
     refreshInterval: 30,
   },
@@ -45,6 +46,7 @@ export default {
     },
     [MUTATION_AUTH_SUCCESS](state) {
       state.status = 'success';
+      state.authorized = true;
       // state.token = token;
 
       if (ipcMain) {
@@ -77,6 +79,10 @@ export default {
     },
     [MUTATION_AUTH_USER](state, user) {
       state.user = user;
+
+      if (ipcMain) {
+        ipcMain.emit(MUTATION_AUTH_USER);
+      }
     },
     [MUTATION_CLEAR_REFRESH_INTERVAL]() {
       if (intervalId) {
@@ -112,13 +118,16 @@ export default {
         commit(MUTATION_AUTH_REQUEST);
 
         Axios({ url: '/auth/login', params: user, method: 'POST' })
-          .then((resp) => {
+          .then(async (resp) => {
             const token = resp.headers.authorization;
 
             commit(MUTATION_AUTH_TOKEN, token);
+
+            await dispatch(ACTION_USER);
+
             commit(MUTATION_AUTH_SUCCESS);
+
             commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
-            dispatch(ACTION_USER);
 
             resolve(resp);
           })
@@ -163,17 +172,18 @@ export default {
           },
           method: 'GET',
         })
-          .then((resp) => {
+          .then(async (resp) => {
             const token = resp.headers.authorization;
 
             commit(MUTATION_AUTH_TOKEN, token);
 
+            await dispatch(ACTION_USER);
+
+            commit(MUTATION_AUTH_SUCCESS);
+
             if (ipcMain) {
               commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
             }
-
-            dispatch(ACTION_USER);
-            commit(MUTATION_AUTH_SUCCESS);
 
             resolve(resp);
           })
@@ -219,7 +229,7 @@ export default {
   },
   getters: {
     [IS_LOGGED_IN](state) {
-      return !!state.token;
+      return !!state.token && state.authorized;
     },
     [AUTH_STATUS](state) {
       return state.status;

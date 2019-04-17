@@ -2,25 +2,29 @@
 
 import path from 'path';
 import fs from 'fs';
-import {
-  app, remote, protocol, BrowserWindow, ipcMain,
-} from 'electron';
-import {
-  createProtocol,
-  installVueDevtools,
-} from 'vue-cli-plugin-electron-builder/lib';
+import {app, BrowserWindow, ipcMain, protocol,} from 'electron';
+import {createProtocol, installVueDevtools,} from 'vue-cli-plugin-electron-builder/lib';
 
-import { webtorrent } from './background/windows';
-import { State } from './state';
+import {webtorrent} from './background/windows';
+import {State} from './state';
 import {
-  STATE_SAVE_IMMEDIATE, UNCAUGHT_ERROR, UNZIP_GAME, UNZIP_GAME_OK, UNZIP_GAME_FAIL, DRM_MODE_ENCRYPT, DRM_MODE_DECRYPT, AUTHORIZED, UNAUTHORIZED,
+  AUTHORIZED,
+  DRM_MODE_DECRYPT,
+  DRM_MODE_ENCRYPT,
+  STATE_SAVE_IMMEDIATE,
+  UNAUTHORIZED,
+  UNCAUGHT_ERROR,
+  UNZIP_GAME,
+  UNZIP_GAME_FAIL,
+  UNZIP_GAME_OK,
 } from './dispatch-types';
 import store from './store';
-import { ACTION_REFRESH } from './store/modules/auth';
+import {ACTION_REFRESH} from './store/modules/auth';
+import {INSTALL_PATH} from './store/modules/path';
+//
+// const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
+// const installPath = store.getters[INSTALL_PATH];
 
-const userDataPath = (app || remote.app).getPath('userData');
-const downloadPath = path.join(userDataPath, 'downloads');
-const installPath = path.join(userDataPath, 'apps');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const enableDebug = process.env.DEBUG === 'true' || (process.argv.includes('--debug'));
 
@@ -75,6 +79,14 @@ function createWindow({ debug }) {
 }
 
 function dummyDRM(mode = DRM_MODE_ENCRYPT) {
+  const installPath = store.getters[INSTALL_PATH];
+
+  if (!installPath) {
+    console.log('Install path not specified');
+
+    return;
+  }
+
   let findExt = '';
   let newExt = '';
 
@@ -188,8 +200,8 @@ async function init() {
   });
 
   // /apps and /downloads folders need to be created manually
-  if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath, { recursive: true });
-  if (!fs.existsSync(installPath)) fs.mkdirSync(installPath, { recursive: true });
+  // if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath, { recursive: true });
+  // if (!fs.existsSync(installPath)) fs.mkdirSync(installPath, { recursive: true });
 
   const [, appState] = await Promise.all([
     { then: res => app.on('ready', () => res()) },

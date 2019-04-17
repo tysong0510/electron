@@ -6,7 +6,7 @@
 // process from the main window.
 import ExtendableError from 'es6-error';
 import store from './store';
-import { USER } from './store/modules/auth';
+import {USER} from './store/modules/auth';
 
 console.time('init');
 
@@ -108,10 +108,10 @@ function init() {
   ipc.send('ipcReadyWebTorrent');
 
   window.addEventListener('error', e => ipc.send('wt-uncaught-error', {
-      message: e.error ? e.error.message : String(e),
-      stack: e.error ? e.error.stack : void 0,
-    }),
-    true);
+    message: e.error ? e.error.message : String(e),
+    stack: e.error ? e.error.stack : void 0,
+  }),
+  true);
 
   setInterval(updateTorrentProgress, 1000);
   console.timeEnd('init');

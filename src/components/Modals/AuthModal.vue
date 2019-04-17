@@ -260,158 +260,158 @@
 </template>
 
 <script>
-  import { ipcRenderer } from 'electron';
-  import { ACTION_LOGIN, ACTION_REGISTER } from '../../store/modules/auth';
+  import {ipcRenderer} from 'electron';
+  import {ACTION_LOGIN, ACTION_REGISTER} from '../../store/modules/auth';
   // import { UNAUTHORIZED } from '../../dispatch-types';
-  import { AUTHORIZED } from '../../dispatch-types';
+  import {AUTHORIZED} from '../../dispatch-types';
 
-  const modalTypes = [ 'select', 'sign-in', 'confirm', 'registration' ];
+  const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
 
-  const modals = {
-    select: {
-      title: 'VoxPop',
-    },
-    registration: {
-      title: 'Create an account',
-    },
-    confirm: {
-      title: 'New account created successfully',
-    },
-    'sign-in': {
-      title: 'Sign in',
-    },
-  };
+const modals = {
+  select: {
+    title: 'VoxPop',
+  },
+  registration: {
+    title: 'Create an account',
+  },
+  confirm: {
+    title: 'New account created successfully',
+  },
+  'sign-in': {
+    title: 'Sign in',
+  },
+};
 
-  export default {
-    name: 'AuthModal',
-    data() {
-      return {
-        noRedirect: false,
-        username: null,
-        password: null,
-        email: null,
-        firstName: null,
-        lastName: null,
-        rememberMe: false,
-        loginValid: true
-      };
-    },
-    computed: {
-      modal: {
-        get() {
-          return modals[this.modalType];
-        },
-      },
-      modalType: {
-        get() {
-          if (!modalTypes.includes(this.$route.query.auth)) {
-            return 'select';
-          }
-          return this.$route.query.auth;
-        },
-      },
-      show: {
-        get() {
-          return this.$authModal.showModal;
-        },
-        set(value) {
-          this.$authModal.showModal = value;
-        },
+export default {
+  name: 'AuthModal',
+  data() {
+    return {
+      noRedirect: false,
+      username: null,
+      password: null,
+      email: null,
+      firstName: null,
+      lastName: null,
+      rememberMe: false,
+      loginValid: true,
+    };
+  },
+  computed: {
+    modal: {
+      get() {
+        return modals[this.modalType];
       },
     },
-    mounted() {
-      this.$root.$on('unauthorized', this.showModal);
-      ipcRenderer.on(AUTHORIZED, () => { this.$authModal.showModal = false; });
+    modalType: {
+      get() {
+        if (!modalTypes.includes(this.$route.query.auth)) {
+          return 'select';
+        }
+        return this.$route.query.auth;
+      },
     },
-    methods: {
-      onHide() {
+    show: {
+      get() {
+        return this.$authModal.showModal;
+      },
+      set(value) {
+        this.$authModal.showModal = value;
+      },
+    },
+  },
+  mounted() {
+    this.$root.$on('unauthorized', this.showModal);
+    ipcRenderer.on(AUTHORIZED, () => { this.$authModal.showModal = false; });
+  },
+  methods: {
+    onHide() {
+      this.$authModal.showModal = false;
+    },
+    showModal(params) {
+      this.noRedirect = params && !!params.noRedirect;
+
+      this.$authModal.showModal = true;
+    },
+    focusInput() {
+      const input = this.$refs[this.modalType];
+
+      if (input) {
+        input.focus();
+      }
+    },
+    // modalChangeState() {
+    //   // if (!localStorage.auth && this.$route.query.auth) {
+    //     this.$emit('auth:modal:change:state');
+    //   // }
+    // },
+    goTo(modal = 'login') {
+      if (typeof modal === 'object') {
+        return;
+      }
+
+      this.$router.push({ query: Object.assign({}, this.$route.query, { auth: modal }, this.noRedirect ? { 'no-redirect': true } : {}) });
+    },
+    goBack() {
+      this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }, this.noRedirect ? { 'no-redirect': true } : {}) });
+    },
+    login(evt) {
+      evt.preventDefault();
+
+      this.loginValid = true;
+
+      this.$store.dispatchPromise(ACTION_LOGIN, {
+        username: this.username,
+        password: this.password,
+      }).then(() => {
         this.$authModal.showModal = false;
-      },
-      showModal(params) {
-        this.noRedirect = params && !!params.noRedirect;
 
-        this.$authModal.showModal = true;
-      },
-      focusInput() {
-        let input = this.$refs[this.modalType];
+        console.log('Authorized');
 
-        if (input) {
-          input.focus();
-        }
-      },
-      // modalChangeState() {
-      //   // if (!localStorage.auth && this.$route.query.auth) {
-      //     this.$emit('auth:modal:change:state');
-      //   // }
-      // },
-      goTo(modal = 'login') {
-        if (typeof modal === 'object') {
-          return;
+        // ipcRenderer.send(AUTHORIZED);
+
+        if (!this.$route.query['no-redirect']) {
+          this.$router.push(this.$route.query.redirect || { name: 'profile' });
         }
 
-        this.$router.push({ query: Object.assign({}, this.$route.query, { auth: modal }, this.noRedirect ? { 'no-redirect': true } : {}) });
-      },
-      goBack() {
-        this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }, this.noRedirect ? { 'no-redirect': true } : {}) });
-      },
-      login(evt) {
-        evt.preventDefault();
+        this.$root.$emit('authorized');
+      }).catch((err) => {
+        const res = err.response;
 
-        this.loginValid = true;
+        if (res.status === 404) {
+          this.loginValid = false;
+        }
+      });
 
-        this.$store.dispatchPromise(ACTION_LOGIN, {
-          username: this.username,
-          password: this.password,
-        }).then(() => {
-          this.$authModal.showModal = false;
-
-          console.log('Authorized');
-
-          // ipcRenderer.send(AUTHORIZED);
-
-          if (!this.$route.query['no-redirect']) {
-            this.$router.push(this.$route.query.redirect || { name: 'profile' });
-          }
-
-          this.$root.$emit('authorized');
-        }).catch((err) => {
-          const res = err.response;
-
-          if (res.status === 404) {
-            this.loginValid = false;
-          }
-        });
-
-        // localStorage.auth = 1;
-      },
-      register(evt) {
-        evt.preventDefault();
-
-        const that = this;
-
-        this.$store.dispatchPromise(ACTION_REGISTER, { // Vue-resource
-          firstName: this.firstName,
-          lastName: this.lastName,
-          email: this.email,
-          username: this.username,
-          password: this.password,
-        }).then(() => {
-          that.$authModal.showModal = false;
-
-          console.log('Registered');
-
-          this.goTo('confirm');
-        }).catch((err) => {
-          const res = err.response;
-
-          if (res.status === 404) {
-            console.log('Incorrect username or password');
-          }
-          console.log(err.response);
-        });
-      },
+      // localStorage.auth = 1;
     },
-  };
+    register(evt) {
+      evt.preventDefault();
+
+      const that = this;
+
+      this.$store.dispatchPromise(ACTION_REGISTER, { // Vue-resource
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+        username: this.username,
+        password: this.password,
+      }).then(() => {
+        that.$authModal.showModal = false;
+
+        console.log('Registered');
+
+        this.goTo('confirm');
+      }).catch((err) => {
+        const res = err.response;
+
+        if (res.status === 404) {
+          console.log('Incorrect username or password');
+        }
+        console.log(err.response);
+      });
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">

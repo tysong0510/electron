@@ -4,55 +4,55 @@
 
 <script>
   import axios from 'axios';
-  import { ipcRenderer } from 'electron';
-  import { UNAUTHORIZED } from './dispatch-types';
+  import {ipcRenderer} from 'electron';
+  import {UNAUTHORIZED} from './dispatch-types';
   import user from './mixins/user';
-  import { IS_LOGGED_IN } from './store/modules/auth';
+  import {IS_LOGGED_IN} from './store/modules/auth';
 
   export default {
-    mixins: [user],
-    created() {
-      axios.interceptors.response.use(
-        response => response,
-        (err) => {
-          if (!err.response) {
+  mixins: [user],
+  created() {
+    axios.interceptors.response.use(
+      response => response,
+      (err) => {
+        if (!err.response) {
+          throw err;
+        }
+
+        switch (err.response.status) {
+          case 401:
+            console.log(err.request);
+            this.$root.$emit('unauthorized');
+            ipcRenderer.send(UNAUTHORIZED);
+            return err;
+          default:
             throw err;
-          }
-
-          switch (err.response.status) {
-            case 401:
-              console.log(err.request);
-              this.$root.$emit('unauthorized');
-              ipcRenderer.send(UNAUTHORIZED);
-              return err;
-            default:
-              throw err;
-          }
-        },
-      );
-
-      this.$root.$on('unauthorized', this.logout);
-    },
-    mounted() {
-      this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
-
-      // if (this.$auth.check()) {
-      //   ipcRenderer.send(AUTHORIZED);
-      // }
-    },
-    updated() {
-      if (!this[IS_LOGGED_IN] && this.$route.query.auth) {
-        this.$root.$emit('bv::show::modal', 'modal-authorize');
-      }
-    },
-    methods: {
-      toggleNavOpen() {
-        const root = document.getElementsByTagName('html')[0];
-        root.classList.toggle('nav-open');
+        }
       },
-      logout() {
-        ipcRenderer.send(UNAUTHORIZED);
-      },
+    );
+
+    this.$root.$on('unauthorized', this.logout);
+  },
+  mounted() {
+    this.$watch('$sidebar.showSidebar', this.toggleNavOpen);
+
+    // if (this.$auth.check()) {
+    //   ipcRenderer.send(AUTHORIZED);
+    // }
+  },
+  updated() {
+    if (!this[IS_LOGGED_IN] && this.$route.query.auth) {
+      this.$root.$emit('bv::show::modal', 'modal-authorize');
+    }
+  },
+  methods: {
+    toggleNavOpen() {
+      const root = document.getElementsByTagName('html')[0];
+      root.classList.toggle('nav-open');
     },
-  };
+    logout() {
+      ipcRenderer.send(UNAUTHORIZED);
+    },
+  },
+};
 </script>
