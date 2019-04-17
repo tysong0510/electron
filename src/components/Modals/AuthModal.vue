@@ -321,7 +321,7 @@ export default {
   },
   mounted() {
     this.$root.$on('unauthorized', this.showModal);
-    ipcRenderer.on(AUTHORIZED, () => { this.$authModal.showModal = false; });
+    ipcRenderer.once(AUTHORIZED, () => { this.$authModal.showModal = false; });
   },
   methods: {
     onHide() {

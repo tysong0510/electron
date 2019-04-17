@@ -47,7 +47,7 @@
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
                       </b-button>
-                      <b-button v-if="showPlayBtn" variant="primary" size="lg" class="btn-buy" @click="playGame()">
+                      <b-button v-if="showPlayBtn" variant="primary" size="lg" class="btn-buy" :disabled="!isGameInstalled" @click="playGame()">
                         Play
                       </b-button>
                       <transition>
@@ -107,10 +107,10 @@
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
-                    <b-button variant="primary" class="border-0" @click="playGame()">
+                    <b-button variant="primary" class="border-0" :disabled="!isGameInstalled" @click="playGame()">
                       Play
                     </b-button>
-                    <b-button variant="light" class="text-primary border-0 btn-delete" @click="uninstallGame()">
+                    <b-button variant="light" class="text-primary border-0 btn-delete" :disabled="!isGameInstalled" @click="uninstallGame()">
                       Uninstall
                     </b-button>
                   </b-col>
@@ -147,6 +147,7 @@
 
   import VoteBar from '../components/Progress/VoteBar.vue';
   import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME } from '../store/actions-types';
+  import { IS_GAME_INSTALLED } from '../store/modules/path';
   import { baseURL } from '../apiConfig';
   import user from '../mixins/user';
   import { IS_LOGGED_IN } from '../store/modules/auth';
@@ -237,6 +238,9 @@
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
         return torrent && torrent.state === 'loading-metadata';
       },
+      isGameInstalled() {
+        return this.game && this.game.id && this.$store.getters[IS_GAME_INSTALLED](this.game.id);
+      }
     },
 
     watch: {
@@ -246,6 +250,10 @@
     created() {
       this.fetchData();
       this.carouselOptions = carouselOptions;
+    },
+
+    updated() {
+      this.isGameInstalled;
     },
 
     methods: {

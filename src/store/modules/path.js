@@ -11,6 +11,7 @@ export const DOWNLOAD_PATH = 'DOWNLOAD_PATH';
 export const GAME_DOWNLOAD_PATH = 'GAME_DOWNLOAD_PATH';
 export const INSTALL_PATH = 'INSTALL_PATH';
 export const GAME_INSTALL_PATH = 'GAME_INSTALL_PATH';
+export const IS_GAME_INSTALLED = 'IS_GAME_INSTALLED';
 
 const USER_DATA_PATH = (app || remote.app).getPath('userData');
 const VOXPOP = 'voxpop';
@@ -127,5 +128,12 @@ export default {
         return gameInstallPath;
       };
     },
+    [IS_GAME_INSTALLED](state, getters) {
+      return (gameId) => {
+        return gameId
+          && getters[GAME_INSTALL_PATH](gameId)
+          && fs.existsSync(path.join(getters[GAME_INSTALL_PATH](gameId), 'Beglitched.exe'));
+      }
+    }
   },
 };
