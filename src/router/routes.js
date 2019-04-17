@@ -61,7 +61,7 @@ const routes = [
         path: 'games',
         name: 'games',
         component: Games,
-        // meta: { requireAuth: true },
+        meta: { auth: true },
       },
       {
         path: 'profile',
