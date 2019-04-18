@@ -107,7 +107,6 @@ function getSavedState() {
   return result;
 }
 
-
 const dispatchHandlers = {
   [STATE_SAVE]: () => {
     State.save(getSavedState());
@@ -215,12 +214,14 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
+    console.log('wt-done')
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
     // console.log('wt-done', torrentKey, torrent);
     if (torrent) {
+      console.log('wt-done START SEEDING')
       dispatch({
         type: UPDATE_TORRENT,
         payload: {
@@ -233,6 +234,7 @@ function setupIpc() {
     }
 
     if (torrentInfo.bytesReceived > 0) {
+      console.log('wt-done TORRENT_DOWNLOADED')
       dispatch({
         type: TORRENT_DOWNLOADED,
         payload: {
@@ -292,17 +294,23 @@ setupIpc();
 
 // Remove all torrents to reset webtorrent state (fixes hot-reload issues because of desynchronization)
 // FIXME: sometimes it finishes after load state
+console.log('SHOULD (DONE) wt-reset')
 ipcRenderer.send('wt-reset');
 ipcRenderer.once('wt-reset-ok', () => {
   State.load().then((s) => {
     state = s;
-    console.log('main renderer state', s);
     // Improve Dev Exp: Restore last page you worked in
-    if (IS_DEV && state.vue && state.vue.route) {
-      app.$router.push(state.vue.route);
-    }
+    // if (IS_DEV && state.vue && state.vue.route) {
+    //   app.$router.push(state.vue.route);
+    // }
     const { torrents = [] } = state;
-    const { state: storeState, dispatch } = app.$store;
+    const { state: storeState, dispatch, getters } = app.$store;
+    console.log('main renderer state', s);
+    console.log('wt-reset-ok');
+    console.log(`isAuthenticated ${getters['IS_LOGGED_IN']}`);
+    // if (getters['IS_LOGGED_IN']) {
+    // const user = getters[USER];
+    // console.log(`user ${user}`);
     torrents.forEach((t) => {
       if (!t || !t.infoHash) {
         console.warn('Badly saved torrent', t);
@@ -332,6 +340,7 @@ ipcRenderer.once('wt-reset-ok', () => {
         dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
       }
     });
+    // }
     // setInterval(() => { State.saveImmediate(getSavedState()) }, 5000);
   });
 });

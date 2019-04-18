@@ -105,6 +105,7 @@ function init() {
 
   ipc.on('wt-reset', () => reset());
 
+  console.log('ipcReadyWebTorrent')
   ipc.send('ipcReadyWebTorrent');
 
   window.addEventListener('error', e => ipc.send('wt-uncaught-error', {
@@ -131,6 +132,7 @@ function listenToClientEvents() {
 // Starts a given TorrentID, which can be an infohash, magnet URI, etc.
 // Returns a WebTorrent object. See https://git.io/vik9M
 function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) {
+  console.log('wt-start-torrenting');
   console.log('starting torrent %s: %s', torrentKey, torrentID);
 
   const torrent = client.add(torrentID, {
@@ -159,6 +161,7 @@ function createTorrent(torrentKey, options = {}) {
   const paths = options.files.map(f => f.path);
   // Force private
   options.private = true;
+  console.log('START SEEDING');
   const torrent = client.seed(paths, options);
   torrent.key = torrentKey;
   addTorrentEvents(torrent);
@@ -173,12 +176,15 @@ function addTorrentEvents(torrent) {
   torrent.on('ready', torrentReady);
   torrent.on('done', torrentDone);
   torrent.on('wire', (wire, addr) => {
+    console.log('wire');
     console.log(wire);
-    console.log(`connected to peer with address ${addr}`);
+    console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting gameId(?)`);
+    console.log('torrent');
+    console.log(torrent);
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
-      console.log(`peer ${addr} is now interested`);
+      console.log(`peer ${addr} is now interested in ${wire.peerInterested ? 'us' : '' }`);
     });
 
     wire.on('uninterested', () => {
@@ -197,6 +203,17 @@ function addTorrentEvents(torrent) {
     wire.on('request', (pieceIndex, offset, length) => {
       console.log('wire request', { pieceIndex, offset, length });
     });
+
+    // wire.on('bitfield', (wire, bitfield) => {
+    //   console.log(`bitfield received from the peer with ID ${wire.peerId}: ${bitfield}`);
+    // });
+    wire.on('download', () => {
+      console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/{gameId}?`);
+      //Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
+    });
+    wire.on('upload', () => {
+      console.log(`number of bytes uploaded ${wire.uploaded}`);
+    });
   });
   torrent.on('noPeers', (announceType) => {
     console.log(`noPeers after announceType=${announceType}`);
@@ -212,6 +229,7 @@ function addTorrentEvents(torrent) {
 
   function torrentReady() {
     const info = getTorrentInfo(torrent);
+    console.log('torrentReady')
     ipc.send('wt-ready', torrent.key, info);
     ipc.send(`wt-ready-${torrent.infoHash}`, torrent.key, info);
 
@@ -336,8 +354,6 @@ function getTorrentProgress() {
   };
 }
 
-console.log('Initializing...');
-
 function selectFiles(torrentOrInfoHash, selections) {
   // Get the torrent object
   let torrent;
@@ -407,9 +423,6 @@ window.testOfflineMode = function () {
 
 // For debugging
 window.wtClient = client;
-// Download torrent and seed it
-
-// ipc.on('wt-');
 
 function reset() {
   console.log('reset');
