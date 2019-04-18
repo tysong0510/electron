@@ -8,8 +8,8 @@ import {
   PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,
 } from './actions-types';
 import {
-  ADD_TORRENT,
-  NEXT_TORRENT_KEY_USED,
+  ADD_TORRENT, CLEAR_TORRENTS,
+  NEXT_TORRENT_KEY_USED, STOP_TORRENTS,
   TORRENT_DOWNLOADED,
   TORRENT_DOWNLOADING,
   UNARCHIVE_FAIL,
@@ -24,10 +24,9 @@ import games from './games';
 import users from './users';
 import { UNZIP_GAME } from '../dispatch-types';
 import createPromiseAction from '../plugins/promiseAction';
-import auth from './modules/auth';
+import auth, { USER } from './modules/auth';
 // import torrent from './modules/torrent';
 import storePathModule, { GAME_DOWNLOAD_PATH, GAME_INSTALL_PATH } from './modules/path';
-import { USER } from './modules/auth';
 // import sharedMutation from '../plugins/shared-mutations';
 
 const electron = require('electron');
@@ -802,6 +801,9 @@ const demoData = {
 
       state.torrents = [...state.torrents, data];
     },
+    [CLEAR_TORRENTS](state) {
+      state.torrents = [];
+    },
     [UPDATE_TORRENT](state, { payload }) {
       const keys = ['torrentKey', 'infoHash'];
       if (!keys.some((keyName) => {
@@ -1000,6 +1002,33 @@ const demoData = {
       } else {
         // metadata hasn't been parsed yet. when metadata will be received torrent will be paused
       }
+    },
+
+    [STOP_TORRENTS]({ state, commit }) {
+      state.torrents.forEach((torrent) => {
+        if (torrent) {
+          const { infoHash, torrentKey } = torrent;
+
+          commit({
+            type: UPDATE_TORRENT,
+            payload: {
+              state: 'paused',
+              infoHash,
+              torrentKey,
+            },
+          });
+
+          if (infoHash) {
+            if (!ipcRenderer) {
+              ipcMain.emit('wt-stop-torrenting', null, infoHash);
+              return;
+            }
+            ipcRenderer.send('wt-stop-torrenting', infoHash);
+          }
+        }
+      });
+
+      commit(CLEAR_TORRENTS);
     },
 
     async [UNARCHIVE_GAME]({ commit, getters }, { gameId }) {

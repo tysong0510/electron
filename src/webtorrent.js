@@ -5,8 +5,10 @@
 // To keep the UI snappy, we run WebTorrent in its own hidden window, a separate
 // process from the main window.
 import ExtendableError from 'es6-error';
+import Axios from 'axios';
 import store from './store';
 import { USER } from './store/modules/auth';
+import { AUTHORIZED, UNAUTHORIZED } from './dispatch-types';
 
 console.time('init');
 
@@ -77,6 +79,20 @@ const VERSION_PREFIX = '-WD' + '0000' /* VERSION_STR */ + '-';
  */
 const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString('base64'));
 
+function sendPeerId() {
+  console.log('sendPeerId', PEER_ID.toString('hex'));
+
+  Axios({ url: '/users/peer', data: { peerId: PEER_ID.toString('hex') }, method: 'PUT' }).then((resp) => {
+    console.log('/users/peer response', resp);
+  });
+
+  ipc.once(UNAUTHORIZED, () => {
+    ipc.once(AUTHORIZED, sendPeerId);
+  });
+}
+
+ipc.once(AUTHORIZED, sendPeerId);
+
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
 let client = window.client = new WebTorrent({
@@ -105,7 +121,7 @@ function init() {
 
   ipc.on('wt-reset', () => reset());
 
-  console.log('ipcReadyWebTorrent')
+  console.log('ipcReadyWebTorrent');
   ipc.send('ipcReadyWebTorrent');
 
   window.addEventListener('error', e => ipc.send('wt-uncaught-error', {
@@ -184,7 +200,7 @@ function addTorrentEvents(torrent) {
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
-      console.log(`peer ${addr} is now interested in ${wire.peerInterested ? 'us' : '' }`);
+      console.log(`peer ${addr} is now interested in ${wire.peerInterested ? 'us' : ''}`);
     });
 
     wire.on('uninterested', () => {
@@ -209,7 +225,7 @@ function addTorrentEvents(torrent) {
     // });
     wire.on('download', () => {
       console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/{gameId}?`);
-      //Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
+      // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
     wire.on('upload', () => {
       console.log(`number of bytes uploaded ${wire.uploaded}`);
@@ -229,7 +245,7 @@ function addTorrentEvents(torrent) {
 
   function torrentReady() {
     const info = getTorrentInfo(torrent);
-    console.log('torrentReady')
+    console.log('torrentReady');
     ipc.send('wt-ready', torrent.key, info);
     ipc.send(`wt-ready-${torrent.infoHash}`, torrent.key, info);
 

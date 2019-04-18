@@ -52,7 +52,8 @@ export default {
       if (ipcMain) {
         ipcMain.emit(AUTHORIZED);
       } else if (ipcRenderer) {
-        ipcRenderer.send(AUTHORIZED);
+        ipcRenderer.emit(AUTHORIZED);
+        // ipcRenderer.send(AUTHORIZED);
       }
     },
     [MUTATION_AUTH_TOKEN](state, token) {
@@ -106,7 +107,7 @@ export default {
       if (ipcMain) {
         ipcMain.emit(UNAUTHORIZED);
       } else if (ipcRenderer) {
-        ipcRenderer.send(UNAUTHORIZED);
+        ipcRenderer.emit(UNAUTHORIZED);
       }
 
       clearInterval(intervalId);
@@ -127,7 +128,10 @@ export default {
 
             commit(MUTATION_AUTH_SUCCESS);
 
-            commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+            commit(
+              MUTATION_SET_REFRESH_INTERVAL,
+              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+            );
 
             resolve(resp);
           })
@@ -182,7 +186,10 @@ export default {
             commit(MUTATION_AUTH_SUCCESS);
 
             if (ipcMain) {
-              commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+              commit(
+                MUTATION_SET_REFRESH_INTERVAL,
+                setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+              );
             }
 
             resolve(resp);

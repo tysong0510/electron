@@ -17,7 +17,15 @@ import i18n from './i18n';
 import Dashboard from './plugins/dashboard';
 import { baseURL } from './apiConfig';
 import {
-  UPDATE_TORRENT, ADD_TORRENT, NEXT_TORRENT_KEY_USED, UNARCHIVE_OK, UNARCHIVE_FAIL, TORRENT_DOWNLOADED, UPDATE_TORRENT_INFOHASH, UPDATE_TORRENT_PROGRESS,
+  UPDATE_TORRENT,
+  ADD_TORRENT,
+  NEXT_TORRENT_KEY_USED,
+  UNARCHIVE_OK,
+  UNARCHIVE_FAIL,
+  TORRENT_DOWNLOADED,
+  UPDATE_TORRENT_INFOHASH,
+  UPDATE_TORRENT_PROGRESS,
+  STOP_TORRENTS,
 } from './store/mutation-types';
 import './registerServiceWorker';
 
@@ -29,7 +37,7 @@ import {
   STATE_SAVE_IMMEDIATE,
   UNCAUGHT_ERROR,
   UNZIP_GAME_OK,
-  UNZIP_GAME_FAIL,
+  UNZIP_GAME_FAIL, AUTHORIZED, UNAUTHORIZED,
 } from './dispatch-types';
 
 import { START_DOWNLOAD_GAME, UNARCHIVE_GAME } from './store/actions-types';
@@ -214,14 +222,14 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
-    console.log('wt-done')
+    console.log('wt-done');
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
     // console.log('wt-done', torrentKey, torrent);
     if (torrent) {
-      console.log('wt-done START SEEDING')
+      console.log('wt-done START SEEDING');
       dispatch({
         type: UPDATE_TORRENT,
         payload: {
@@ -234,7 +242,7 @@ function setupIpc() {
     }
 
     if (torrentInfo.bytesReceived > 0) {
-      console.log('wt-done TORRENT_DOWNLOADED')
+      console.log('wt-done TORRENT_DOWNLOADED');
       dispatch({
         type: TORRENT_DOWNLOADED,
         payload: {
@@ -294,8 +302,27 @@ setupIpc();
 
 // Remove all torrents to reset webtorrent state (fixes hot-reload issues because of desynchronization)
 // FIXME: sometimes it finishes after load state
-console.log('SHOULD (DONE) wt-reset')
-ipcRenderer.send('wt-reset');
+console.log('SHOULD (DONE) wt-reset');
+// ipcRenderer.send('wt-reset');
+
+// ipcRenderer.once(AUTHORIZED, () => {
+//   ipcRenderer.send('wt-reset');
+// });
+
+function startSeeding() {
+  ipcRenderer.send('wt-reset');
+
+  ipcRenderer.once(UNAUTHORIZED, () => {
+    console.log(UNAUTHORIZED, store);
+
+    store.dispatch(STOP_TORRENTS);
+
+    ipcRenderer.once(AUTHORIZED, startSeeding);
+  });
+}
+
+ipcRenderer.once(AUTHORIZED, startSeeding);
+
 ipcRenderer.once('wt-reset-ok', () => {
   State.load().then((s) => {
     state = s;

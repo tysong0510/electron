@@ -485,8 +485,8 @@ export default {
           return `${baseURL}/profile/${this[USER].id}/${userAvatar}`;
         }
         /**
-           * Return 1x1 transparent PNG pixel
-           */
+         * Return 1x1 transparent PNG pixel
+         */
         return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
       },
     },
@@ -530,7 +530,7 @@ export default {
         //   }
         // ]
 
-        const data = this.userFilesStatistic.slice(0);
+        // const data = this.userFilesStatistic.slice(0);
 
         for (const item of this.userFilesStatistic) {
           if (typeof item._showDetails === 'undefined') {
@@ -539,7 +539,7 @@ export default {
           }
         }
 
-        return data;
+        return this.userFilesStatistic;
       },
     },
   },
