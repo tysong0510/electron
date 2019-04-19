@@ -194,7 +194,9 @@ function addTorrentEvents(torrent) {
   torrent.on('wire', (wire, addr) => {
     console.log('wire');
     console.log(wire);
-    console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting gameId(?)`);
+    const t = store.getters.findTorrentByKey(torrent.key);
+    const gameId = t && t.gameId;
+    console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting game ${gameId}`);
     console.log('torrent');
     console.log(torrent);
     ipc.send('wt-wire-connect', torrent.key, addr);
@@ -224,11 +226,11 @@ function addTorrentEvents(torrent) {
     //   console.log(`bitfield received from the peer with ID ${wire.peerId}: ${bitfield}`);
     // });
     wire.on('download', () => {
-      console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/{gameId}?`);
+      console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/${gameId}`);
       // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
     wire.on('upload', () => {
-      console.log(`number of bytes uploaded ${wire.uploaded}`);
+      console.log(`number of bytes uploaded ${wire.uploaded} to peerId ${wire.peerId}/${addr}/${gameId}`);
     });
   });
   torrent.on('noPeers', (announceType) => {

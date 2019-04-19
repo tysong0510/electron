@@ -12,6 +12,7 @@ export const GAME_DOWNLOAD_PATH = 'GAME_DOWNLOAD_PATH';
 export const INSTALL_PATH = 'INSTALL_PATH';
 export const GAME_INSTALL_PATH = 'GAME_INSTALL_PATH';
 export const IS_GAME_INSTALLED = 'IS_GAME_INSTALLED';
+export const USER_CONFIG_PATH = 'USER_CONFIG_PATH';
 
 const USER_DATA_PATH = (app || remote.app).getPath('userData');
 const VOXPOP = 'voxpop';
@@ -96,6 +97,29 @@ export default {
       state.lastInstallPath = installPath;
 
       return installPath;
+    },
+    [USER_CONFIG_PATH](state, getters) {
+      const user = getters[USER];
+
+      if (!user) {
+        return null;
+      }
+
+      const { username } = user;
+
+      if (!username) {
+        return null;
+      }
+
+      const userConfigPath = path.join(USER_DATA_PATH, VOXPOP, String(username));
+
+      if (!fs.existsSync(userConfigPath)) {
+        mkdirDeep(userConfigPath);
+
+        console.log(`Directory '${userConfigPath}' created`);
+      }
+
+      return userConfigPath;
     },
     [GAME_INSTALL_PATH](state, getters) {
       /**

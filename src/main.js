@@ -115,6 +115,43 @@ function getSavedState() {
   return result;
 }
 
+// function getGlobalSavedState() {
+//   return {
+//     ...state,
+//     vue: {
+//       route: {
+//         name: app.$route.name,
+//         params: app.$route.params,
+//       },
+//     },
+//     auth: {
+//       token: app.$store.state.auth.token
+//     }
+//   };
+// }
+//
+// function getUserSavedState() {
+//   const vueTorrents = JSON.parse(JSON.stringify(app.$store.state.torrents));
+//
+//   const result = {
+//     ...state,
+//     torrents: vueTorrents.map(t => ({
+//       gameId: t.gameId,
+//       downloaded: t.downloaded,
+//       infoHash: t.infoHash,
+//       path: t.path,
+//       state: t.state,
+//       torrentFileName: t.torrentFileName,
+//       torrentURL: t.torrentURL,
+//     })),
+//   };
+//
+//   console.log('saved state=', result);
+//   console.log('vue state', app.$store.state);
+//
+//   return result;
+// }
+
 const dispatchHandlers = {
   [STATE_SAVE]: () => {
     State.save(getSavedState());

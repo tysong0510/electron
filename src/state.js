@@ -12,6 +12,8 @@ const { readFileSync, writeFileSync, renameSync } = fs;
 // const { readFileAsync, writeFileAsync, renameAsync } = fs;
 
 const SAVE_DEBOUNCE_INTERVAL = 1000;
+
+// const USER_CONFIG_FILENAME = 'config.json';
 // const appConfig = ApplicationConfigFactory('voxpop');
 // appConfig.filePath = path.join(config.CONFIG_PATH, 'config.json')
 // appConfig.readAsync = promisify(appConfig.read);
@@ -49,6 +51,21 @@ async function readFile() {
 
   return result;
 }
+
+// async function writeUserFile(configPath, data) {
+//   if (!configPath) {
+//     throw Error("Path must be string");
+//   }
+//
+//   const configFile = path.join(configPath, USER_CONFIG_FILENAME);
+//
+//   const tempFilePath = configFile + Math.random().toString().substr(2)
+//     + Date.now().toString();
+//
+//   writeFileSync(tempFilePath, JSON.stringify(data, void 0, 2));
+//
+//   renameSync(tempFilePath, configFile);
+// }
 
 async function writeFile(data) {
   const tempFilePath = settingsFile + Math.random().toString().substr(2)

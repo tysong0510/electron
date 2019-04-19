@@ -71,7 +71,8 @@ export default {
       if (ipcMain) {
         ipcMain.emit(UNAUTHORIZED);
       } else if (ipcRenderer) {
-        ipcRenderer.send(UNAUTHORIZED);
+        // ipcRenderer.send(UNAUTHORIZED);
+        ipcRenderer.emit(UNAUTHORIZED);
       }
 
       if (intervalId) {
