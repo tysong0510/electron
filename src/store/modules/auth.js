@@ -4,6 +4,9 @@ import Vuex from 'vuex';
 import { ipcMain, ipcRenderer } from 'electron';
 import { baseURL } from '../../apiConfig';
 import { AUTHORIZED, UNAUTHORIZED } from '../../dispatch-types';
+import { State } from '../../state';
+import { restoreStoreFromSavedUserState } from '../../state-restore';
+import { CLEAR_TORRENTS } from '../mutation-types';
 
 export const MUTATION_AUTH_REQUEST = 'MUTATION_AUTH_REQUEST';
 export const MUTATION_AUTH_SUCCESS = 'MUTATION_AUTH_SUCCESS';
@@ -115,7 +118,8 @@ export default {
     },
   },
   actions: {
-    [ACTION_LOGIN]({ commit, dispatch, getters }, user) {
+    [ACTION_LOGIN](store, user) {
+      const { commit, dispatch, getters } = store;
       return new Promise((resolve, reject) => {
         commit(MUTATION_AUTH_REQUEST);
 
@@ -125,15 +129,15 @@ export default {
 
             commit(MUTATION_AUTH_TOKEN, token);
 
-            await dispatch(ACTION_USER);
-
+            const { username } = await dispatch(ACTION_USER);
             commit(MUTATION_AUTH_SUCCESS);
-
             commit(
               MUTATION_SET_REFRESH_INTERVAL,
               setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
             );
 
+            const savedState = await State.loadUser(username);
+            await restoreStoreFromSavedUserState(store, savedState);
             resolve(resp);
           })
           .catch((err) => {
@@ -150,9 +154,9 @@ export default {
       return new Promise((resolve, reject) => {
         Axios({ url: '/auth/user', method: 'GET' })
           .then((resp) => {
-            commit(MUTATION_AUTH_USER, resp.data.data);
-
-            resolve(resp);
+            const { data } = resp.data;
+            commit(MUTATION_AUTH_USER, data);
+            resolve(data);
           })
           .catch((err) => {
             console.log('Error request', err);
@@ -227,6 +231,11 @@ export default {
     },
     [ACTION_LOGOUT]({ commit }) {
       return new Promise((resolve) => {
+        // Stop all torrents and clear state
+        console.log('sending wt-reset on logout');
+        (ipcMain || ipcRenderer).send('wt-reset');
+        commit(CLEAR_TORRENTS);
+
         commit(MUTATION_LOGOUT, ACTION_LOGOUT);
 
         delete Axios.defaults.headers.common.authorization;
