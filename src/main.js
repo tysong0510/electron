@@ -186,6 +186,7 @@ function dispatch(action, ...args) {
 
 function setupIpc() {
   ipcRenderer.on('wt-infohash', (e, torrentKey, infoHash) => {
+    console.log('wt-metadata', torrentKey, infoHash);
     const { getters, dispatch } = app.$store;
     const { findTorrentByInfoHash } = getters;
     const existingTorrent = findTorrentByInfoHash(infoHash);
@@ -203,6 +204,7 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-metadata', (e, torrentKey, torrentInfo) => {
+    console.log('wt-metadata', torrentKey, torrentInfo);
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const torrent = findTorrentByKey(torrentKey);
@@ -272,7 +274,7 @@ function setupIpc() {
   });
 
   ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
-    console.log('wt-done');
+    console.log('wt-done', torrentKey, torrentInfo);
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;

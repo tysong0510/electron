@@ -97,50 +97,121 @@
         </b-row>
         <b-row v-else>
           <b-col>
-            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white statistic-table"
-                     striped @row-clicked="rowStatisticDetailsToggle"
-            >
-              <template slot="game" slot-scope="row">
-                {{ row.value.title }}
-              </template>
-              <template slot="units" slot-scope="row">
-                {{ row.value }}
-              </template>
-              <template slot="usersCount" slot-scope="row">
-                {{ row.value }}
-              </template>
-              <template slot="row-details" slot-scope="row">
-                <b-card no-body class="border-0" style="background-color: #ffffff10">
-                  <b-table :fields="statisticGameFields" show-empty :items="row.item.seedingSessions" class="text-white">
-                    <template slot="userId" slot-scope="child">
-                      Peer{{ child.value }}
-                    </template>
-                    <template slot="sessionDate" slot-scope="child">
-                      {{ child.value | dateFormat('DD MMM YYYY HH:mm') }}
-                    </template>
-                  </b-table>
-                </b-card>
-              </template>
-            </b-table>
+            <!--            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white statistic-table"-->
+            <!--                     striped @row-clicked="rowStatisticDetailsToggle"-->
+            <!--            >-->
+            <!--              <template slot="game" slot-scope="row">-->
+            <!--                {{ row.value.title }}-->
+            <!--              </template>-->
+            <!--              <template slot="units" slot-scope="row">-->
+            <!--                {{ row.value }}-->
+            <!--              </template>-->
+            <!--              <template slot="usersCount" slot-scope="row">-->
+            <!--                {{ row.value }}-->
+            <!--              </template>-->
+            <!--              <template slot="row-details" slot-scope="row">-->
+            <!--                <b-card no-body class="border-0" style="background-color: #ffffff10">-->
+            <!--                  <b-table :fields="statisticGameFields" show-empty :items="row.item.seedingSessions" class="text-white">-->
+            <!--                    <template slot="userId" slot-scope="child">-->
+            <!--                      Peer{{ child.value }}-->
+            <!--                    </template>-->
+            <!--                    <template slot="sessionDate" slot-scope="child">-->
+            <!--                      {{ child.value | dateFormat('DD MMM YYYY HH:mm') }}-->
+            <!--                    </template>-->
+            <!--                  </b-table>-->
+            <!--                </b-card>-->
+            <!--              </template>-->
+            <!--            </b-table>-->
+            <b-row>
+              <b-col>
+                <b-row>
+                  <b-col>
+                    <h4>Master stats</h4>
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col>
+                    <b-table :fields="masterGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
+                             striped
+                    >
+                      <template slot="game" slot-scope="row">
+                        {{ row.value.title }}
+                      </template>
+                      <template slot="countUnique" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                      <template slot="usersCount" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                      <template slot="re-downloads" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                    </b-table>
+
+                    <b-table :fields="masterBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
+                             striped
+                    >
+                      <template slot="game" slot-scope="row">
+                        {{ row.value.title }}
+                      </template>
+                      <template slot="countUnique" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                      <template slot="usersCount" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                      <template slot="re-downloads" slot-scope="row">
+                        {{ row.value }}
+                      </template>
+                    </b-table>
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col>
+                    <b-row>
+                      <b-col>
+                        <h4>Peer stats</h4>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        <b-table :fields="peerGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
+                                 striped
+                        >
+                          <template slot="game" slot-scope="row">
+                            {{ row.value.title }}
+                          </template>
+                          <template slot="countUnique" slot-scope="row">
+                            {{ row.value }}
+                          </template>
+                          <template slot="re-downloads" slot-scope="row">
+                            {{ row.value }}
+                          </template>
+                        </b-table>
+
+                        <b-table :fields="peerBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
+                                 striped
+                        >
+                          <template slot="game" slot-scope="row">
+                            {{ row.value.title }}
+                          </template>
+                          <template slot="countUnique" slot-scope="row">
+                            {{ row.value }}
+                          </template>
+                          <template slot="re-downloads" slot-scope="row">
+                            {{ row.value }}
+                          </template>
+                        </b-table>
+                      </b-col>
+                    </b-row>
+                  </b-col>
+                </b-row>
+              </b-col>
+            </b-row>
           </b-col>
         </b-row>
       </b-col>
     </b-row>
-
-    <!--<div class="pb-5 mb-4 border-bottom">-->
-    <!--<game-carousel-->
-    <!--id="top-games"-->
-    <!--title="Your top games"-->
-    <!--title-tag="h4"-->
-    <!--title-class="display-4"-->
-    <!--:store="topGamesStore"-->
-    <!--:filter-enabled="false"-->
-    <!--:carousel-options="yourTopGamesCarouselOptions"-->
-    <!--:controls-enabled="false"-->
-    <!--view-all="my-top-games"-->
-    <!--key="top-games"-->
-    <!--v-once/>-->
-    <!--</div>-->
 
     <horizontal-view
       v-if="!pending.games && topGamesStore.content"
@@ -193,21 +264,6 @@
       </b-col>
     </horizontal-view>
 
-    <!--<div class="pb-5 mb-4 border-bottom">-->
-    <!--<game-carousel-->
-    <!--id="your-files"-->
-    <!--title="Your files"-->
-    <!--title-tag="h4"-->
-    <!--title-class="display-4"-->
-    <!--:store="yourFilesStore"-->
-    <!--:filter-enabled="false"-->
-    <!--:carousel-options="normalizeOptions(carouselOptions)"-->
-    <!--:controls-enabled="false"-->
-    <!--view-all="my-files"-->
-    <!--key="your-files"-->
-    <!--v-once/>-->
-    <!--</div>-->
-
     <horizontal-view
       v-if="!pending.games && yourFilesStore.content"
       v-once
@@ -259,21 +315,6 @@
       </b-col>
     </horizontal-view>
 
-    <!--<div class="pb-5 mb-4 border-bottom">-->
-    <!--<game-carousel-->
-    <!--id="your-recommendation"-->
-    <!--title="Your recommendation"-->
-    <!--title-tag="h4"-->
-    <!--title-class="display-4"-->
-    <!--:store="yourRecommendationStore"-->
-    <!--:filter-enabled="false"-->
-    <!--:carousel-options="normalizeOptions(carouselOptions)"-->
-    <!--:controls-enabled="false"-->
-    <!--view-all="my-recommendation"-->
-    <!--key="your-recommendation"-->
-    <!--v-once/>-->
-    <!--</div>-->
-
     <horizontal-view
       v-if="!pending.games && yourRecommendationStore.content"
       v-once
@@ -324,19 +365,6 @@
         </b-card>
       </b-col>
     </horizontal-view>
-
-    <!--<game-carousel-->
-    <!--id="recently-played"-->
-    <!--title="Recently played"-->
-    <!--title-tag="h4"-->
-    <!--title-class="display-4"-->
-    <!--:store="recentlyPlayedStore"-->
-    <!--:filter-enabled="false"-->
-    <!--:carousel-options="normalizeOptions(carouselOptions)"-->
-    <!--:controls-enabled="false"-->
-    <!--view-all="recently-played"-->
-    <!--key="recently-played"-->
-    <!--v-once/>-->
 
     <horizontal-view
       v-if="!pending.games && recentlyPlayedStore.content"
@@ -410,14 +438,36 @@ export default {
   data() {
     return {
       statisticFields: [
-        { key: 'game', name: 'Game' },
-        { key: 'seededUnitsTotal', name: 'Units Count Total' },
-        { key: 'usersCount', name: 'Users Count' },
+        { key: 'game', label: 'Game' },
+        { key: 'seededUnitsTotal', label: 'Units Count Total' },
+        { key: 'usersCount', label: 'Users Count' },
       ],
       statisticGameFields: [
-        { key: 'userId', name: 'User' },
-        { key: 'sessionDate', name: 'Date' },
-        { key: 'unitsCount', name: 'Units Count' },
+        { key: 'userId', label: 'User' },
+        { key: 'sessionDate', label: 'Date' },
+        { key: 'unitsCount', label: 'Units Count' },
+      ],
+      masterGameStatsFields: [
+        { key: 'game', label: 'Game' },
+        { key: 'countUnique', label: '# of unique downloads' },
+        { key: 'usersCount', label: '# of users who downloaded game' },
+        { key: 're-downloads', label: '# of RE-downloads' },
+      ],
+      masterBytesStatsFields: [
+        { key: 'game', label: 'Game' },
+        { key: 'countUnique', label: '# of unique bytes' },
+        { key: 'usersCount', label: '# of users who downloaded bytes (unique)' },
+        { key: 're-downloads', label: '# of RE-downloads' },
+      ],
+      peerGameStatsFields: [
+        { key: 'game', label: 'Game' },
+        { key: 'countUnique', label: '# of unique downloads' },
+        { key: 're-downloads', label: '# of RE-downloads' },
+      ],
+      peerBytesStatsFields: [
+        { key: 'game', label: 'Game' },
+        { key: 'countUnique', label: '# of unique bytes' },
+        { key: 're-downloads', label: '# of RE-downloads' },
       ],
       filterStatistics: {
         selected: 'day',
