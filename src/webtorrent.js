@@ -50,6 +50,7 @@ global.WEBTORRENT_ANNOUNCE = defaultAnnounceList
 
 global.GET_STORE = () => store;
 
+global.ICECOMPLETE_TIMEOUT = 5 * 1000;
 /**
  * WebTorrent version.
  */
