@@ -364,12 +364,7 @@ ipc.on(AUTHORIZED, () => {
   dummyDRM(DRM_MODE_DECRYPT);
 });
 
-ipc.on(UNAUTHORIZED, (event) => {
-  // Dummy protection
-  if (!event) {
-    return;
-  }
-  console.log(event);
+ipc.on(UNAUTHORIZED, () => {
   console.log('ipc: ', UNAUTHORIZED);
   dummyDRM(DRM_MODE_ENCRYPT);
 });

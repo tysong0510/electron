@@ -105,12 +105,6 @@ export default {
 
       console.log(MUTATION_LOGOUT, err);
 
-      if (ipcMain) {
-        ipcMain.emit(UNAUTHORIZED);
-      } else if (ipcRenderer) {
-        ipcRenderer.emit(UNAUTHORIZED);
-      }
-
       clearInterval(intervalId);
     },
   },
@@ -131,7 +125,7 @@ export default {
 
             commit(
               MUTATION_SET_REFRESH_INTERVAL,
-              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]),
             );
 
             resolve(resp);
@@ -189,7 +183,7 @@ export default {
             if (ipcMain) {
               commit(
                 MUTATION_SET_REFRESH_INTERVAL,
-                setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+                setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]),
               );
             }
 
@@ -230,6 +224,12 @@ export default {
         commit(MUTATION_LOGOUT, ACTION_LOGOUT);
 
         delete Axios.defaults.headers.common.authorization;
+
+        if (ipcMain) {
+          ipcMain.emit(UNAUTHORIZED);
+        } else if (ipcRenderer) {
+          ipcRenderer.emit(UNAUTHORIZED);
+        }
 
         resolve();
       });

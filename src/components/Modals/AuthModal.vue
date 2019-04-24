@@ -140,6 +140,9 @@
                       placeholder="Username"
                       type="text"
                     />
+                    <b-form-invalid-feedback :state="usernameValidation">
+                      This username is not available!
+                    </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group
                     label="Email"
@@ -154,6 +157,9 @@
                       placeholder="Email"
                       type="email"
                     />
+                    <b-form-invalid-feedback :state="emailValidation">
+                      This email is taken!
+                    </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group
                     label="Password"
@@ -207,7 +213,7 @@
                 </h5>
               </b-col>
             </b-row>
-            <b-row class="my3">
+            <b-row class="my-3">
               <b-col class="text-center">
                 <b-button
                   size="lg"
@@ -218,6 +224,58 @@
                 >
                   Continue
                 </b-button>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+        <b-row v-else-if="modalType === 'restore'">
+          <b-col>
+            <b-row class="my-3">
+              <b-col class="text-center">
+                <b-form id="restore"
+                        @submit="(e) => { e.preventDefault(); }"
+                >
+                  <b-form-group
+                    label="Email"
+                    label-for="email"
+                    class="text-left"
+                  >
+                    <b-form-input id="email" v-model="email" required name="email" type="email" />
+                  </b-form-group>
+                </b-form>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-row class="my-3">
+                  <b-col class="text-center">
+                    <b-button
+                      size="lg"
+                      variant="primary"
+                      class="btn-auth"
+                      style="min-width: 180px;"
+                      type="submit"
+                      form="restore"
+                    >
+                      Reset password
+                    </b-button>
+                  </b-col>
+                </b-row>
+                <b-col>
+                  <b-row class="my-3">
+                    <b-col class="text-center">
+                      <b-button
+                        size="lg"
+                        variant="light"
+                        class="btn-auth"
+                        style="min-width: 180px;"
+                        @click="goBack"
+                      >
+                        Back
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </b-col>
               </b-col>
             </b-row>
           </b-col>
@@ -236,7 +294,7 @@
                 </b-button>
               </b-col>
             </b-row>
-            <b-row class="my3">
+            <b-row class="my-3">
               <b-col class="text-center">
                 <b-button
                   size="lg"
@@ -265,7 +323,7 @@ import { ACTION_LOGIN, ACTION_REGISTER } from '../../store/modules/auth';
 // import { UNAUTHORIZED } from '../../dispatch-types';
 import { AUTHORIZED } from '../../dispatch-types';
 
-const modalTypes = ['select', 'sign-in', 'confirm', 'registration'];
+const modalTypes = ['select', 'sign-in', 'confirm', 'registration', 'restore'];
 
 const modals = {
   select: {
@@ -280,6 +338,9 @@ const modals = {
   'sign-in': {
     title: 'Sign in',
   },
+  restore: {
+    title: 'Forgot password'
+  }
 };
 
 export default {
@@ -294,6 +355,8 @@ export default {
       lastName: null,
       rememberMe: false,
       loginValid: true,
+      usernameValidation: true,
+      emailValidation: true
     };
   },
   computed: {
@@ -404,9 +467,15 @@ export default {
       }).catch((err) => {
         const res = err.response;
 
-        if (res.status === 404) {
+        if (res.status === 500) {
+          const message = res.data && res.data.message;
+
+          this.usernameValidation = !(/username/.test(message));
+          this.emailValidation = !(/email/.test(message));
+
           console.log('Incorrect username or password');
         }
+
         console.log(err.response);
       });
     },

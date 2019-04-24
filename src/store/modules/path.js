@@ -71,18 +71,13 @@ export default {
     },
     [INSTALL_PATH](state, getters) {
       const user = getters[USER];
+      const { username } = user;
 
-      if (!user) {
+      if (!username) {
         if (state.lastInstallPath) {
           return state.lastInstallPath;
         }
 
-        return null;
-      }
-
-      const { username } = user;
-
-      if (!username) {
         return null;
       }
 
@@ -153,11 +148,9 @@ export default {
       };
     },
     [IS_GAME_INSTALLED](state, getters) {
-      return (gameId) => {
-        return gameId
+      return gameId => gameId
           && getters[GAME_INSTALL_PATH](gameId)
           && fs.existsSync(path.join(getters[GAME_INSTALL_PATH](gameId), 'Beglitched.exe'));
-      }
-    }
+    },
   },
 };

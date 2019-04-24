@@ -191,14 +191,14 @@ function addTorrentEvents(torrent) {
   torrent.on('metadata', torrentMetadata);
   torrent.on('ready', torrentReady);
   torrent.on('done', torrentDone);
+  torrent.on('peer', (peer) => { console.log('new peer', peer); });
   torrent.on('wire', (wire, addr) => {
-    console.log('wire');
-    console.log(wire);
     const t = store.getters.findTorrentByKey(torrent.key);
     const gameId = t && t.gameId;
+
+    console.log('wire', wire);
     console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting game ${gameId}`);
-    console.log('torrent');
-    console.log(torrent);
+    console.log('torrent', torrent);
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
@@ -212,15 +212,22 @@ function addTorrentEvents(torrent) {
     wire.on('handshake', (infoHash, peerId, extensions) => {
       console.log('wire handshake', { infoHash, peerId, extensions });
     });
+
     wire.on('choke', () => {
       console.log('peer is now choking us');
     });
+
     wire.on('unchoke', () => {
       console.log('peer unchoked us');
     });
+
     wire.on('request', (pieceIndex, offset, length) => {
       console.log('wire request', { pieceIndex, offset, length });
     });
+
+    wire.on('have', (index) => { console.log(`wire have ${index}`); });
+
+    wire.on('timeout', () => { console.log(`wire timeout ${wire.addr}. Destroy...`); });
 
     // wire.on('bitfield', (wire, bitfield) => {
     //   console.log(`bitfield received from the peer with ID ${wire.peerId}: ${bitfield}`);
@@ -229,6 +236,7 @@ function addTorrentEvents(torrent) {
       console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/${gameId}`);
       // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
+
     wire.on('upload', () => {
       console.log(`number of bytes uploaded ${wire.uploaded} to peerId ${wire.peerId}/${addr}/${gameId}`);
     });
