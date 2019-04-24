@@ -226,8 +226,8 @@ export default {
     [ACTION_LOGOUT]({ commit }) {
       return new Promise((resolve) => {
         // Stop all torrents and clear state
-        console.log('sending wt-reset on logout');
-        (ipcMain || ipcRenderer).send('wt-reset');
+        // console.log('sending wt-reset on logout');
+        // (ipcMain || ipcRenderer).send('wt-reset');
         commit(CLEAR_TORRENTS);
 
         commit(MUTATION_LOGOUT, ACTION_LOGOUT);

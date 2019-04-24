@@ -7,7 +7,7 @@ export async function restoreStoreFromSavedUserState(store, state) {
   //   app.$router.push(state.vue.route);
   // }
   const { torrents = [] } = state;
-  const { state: storeState, dispatch, getters } = store;
+  const { rootState: storeState, dispatch, getters } = store;
   console.log('restoreStoreFromSavedUserState() main renderer state', state);
   console.log(`isAuthenticated ${getters['IS_LOGGED_IN']}`);
   // if (getters['IS_LOGGED_IN']) {
