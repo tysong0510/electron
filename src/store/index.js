@@ -917,6 +917,7 @@ const demoData = {
       const user = getters[USER];
       if (!user.username) console.log('TRY AGAIN');
       console.log(`user ${user.username}`);
+      console.log('START_DOWNLOAD_GAME');
       let torrentKey;
 
       // const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);

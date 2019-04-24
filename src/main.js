@@ -18,8 +18,6 @@ import Dashboard from './plugins/dashboard';
 import { baseURL } from './apiConfig';
 import {
   UPDATE_TORRENT,
-  ADD_TORRENT,
-  NEXT_TORRENT_KEY_USED,
   UNARCHIVE_OK,
   UNARCHIVE_FAIL,
   TORRENT_DOWNLOADED,
@@ -40,8 +38,7 @@ import {
   UNZIP_GAME_FAIL, AUTHORIZED, UNAUTHORIZED,
 } from './dispatch-types';
 
-import { START_DOWNLOAD_GAME, UNARCHIVE_GAME } from './store/actions-types';
-import {IS_LOGGED_IN} from "./store/modules/auth";
+import { UNARCHIVE_GAME } from './store/actions-types';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -90,7 +87,11 @@ const { ipcRenderer } = electron;
 // Save is restored on app load and saved before quitting
 let state;
 
-function getSavedState() {
+function getSavedGlobalState() {
+  return {};
+}
+
+function getSavedUserState() {
   // Hack to avoid reactivity. Otherwise undefined is saved
   const vueTorrents = JSON.parse(JSON.stringify(app.$store.state.torrents));
   const result = {
@@ -155,9 +156,19 @@ function getSavedState() {
 
 const dispatchHandlers = {
   [STATE_SAVE]: () => {
-    State.save(getSavedState());
+    State.save(getSavedGlobalState());
+    const { username } = app.$store.state.auth.user;
+    if (username !== void 0) {
+      State.saveUser(username, getSavedUserState());
+    }
   },
-  [STATE_SAVE_IMMEDIATE]: () => State.saveImmediate(getSavedState()),
+  [STATE_SAVE_IMMEDIATE]: () => {
+    State.saveImmediate(getSavedGlobalState())
+    const { username } = app.$store.state.auth.user;
+    if (username !== void 0) {
+      State.saveUserImmediate(username, getSavedUserState());
+    }
+  },
   error: (err) => {
     console.error(err.stack || err);
   },
@@ -363,7 +374,7 @@ function startSeeding() {
 
 ipcRenderer.once(AUTHORIZED, startSeeding);
 
-ipcRenderer.once('wt-reset-ok', () => {
+/*ipcRenderer.once('wt-reset-ok', () => {
   State.load().then((s) => {
     state = s;
     // Improve Dev Exp: Restore last page you worked in
@@ -374,7 +385,7 @@ ipcRenderer.once('wt-reset-ok', () => {
     const { state: storeState, dispatch, getters } = app.$store;
     console.log('main renderer state', s);
     console.log('wt-reset-ok');
-    console.log(`isAuthenticated ${getters[IS_LOGGED_IN]}`);
+    console.log(`isAuthenticated ${getters['IS_LOGGED_IN']}`);
     // if (getters['IS_LOGGED_IN']) {
     // const user = getters[USER];
     // console.log(`user ${user}`);
@@ -410,4 +421,4 @@ ipcRenderer.once('wt-reset-ok', () => {
     // }
     // setInterval(() => { State.saveImmediate(getSavedState()) }, 5000);
   });
-});
+});*/
