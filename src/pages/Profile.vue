@@ -45,7 +45,7 @@
               class="display-4 d-inline"
               style="font-size: 1.5rem;"
             >
-              Profile statistic
+              Profile statistics
             </h4>
             <div class="d-inline pl-3">
               <b-select
@@ -86,7 +86,7 @@
         <b-row class="pb-2">
           <b-col>
             <h4 class="display-4 d-inline text-white" style="font-size: 1.5rem;">
-              File Statistic
+              File Statistics
             </h4>
           </b-col>
         </b-row>
@@ -132,7 +132,7 @@
                 <b-row>
                   <b-col>
                     <b-table :fields="masterGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                             striped
+                             striped fixed bordered
                     >
                       <template slot="game" slot-scope="row">
                         {{ row.value.title }}
@@ -149,7 +149,7 @@
                     </b-table>
 
                     <b-table :fields="masterBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                             striped
+                             striped fixed bordered
                     >
                       <template slot="game" slot-scope="row">
                         {{ row.value.title }}
@@ -176,7 +176,7 @@
                     <b-row>
                       <b-col>
                         <b-table :fields="peerGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                                 striped
+                                 striped fixed bordered
                         >
                           <template slot="game" slot-scope="row">
                             {{ row.value.title }}
@@ -190,7 +190,7 @@
                         </b-table>
 
                         <b-table :fields="peerBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                                 striped
+                                 striped fixed bordered
                         >
                           <template slot="game" slot-scope="row">
                             {{ row.value.title }}
@@ -449,25 +449,25 @@ export default {
       ],
       masterGameStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: '# of unique downloads' },
-        { key: 'usersCount', label: '# of users who downloaded game' },
-        { key: 're-downloads', label: '# of RE-downloads' },
+        { key: 'countUnique', label: 'Unique downloads' },
+        { key: 'usersCount', label: 'Users downloaded game' },
+        { key: 're-downloads', label: 'RE-downloads' },
       ],
       masterBytesStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: '# of unique bytes' },
-        { key: 'usersCount', label: '# of users who downloaded bytes (unique)' },
-        { key: 're-downloads', label: '# of RE-downloads' },
+        { key: 'countUnique', label: 'Unique bytes' },
+        { key: 'usersCount', label: 'Users downloaded bytes' },
+        { key: 're-downloads', label: 'RE-downloads' },
       ],
       peerGameStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: '# of unique downloads' },
-        { key: 're-downloads', label: '# of RE-downloads' },
+        { key: 'countUnique', label: 'Unique downloads' },
+        { key: 're-downloads', label: 'RE-downloads' },
       ],
       peerBytesStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: '# of unique bytes' },
-        { key: 're-downloads', label: '# of RE-downloads' },
+        { key: 'countUnique', label: 'Unique bytes' },
+        { key: 're-downloads', label: 'RE-downloads' },
       ],
       filterStatistics: {
         selected: 'day',
