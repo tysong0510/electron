@@ -106,6 +106,12 @@ export default {
       state.token = '';
       state.user = {};
 
+      if (ipcMain) {
+        ipcMain.emit(UNAUTHORIZED);
+      } else if (ipcRenderer) {
+        ipcRenderer.emit(UNAUTHORIZED);
+      }
+
       console.log(MUTATION_LOGOUT, err);
 
       clearInterval(intervalId);

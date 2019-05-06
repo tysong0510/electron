@@ -293,8 +293,13 @@ export default {
         this.$root.$emit('unauthorized', { noRedirect: true });
         // ipcRenderer.once(AUTHORIZED, this.gameBuy);
         this.$root.$once('authorized', this.gameBuy);
-      } else if (this.game.magnetURI) this.startDownloading();
-      else confirm('There is no seeds available for this game');
+      } else if (this.game.magnetURI) {
+        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          return;
+        }
+
+        this.startDownloading();
+      } else confirm('There is no seeds available for this game');
     },
     playGame() {
       this[START_GAME]({
