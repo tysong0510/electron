@@ -197,10 +197,11 @@ function requestToPair(request, pieceLength) {
 
 function addTorrentEvents(torrent) {
   let previousDownloadRequests = {};
+  let previousUploadRequests = {};
   let currentDownloadRequests = {};
+  let currentUploadRequests = {};
   const checkRequests = {};
-  console.log('torrent piece length', torrent.pieceLength);
-  const { pieceLength } = torrent;
+  const checkPeerRequests = {};
   let numberOfDownloadedBytes = 0;
   let numberOfUploadedBytes = 0;
   let peerId = '';
@@ -316,7 +317,7 @@ function addTorrentEvents(torrent) {
 
       if (wire.requests) {
         wire.requests.forEach((request) => {
-          const pair = requestToPair(request, pieceLength);
+          const pair = requestToPair(request, torrent.pieceLength);
 
           const downloadedBlock = {
             blockOffset: pair.blockOffset,
@@ -325,6 +326,7 @@ function addTorrentEvents(torrent) {
             peerId: wire.peerId,
             userId,
           };
+
           currentDownloadRequests[downloadedBlock.blockOffset] = downloadedBlock;
           checkRequests[downloadedBlock.blockOffset] = downloadedBlock;
         });
@@ -339,6 +341,7 @@ function addTorrentEvents(torrent) {
       });
       console.log('downloaded:', downloadedRequests);
       if (downloadedRequests.length > 0) {
+
         Axios({ url: '/user-game-download-blocks/group', data: downloadedRequests, method: 'POST' }).then((request) => {
           console.log('wire download add group done', request);
         }).catch((response) => {
@@ -357,13 +360,59 @@ function addTorrentEvents(torrent) {
       // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
 
-    wire.on('upload', (bytes) => {
+    wire.on('upload', () => {
       // console.log(`number of bytes uploaded ${wire.uploaded} to peerId ${wire.peerId}/${addr}/${gameId}`);
-      console.log('wire upload gameId', gameId);
-      console.log('wire upload wire.peerId:', wire.peerId);
-      console.log('wire upload bytes:', bytes);
-      console.log('wire upload requests:', wire.requests);
-      console.log('wire upload peerRequests:', wire.peerRequests);
+      // console.log('wire upload gameId', gameId);
+      // console.log('wire upload wire.peerId:', wire.peerId);
+      // console.log('wire upload bytes:', bytes);
+      // console.log('wire upload requests:', wire.requests);
+      // console.log('wire upload peerRequests:', wire.peerRequests);
+
+      currentUploadRequests = {};
+
+      if (wire.peerRequests) {
+        wire.peerRequests.forEach((request) => {
+          const pair = requestToPair(request, torrent.pieceLength);
+
+          const uploadedBlock = {
+            blockOffset: pair.blockOffset,
+            blockLength: pair.blockLength,
+            gameId,
+            peerId: wire.peerId,
+            userId,
+          };
+
+          currentUploadRequests[uploadedBlock.blockOffset] = uploadedBlock;
+          checkPeerRequests[uploadedBlock.blockOffset] = uploadedBlock;
+        });
+      }
+
+      const uploadedRequests = [];
+      const keys = Object.keys(previousUploadRequests) || [];
+      keys.forEach((key) => {
+        if (!currentUploadRequests[key]) {
+          uploadedRequests.push(previousUploadRequests[key]);
+        }
+      });
+      console.log('uploaded:', uploadedRequests);
+      if (uploadedRequests.length > 0) {
+
+        Axios({ url: '/user-game-upload-blocks/group', data: uploadedRequests, method: 'POST' }).then((request) => {
+          console.log('wire upload add group done', request);
+        }).catch((response) => {
+          console.log('wire upload add group error:', response);
+        });
+
+        // AppUserGameDownloadBlockService.addGroup(authorization, downloadedRequests)
+        //   .then(() => {
+        //     console.log('wire download add group done');
+        //   })
+        //   .catch((response) => {
+        //     console.log('wire download add group error:', response);
+        //   });
+      }
+
+      previousUploadRequests = currentUploadRequests;
     });
   });
   torrent.on('noPeers', (announceType) => {
