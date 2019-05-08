@@ -127,7 +127,7 @@ State.saveImmediate = async function saveImmediate(state) {
   try {
     const data = {
       ...state,
-      version: config.APP_VERSION
+      version: config.APP_VERSION,
     };
     // await appConfig.writeAsync(copy);
     await writeConfigFile(appSettingsFile, data);
@@ -174,7 +174,7 @@ State.saveUserImmediate = async function saveImmediate(userId, state) {
     const data = {
       ...state,
       userId,
-      version: config.APP_VERSION
+      version: config.APP_VERSION,
     };
     await writeConfigFile(getUserConfigPath(userId), data);
     console.warn('saved user state', userId, data);

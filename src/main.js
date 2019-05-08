@@ -163,7 +163,7 @@ const dispatchHandlers = {
     }
   },
   [STATE_SAVE_IMMEDIATE]: () => {
-    State.saveImmediate(getSavedGlobalState())
+    State.saveImmediate(getSavedGlobalState());
     const { username } = app.$store.state.auth.user;
     if (username !== void 0) {
       State.saveUserImmediate(username, getSavedUserState());
@@ -374,7 +374,7 @@ function startSeeding() {
 
 ipcRenderer.once(AUTHORIZED, startSeeding);
 
-/*ipcRenderer.once('wt-reset-ok', () => {
+/* ipcRenderer.once('wt-reset-ok', () => {
   State.load().then((s) => {
     state = s;
     // Improve Dev Exp: Restore last page you worked in
@@ -421,4 +421,4 @@ ipcRenderer.once(AUTHORIZED, startSeeding);
     // }
     // setInterval(() => { State.saveImmediate(getSavedState()) }, 5000);
   });
-});*/
+}); */

@@ -1,5 +1,5 @@
-import { NEXT_TORRENT_KEY_USED, ADD_TORRENT } from "./store/mutation-types";
-import { START_DOWNLOAD_GAME } from "./store/actions-types";
+import { NEXT_TORRENT_KEY_USED, ADD_TORRENT } from './store/mutation-types';
+import { START_DOWNLOAD_GAME } from './store/actions-types';
 
 export async function restoreStoreFromSavedUserState(store, state) {
   // Improve Dev Exp: Restore last page you worked in
@@ -9,7 +9,7 @@ export async function restoreStoreFromSavedUserState(store, state) {
   const { torrents = [] } = state;
   const { rootState: storeState, dispatch, getters } = store;
   console.log('restoreStoreFromSavedUserState() main renderer state', state);
-  console.log(`isAuthenticated ${getters['IS_LOGGED_IN']}`);
+  console.log(`isAuthenticated ${getters.IS_LOGGED_IN}`);
   // if (getters['IS_LOGGED_IN']) {
   // const user = getters[USER];
   // console.log(`user ${user}`);

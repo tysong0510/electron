@@ -196,31 +196,42 @@ function requestToPair(request, pieceLength) {
 }
 
 function addTorrentEvents(torrent) {
-  let previousDownloadRequests = {};
+  // let previousDownloadRequests = {};
   let previousUploadRequests = {};
-  let currentDownloadRequests = {};
+  let downloadedPieces = [];
+  // let currentDownloadRequests = {};
   let currentUploadRequests = {};
-  const checkRequests = {};
+  // const checkRequests = {};
   const checkPeerRequests = {};
-  let numberOfDownloadedBytes = 0;
-  let numberOfUploadedBytes = 0;
-  let peerId = '';
+  // let numberOfDownloadedBytes = 0;
+  // let numberOfUploadedBytes = 0;
+  // let peerId = '';
   const keys = Object.keys(torrent).sort();
   console.log('keys:', keys);
 
   const t = store.getters.findTorrentByKey(torrent.key);
   const gameId = t && t.gameId;
   const userId = store.getters[USER].id;
-  const defaultBlockSize = 16384;
+  // const defaultBlockSize = 16384;
 
   torrent.on('download', (bytes) => {
     console.log('torrent download bytes:', bytes);
-    numberOfDownloadedBytes += bytes;
+    // numberOfDownloadedBytes += bytes;
+
+    if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length >= 24) {
+      Axios({ url: '/user-game-download-blocks/group', data: downloadedPieces, method: 'POST' }).then((res) => {
+        console.log('wire download add group done', res);
+      }).catch((err) => {
+        console.log('wire download add group error:', err);
+      });
+
+      downloadedPieces = [];
+    }
   });
 
   torrent.on('upload', (bytes) => {
     console.log('torrent upload bytes:', bytes);
-    numberOfUploadedBytes += bytes;
+    // numberOfUploadedBytes += bytes;
   });
 
   torrent.on('warning', err => ipc.send('wt-warning', torrent.key, err.message));
@@ -230,30 +241,43 @@ function addTorrentEvents(torrent) {
   torrent.on('ready', torrentReady);
   torrent.on('done', () => {
     console.log('torrent done');
-    console.log('numberOfDownloadedBytes:', numberOfDownloadedBytes);
-    console.log('numberOfUploadedBytes:', numberOfUploadedBytes);
+    console.log(downloadedPieces);
+    // console.log('numberOfDownloadedBytes:', numberOfDownloadedBytes);
+    // console.log('numberOfUploadedBytes:', numberOfUploadedBytes);
 
-    let i = 0;
-    while (i < numberOfDownloadedBytes) {
-      if (!checkRequests[i]) {
-        console.log(`block with offset ${i} is absent`);
-        const downloadedBlock = {
-          blockOffset: i,
-          blockLength: defaultBlockSize,
-          gameId,
-          peerId,
-          userId,
-          autoFix: true,
-        };
+    // let i = 0;
+    // while (i < numberOfDownloadedBytes) {
+    //   if (!checkRequests[i]) {
+    //     console.log(`block with offset ${i} is absent`);
+    //     const downloadedBlock = {
+    //       blockOffset: i,
+    //       blockLength: defaultBlockSize,
+    //       gameId,
+    //       peerId,
+    //       userId,
+    //       autoFix: true,
+    //     };
+    //
+    //     Axios({ url: '/user-game-download-blocks/group', data: [downloadedBlock], method: 'POST' }).catch((response) => {
+    //       console.log('wire download add group error:', response);
+    //     });
+    //
+    //     i += defaultBlockSize;
+    //   } else {
+    //     i += checkRequests[i].blockLength;
+    //   }
+    // }
 
-        Axios({ url: '/user-game-download-blocks/group', data: [downloadedBlock], method: 'POST' }).catch((response) => {
-          console.log('wire download add group error:', response);
+    if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length) {
+      Axios({url: '/user-game-download-blocks/group', data: downloadedPieces, method: 'POST'})
+        .then((res) => {
+          console.log('wire download add group done', res);
+        })
+        .catch((err) => {
+          console.log('wire download add group error:', err);
         });
 
-        i += defaultBlockSize;
-      } else {
-        i += checkRequests[i].blockLength;
-      }
+      downloadedPieces = [];
     }
 
     torrentDone();
@@ -262,18 +286,59 @@ function addTorrentEvents(torrent) {
     console.log('new peer', peer);
   });
   torrent.on('wire', (wire, addr) => {
-    console.log('torrent wire keys:', Object.keys(wire).sort());
-    console.log('torrent wire addr:', addr);
-
-    peerId = wire.peerId;
-
     console.log('wire', wire);
     console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting game ${gameId}`);
     console.log('torrent', torrent);
+
+    // let previousDownloadRequests = {};
+    // let currentDownloadRequests = {};
+
+    // if (wire.requests) {
+    //   wire.requests.forEach((request) => {
+    //     const pieceIndex = request.piece;
+    //     const pair = requestToPair(request, torrent.pieceLength);
+    //
+    //     const downloadedBlock = {
+    //       blockOffset: pair.blockOffset,
+    //       blockLength: pair.blockLength,
+    //       gameId,
+    //       peerId: wire.peerId,
+    //       userId,
+    //     };
+    //
+    //     if (!previousDownloadRequests[pieceIndex]) {
+    //       previousDownloadRequests[pieceIndex] = {};
+    //     }
+    //
+    //     previousDownloadRequests[pieceIndex][downloadedBlock.blockOffset] = downloadedBlock;
+    //   });
+    // }
+
+    // console.log('torrent wire keys:', Object.keys(wire).sort());
+    // console.log('torrent wire addr:', addr);
+
+    // peerId = wire.peerId;
+
     ipc.send('wt-wire-connect', torrent.key, addr);
 
     wire.on('interested', () => {
       console.log(`peer ${addr} is now interested in ${wire.peerInterested ? 'us' : ''}`);
+    });
+
+    wire.on('piece', (index, offset, buffer) => {
+      const downloadedBlock = {
+        blockOffset: index * torrent.pieceLength + offset,
+        blockLength: buffer.length,
+        gameId,
+        peerId: wire.peerId,
+        userId,
+      };
+
+      if (!downloadedPieces) {
+        downloadedPieces = [];
+      }
+
+      downloadedPieces.push(downloadedBlock);
     });
 
     wire.on('uninterested', () => {
@@ -313,50 +378,88 @@ function addTorrentEvents(torrent) {
       // console.log('wire download bytes:', bytes);
       // console.log('wire.downloaded:', wire.downloaded);
 
-      currentDownloadRequests = {};
+      // currentDownloadRequests = {};
+      //
+      // if (wire.requests) {
+      //   wire.requests.forEach((request) => {
+      //     const pieceIndex = request.piece;
+      //     const pair = requestToPair(request, torrent.pieceLength);
+      //
+      //     const downloadedBlock = {
+      //       blockOffset: pair.blockOffset,
+      //       blockLength: pair.blockLength,
+      //       gameId,
+      //       peerId: wire.peerId,
+      //       userId,
+      //     };
+      //
+      //     if (!currentDownloadRequests[pieceIndex]) {
+      //       currentDownloadRequests[pieceIndex] = {};
+      //     }
+      //
+      //     currentDownloadRequests[pieceIndex][downloadedBlock.blockOffset] = downloadedBlock;
+      //     // checkRequests[downloadedBlock.blockOffset] = downloadedBlock;
+      //   });
+      // }
+      //
+      // // const downloadedRequests = [];
+      //
+      // const pieceIndexes = Object.keys(previousDownloadRequests) || [];
+      //
+      // if (!pieceIndexes.length) {
+      //   console.log('Downloaded block is lost');
+      //   console.log(previousDownloadRequests);
+      //   console.log(currentDownloadRequests);
+      // }
+      //
+      // pieceIndexes.forEach((pIndex) => {
+      //   if (!currentDownloadRequests[pIndex]) {
+      //     if (downloadedPieces[pIndex] && Array.isArray(downloadedPieces[pIndex])) {
+      //       downloadedPieces[pIndex].concat(Object.values(previousDownloadRequests[pIndex]));
+      //     } else {
+      //       downloadedPieces[pIndex] = Object.values(previousDownloadRequests[pIndex]);
+      //     }
+      //
+      //     Axios({ url: '/user-game-download-blocks/group', data: downloadedPieces[pIndex], method: 'POST' }).then((res) => {
+      //       console.log('wire piece index', pIndex);
+      //       console.log('wire download add group done', res);
+      //     }).catch((err) => {
+      //       console.log('wire download add group error:', err);
+      //     });
+      //
+      //     delete downloadedPieces[pIndex];
+      //   } else {
+      //     const blockIndexes = Object.keys(previousDownloadRequests[pIndex]) || [];
+      //
+      //     blockIndexes.forEach((bIndex) => {
+      //       if (!currentDownloadRequests[pIndex][bIndex]) {
+      //         if (downloadedPieces[pIndex] && Array.isArray(downloadedPieces[pIndex])) {
+      //           downloadedPieces[pIndex].push(previousDownloadRequests[pIndex][bIndex]);
+      //         } else {
+      //           downloadedPieces[pIndex] = [previousDownloadRequests[pIndex][bIndex]];
+      //         }
+      //       }
+      //     });
+      //   }
+      // });
 
-      if (wire.requests) {
-        wire.requests.forEach((request) => {
-          const pair = requestToPair(request, torrent.pieceLength);
-
-          const downloadedBlock = {
-            blockOffset: pair.blockOffset,
-            blockLength: pair.blockLength,
-            gameId,
-            peerId: wire.peerId,
-            userId,
-          };
-
-          currentDownloadRequests[downloadedBlock.blockOffset] = downloadedBlock;
-          checkRequests[downloadedBlock.blockOffset] = downloadedBlock;
-        });
-      }
-
-      const downloadedRequests = [];
-      const keys = Object.keys(previousDownloadRequests) || [];
-      keys.forEach((key) => {
-        if (!currentDownloadRequests[key]) {
-          downloadedRequests.push(previousDownloadRequests[key]);
-        }
-      });
-      console.log('downloaded:', downloadedRequests);
-      if (downloadedRequests.length > 0) {
-
-        Axios({ url: '/user-game-download-blocks/group', data: downloadedRequests, method: 'POST' }).then((request) => {
-          console.log('wire download add group done', request);
-        }).catch((response) => {
-          console.log('wire download add group error:', response);
-        });
-
-        // AppUserGameDownloadBlockService.addGroup(authorization, downloadedRequests)
-        //   .then(() => {
-        //     console.log('wire download add group done');
-        //   })
-        //   .catch((response) => {
-        //     console.log('wire download add group error:', response);
-        //   });
-      }
-      previousDownloadRequests = currentDownloadRequests;
+      // console.log('downloaded:', downloadedRequests);
+      // if (downloadedRequests.length > 0) {
+      //   Axios({ url: '/user-game-download-blocks/group', data: downloadedRequests, method: 'POST' }).then((request) => {
+      //     console.log('wire download add group done', request);
+      //   }).catch((response) => {
+      //     console.log('wire download add group error:', response);
+      //   });
+      //
+      //   // AppUserGameDownloadBlockService.addGroup(authorization, downloadedRequests)
+      //   //   .then(() => {
+      //   //     console.log('wire download add group done');
+      //   //   })
+      //   //   .catch((response) => {
+      //   //     console.log('wire download add group error:', response);
+      //   //   });
+      // }
+      // previousDownloadRequests = currentDownloadRequests;
       // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
 
@@ -396,7 +499,6 @@ function addTorrentEvents(torrent) {
       });
       console.log('uploaded:', uploadedRequests);
       if (uploadedRequests.length > 0) {
-
         Axios({ url: '/user-game-upload-blocks/group', data: uploadedRequests, method: 'POST' }).then((request) => {
           console.log('wire upload add group done', request);
         }).catch((response) => {

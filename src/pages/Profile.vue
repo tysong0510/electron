@@ -36,7 +36,10 @@
 
     <b-row class="pb-5 mb-5">
       <b-col class="col-8 mr-auto text-white">
-        <p v-if="USER.bio" class="pb-5">
+        <p
+          v-if="USER.bio"
+          class="pb-5"
+        >
           {{ USER.bio }}
         </p>
         <b-row class="pb-4 mb-3">
@@ -74,7 +77,10 @@
         </b-row>
       </b-col>
       <b-col class="col-4 d-inline text-white border-left">
-        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
+        <h4
+          class="display-4 d-inline"
+          style="font-size: 1.5rem;"
+        >
           Friends
         </h4>
         <span class="d-inline float-right">0</span>
@@ -85,7 +91,10 @@
       <b-col>
         <b-row class="pb-2">
           <b-col>
-            <h4 class="display-4 d-inline text-white" style="font-size: 1.5rem;">
+            <h4
+              class="display-4 d-inline text-white"
+              style="font-size: 1.5rem;"
+            >
               File Statistics
             </h4>
           </b-col>
@@ -131,36 +140,88 @@
                 </b-row>
                 <b-row>
                   <b-col>
-                    <b-table :fields="masterGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                             striped fixed bordered
+                    <b-table
+                      :fields="masterGameStatsFields"
+                      :busy="fixStatisticsPending || pending.gamesStatistic"
+                      :items="masterGameStats"
+                      show-empty
+                      class="text-white"
+                      striped
+                      fixed
+                      bordered
                     >
-                      <template slot="game" slot-scope="row">
-                        {{ row.value.title }}
+                      <div
+                        slot="table-busy"
+                        class="text-center text-danger my-2"
+                      >
+                        <b-spinner class="align-middle" />
+                        <strong>Loading...</strong>
+                      </div>
+                      <template
+                        slot="game"
+                        slot-scope="row"
+                      >
+                        <a :href="getUrlByRoute({name: 'my-game-details', params: {id: row.value.id}})">{{ row.value.title }}</a>
                       </template>
-                      <template slot="countUnique" slot-scope="row">
+                      <template
+                        slot="countUnique"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
-                      <template slot="usersCount" slot-scope="row">
+                      <template
+                        slot="usersCount"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
-                      <template slot="re-downloads" slot-scope="row">
+                      <template
+                        slot="re-downloads"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
                     </b-table>
 
-                    <b-table :fields="masterBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                             striped fixed bordered
+                    <b-table
+                      :fields="masterBytesStatsFields"
+                      :busy="fixStatisticsPending || pending.gamesStatistic"
+                      :items="masterBytesStats"
+                      show-empty
+                      class="text-white"
+                      striped
+                      fixed
+                      bordered
                     >
-                      <template slot="game" slot-scope="row">
-                        {{ row.value.title }}
+                      <div
+                        slot="table-busy"
+                        class="text-center text-danger my-2"
+                      >
+                        <b-spinner class="align-middle" />
+                        <strong>Loading...</strong>
+                      </div>
+                      <template
+                        slot="game"
+                        slot-scope="row"
+                      >
+                        <a :href="getUrlByRoute({name: 'my-game-details', params: {id: row.value.id}})">{{ row.value.title }}</a>
                       </template>
-                      <template slot="countUnique" slot-scope="row">
+                      <template
+                        slot="countUnique"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
-                      <template slot="usersCount" slot-scope="row">
+                      <template
+                        slot="usersCount"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
-                      <template slot="re-downloads" slot-scope="row">
+                      <template
+                        slot="re-downloads"
+                        slot-scope="row"
+                      >
                         {{ row.value }}
                       </template>
                     </b-table>
@@ -175,30 +236,76 @@
                     </b-row>
                     <b-row>
                       <b-col>
-                        <b-table :fields="peerGameStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                                 striped fixed bordered
+                        <b-table
+                          :fields="peerGameStatsFields"
+                          :busy="fixStatisticsPending || pending.gamesStatistic"
+                          :items="peerGameStats"
+                          show-empty
+                          class="text-white"
+                          striped
+                          fixed
+                          bordered
                         >
-                          <template slot="game" slot-scope="row">
-                            {{ row.value.title }}
+                          <div
+                            slot="table-busy"
+                            class="text-center text-danger my-2"
+                          >
+                            <b-spinner class="align-middle" />
+                            <strong>Loading...</strong>
+                          </div>
+                          <template
+                            slot="game"
+                            slot-scope="row"
+                          >
+                            <a :href="getUrlByRoute({name: 'my-game-details', params: {id: row.value.id}})">{{ row.value.title }}</a>
                           </template>
-                          <template slot="countUnique" slot-scope="row">
+                          <template
+                            slot="countUnique"
+                            slot-scope="row"
+                          >
                             {{ row.value }}
                           </template>
-                          <template slot="re-downloads" slot-scope="row">
+                          <template
+                            slot="re-downloads"
+                            slot-scope="row"
+                          >
                             {{ row.value }}
                           </template>
                         </b-table>
 
-                        <b-table :fields="peerBytesStatsFields" :items="[]" show-empty class="text-white statistic-table"
-                                 striped fixed bordered
+                        <b-table
+                          :fields="peerBytesStatsFields"
+                          :busy="fixStatisticsPending || pending.gamesStatistic"
+                          :items="peerBytesStats"
+                          show-empty
+                          class="text-white"
+                          striped
+                          fixed
+                          bordered
                         >
-                          <template slot="game" slot-scope="row">
-                            {{ row.value.title }}
+                          <div
+                            slot="table-busy"
+                            class="text-center text-danger my-2"
+                          >
+                            <b-spinner class="align-middle" />
+                            <strong>Loading...</strong>
+                          </div>
+                          <template
+                            slot="game"
+                            slot-scope="row"
+                          >
+                            <a :href="getUrlByRoute({name: 'my-game-details', params: {id: row.value.id}})">{{ row.value.title }}</a>
                           </template>
-                          <template slot="countUnique" slot-scope="row">
+                          <template
+                            slot="countUnique"
+                            slot-scope="row"
+                          >
                             {{ row.value }}
                           </template>
-                          <template slot="re-downloads" slot-scope="row">
+                          <template
+                            slot="re-downloads"
+                            slot-scope="row"
+                          >
                             {{ row.value }}
                           </template>
                         </b-table>
@@ -519,6 +626,7 @@ export default {
         sort: false,
         content: [],
       },
+      fixStatisticsPending: true
     };
   },
   computed: {
@@ -526,6 +634,7 @@ export default {
       userFilesStatistic: state => state.userFilesStatistic,
       pending: state => state.pending,
       error: state => state.error,
+      gamesStatistics: state => state.gamesStatistics,
     }),
     avatar: {
       get() {
@@ -544,6 +653,52 @@ export default {
       get() {
         return `${this[USER].firstName} ${this[USER].lastName}`;
       },
+    },
+    peerGameStats: {
+      get() {
+        return (this.gamesStatistics || []).map(value => {
+          return {
+            game: value.game,
+            countUnique: value.numberOfGameFirstDownloads,
+            're-downloads': value.numberOfGameFirstDownloads + value.numberOfGameSecondaryDownloads
+          }
+        });
+      }
+    },
+    peerBytesStats: {
+      get() {
+        return (this.gamesStatistics || []).map(value => {
+          return {
+            game: value.game,
+            countUnique: value.numberOfBytesFirstDownloads,
+            're-downloads': value.numberOfBytesFirstDownloads + value.numberOfBytesSecondaryDownloads
+          }
+        });
+      }
+    },
+    masterGameStats: {
+      get() {
+        return (this.gamesStatistics || []).map(value => {
+          return {
+            game: value.game,
+            countUnique: value.numberOfGameFirstUploads,
+            usersCount: value.numberOfGameFirstUploads,
+            're-downloads': value.numberOfGameFirstUploads + value.numberOfGameSecondaryUploads
+          }
+        });
+      }
+    },
+    masterBytesStats: {
+      get() {
+        return (this.gamesStatistics || []).map(value => {
+          return {
+            game: value.game,
+            countUnique: value.numberOfBytesFirstUploads,
+            usersCount: value.numberOfGameFirstUploads,
+            're-downloads': value.numberOfBytesFirstUploads + value.numberOfBytesSecondaryUploads
+          }
+        });
+      }
     },
     statistic: {
       get() {
@@ -603,9 +758,22 @@ export default {
   created() {
     this.getGames();
     this.getUserFilesStatistic();
+    this.fixAndGetStats();
   },
   methods: {
-    ...mapActions(['getUserFilesStatistic']),
+    ...mapActions(['getUserFilesStatistic', 'getGamesStatistics', 'fixStatistics']),
+    fixAndGetStats() {
+      console.log('Fix and get stats');
+      // this.fixStatisticsPending = true;
+
+      // this.$store.dispatchPromise("fixStatistics").then((res) => {
+      //   console.log(res);
+      this.fixStatisticsPending = false;
+      this.$store.dispatchPromise("getGamesStatistics").then((res) => {
+        console.log(res);
+      });
+      // });
+    },
     getUrlByRoute(route) {
       return this.$router.resolve(route).href;
     },

@@ -55,7 +55,11 @@
                       type="password"
                     />
                   </b-form-group>
-                  <b-form-checkbox v-model="rememberMe" class="text-left" name="remember">
+                  <b-form-checkbox
+                    v-model="rememberMe"
+                    class="text-left"
+                    name="remember"
+                  >
                     Remember me
                   </b-form-checkbox>
                   <b-form-invalid-feedback :state="loginValid">
@@ -232,15 +236,22 @@
           <b-col>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-form id="restore"
-                        @submit="(e) => { e.preventDefault(); }"
+                <b-form
+                  id="restore"
+                  @submit="(e) => { e.preventDefault(); }"
                 >
                   <b-form-group
                     label="Email"
                     label-for="email"
                     class="text-left"
                   >
-                    <b-form-input id="email" v-model="email" required name="email" type="email" />
+                    <b-form-input
+                      id="email"
+                      v-model="email"
+                      required
+                      name="email"
+                      type="email"
+                    />
                   </b-form-group>
                 </b-form>
               </b-col>
@@ -339,8 +350,8 @@ const modals = {
     title: 'Sign in',
   },
   restore: {
-    title: 'Forgot password'
-  }
+    title: 'Forgot password',
+  },
 };
 
 export default {
@@ -356,7 +367,7 @@ export default {
       rememberMe: false,
       loginValid: true,
       usernameValidation: true,
-      emailValidation: true
+      emailValidation: true,
     };
   },
   computed: {

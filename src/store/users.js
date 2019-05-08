@@ -16,6 +16,15 @@ export default new Vapi({
     path: '/users/games/stats',
   })
   .get({
+    action: 'fixStatistics',
+    path: '/statistics/fix'
+  })
+  .get({
+    action: 'getGamesStatistics',
+    property: 'gamesStatistics',
+    path: '/user-game-statistics/last',
+  })
+  .get({
     action: 'getUserGames',
     property: 'userGames',
     path: '/users/games',
