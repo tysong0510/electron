@@ -28,6 +28,22 @@
           </b-col>
         </b-row>
 
+        <b-row>
+          <b-col title="VoxCoins">
+            <img
+              src="../assets/icons/voxcoin.svg"
+              class="voxcoin d-inline-block m-auto"
+              alt="VoxCoin"
+            >
+            <p
+              class="d-inline-block m-auto pl-2 text-white align-middle"
+              style="font-size: 1.2em;"
+            >
+              {{ tokens }}
+            </p>
+          </b-col>
+        </b-row>
+
         <p class="card-subtitle text-white pb-4 border-bottom">
           {{ USER.category }}
         </p>
@@ -649,6 +665,11 @@ export default {
         return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
       },
     },
+    tokens: {
+      get() {
+        return 1000000;
+      }
+    },
     name: {
       get() {
         return `${this[USER].firstName} ${this[USER].lastName}`;
@@ -854,6 +875,11 @@ export default {
   .pulse {
     box-shadow: 0 0 0 0 #696E80;
     animation: pulse 1.5s 1 cubic-bezier(0.66, 0, 0, 1);
+  }
+
+  .voxcoin {
+    width: 20px;
+    height: 20px;
   }
 
   @keyframes pulse {

@@ -89,9 +89,15 @@ let client = window.client = new WebTorrent({
 });
 
 function sendPeerId() {
-  console.log('sendPeerId', PEER_ID.toString('hex'));
+  console.log('prevPeerId', client.peerId);
+  const newPeerIdPart = Buffer.from(VERSION_PREFIX + ':' + store.getters[USER].id + ':');
+  const newPeerIdBuffer = Buffer.concat([newPeerIdPart, crypto.randomBytes(20 - newPeerIdPart.length)]);
+  console.log('newPeerId string', newPeerIdBuffer.toString('utf-8'));
 
-  Axios({ url: '/users/peer', data: { peerId: PEER_ID.toString('hex') }, method: 'PUT' }).then((resp) => {
+  client.peerIdBuffer = newPeerIdBuffer;
+  client.peerId = newPeerIdBuffer.toString('hex');
+
+  Axios({ url: '/users/peer', data: { peerId: client.peerId }, method: 'PUT' }).then((resp) => {
     console.log('/users/peer response', resp);
   });
 
@@ -287,6 +293,7 @@ function addTorrentEvents(torrent) {
     console.log('new peer', peer);
   });
   torrent.on('wire', (wire, addr) => {
+    console.log('wire peerId utf-8 string', Buffer.from(wire.peerId, 'hex').toString('utf-8'));
     const wireRequests = [];
 
     console.log('wire', wire);
@@ -319,6 +326,7 @@ function addTorrentEvents(torrent) {
 
         uploadedPieces = [];
       }
+
     });
 
     // let previousDownloadRequests = {};
