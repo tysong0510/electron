@@ -90,8 +90,7 @@ let client = window.client = new WebTorrent({
 
 function sendPeerId() {
   console.log('prevPeerId', client.peerId);
-  const newPeerIdPart = Buffer.from(VERSION_PREFIX + ':' + store.getters[USER].id + ':');
-  const newPeerIdBuffer = Buffer.concat([newPeerIdPart, crypto.randomBytes(20 - newPeerIdPart.length)]);
+  const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
   console.log('newPeerId string', newPeerIdBuffer.toString('utf-8'));
 
   client.peerIdBuffer = newPeerIdBuffer;
