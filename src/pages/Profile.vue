@@ -572,25 +572,25 @@ export default {
       ],
       masterGameStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: 'Unique downloads' },
+        { key: 'countUnique', label: 'Downloads by unique users' },
         { key: 'usersCount', label: 'Users downloaded game' },
-        { key: 're-downloads', label: 'RE-downloads' },
+        { key: 're-downloads', label: 'With RE-downloads' },
       ],
       masterBytesStatsFields: [
         { key: 'game', label: 'Game' },
-        { key: 'countUnique', label: 'Unique bytes' },
+        { key: 'countUnique', label: 'Bytes by unique users' },
         { key: 'usersCount', label: 'Users downloaded bytes' },
-        { key: 're-downloads', label: 'RE-downloads' },
+        { key: 're-downloads', label: 'With RE-downloads' },
       ],
       peerGameStatsFields: [
         { key: 'game', label: 'Game' },
         { key: 'countUnique', label: 'Unique downloads' },
-        { key: 're-downloads', label: 'RE-downloads' },
+        { key: 're-downloads', label: 'With RE-downloads' },
       ],
       peerBytesStatsFields: [
         { key: 'game', label: 'Game' },
         { key: 'countUnique', label: 'Unique bytes' },
-        { key: 're-downloads', label: 'RE-downloads' },
+        { key: 're-downloads', label: 'With RE-downloads' },
       ],
       filterStatistics: {
         selected: 'day',

@@ -96,10 +96,6 @@ function sendPeerId() {
   client.peerIdBuffer = newPeerIdBuffer;
   client.peerId = newPeerIdBuffer.toString('hex');
 
-  Axios({ url: '/users/peer', data: { peerId: client.peerId }, method: 'PUT' }).then((resp) => {
-    console.log('/users/peer response', resp);
-  });
-
   ipc.once(UNAUTHORIZED, () => {
     ipc.once(AUTHORIZED, sendPeerId);
   });
