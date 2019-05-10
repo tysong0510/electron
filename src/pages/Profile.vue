@@ -682,7 +682,7 @@ export default {
             game: value.game,
             countUnique: value.numberOfGameFirstDownloads,
             're-downloads': value.numberOfGameFirstDownloads + value.numberOfGameSecondaryDownloads
-          }
+          };
         });
       }
     },
@@ -692,8 +692,8 @@ export default {
           return {
             game: value.game,
             countUnique: value.numberOfBytesFirstDownloads,
-            're-downloads': value.numberOfBytesFirstDownloads + value.numberOfBytesSecondaryDownloads
-          }
+            're-downloads': value.numberOfBytesFirstDownloads + value.numberOfBytesSecondaryDownloads + value.numberOfBytesPartialDownloads
+          };
         });
       }
     },
@@ -705,7 +705,7 @@ export default {
             countUnique: value.numberOfGameFirstUploads,
             usersCount: value.numberOfGameFirstUploads,
             're-downloads': value.numberOfGameFirstUploads + value.numberOfGameSecondaryUploads
-          }
+          };
         });
       }
     },
@@ -716,8 +716,8 @@ export default {
             game: value.game,
             countUnique: value.numberOfBytesFirstUploads,
             usersCount: value.numberOfGameFirstUploads,
-            're-downloads': value.numberOfBytesFirstUploads + value.numberOfBytesSecondaryUploads
-          }
+            're-downloads': value.numberOfBytesFirstUploads + value.numberOfBytesSecondaryUploads + value.numberOfBytesPartialUploads
+          };
         });
       }
     },

@@ -368,7 +368,7 @@ function addTorrentEvents(torrent) {
         blockOffset: index * torrent.pieceLength + offset,
         blockLength: buffer.length,
         gameId,
-        peerId: wire.peerId,
+        peerId: Buffer.from(wire.peerId, 'hex').toString('utf-8'),
         userId,
       };
 
@@ -527,7 +527,7 @@ function addTorrentEvents(torrent) {
             blockOffset: value.pieceIndex * torrent.pieceLength + value.offset,
             blockLength: value.length,
             gameId,
-            peerId: wire.peerId,
+            peerId: Buffer.from(wire.peerId, 'hex').toString('utf-8'),
             userId,
           };
 
