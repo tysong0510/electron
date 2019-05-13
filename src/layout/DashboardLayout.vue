@@ -7,7 +7,13 @@
     <!--</ul>-->
     <!--<hr>-->
     <!--</div>-->
-    <sidebar-menu :menu="menu" width="290px" :collapsed="collapsed" @collapse="onCollapse" @itemClick="sidebarItemClick" />
+    <sidebar-menu
+      :menu="menu"
+      width="290px"
+      :collapsed="collapsed"
+      @collapse="onCollapse"
+      @itemClick="sidebarItemClick"
+    />
     <!--<side-bar>-->
     <!--<template slot="links">-->
     <!--<sidebar-link-->

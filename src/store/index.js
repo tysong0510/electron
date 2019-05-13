@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import path from 'path';
 import fs from 'fs';
-import Axios from 'axios';
+// import Axios from 'axios';
 import { createSharedMutations } from 'vuex-electron';
 import {
   PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, UNARCHIVE_GAME,
@@ -929,10 +929,11 @@ const demoData = {
       if (torrent) {
         ({ torrentKey } = torrent);
         if (torrent.state === 'downloading') {
+          console.log('state is downloading: exit');
           // nothing to do
           return;
         }
-        await Axios({ url: `/games/${gameId}/stats`, params: { state: 'downloading', torrentKey }, method: 'POST' });
+        // await Axios({ url: `/games/${gameId}/stats`, params: { state: 'downloading', torrentKey }, method: 'POST' });
         commit({
           type: TORRENT_DOWNLOADING,
           payload: {
@@ -951,7 +952,7 @@ const demoData = {
             torrentKey,
           },
         };
-        await Axios({ url: `/games/${gameId}/stats`, params: { state: 'loading-metadata', torrentKey }, method: 'POST' });
+        // await Axios({ url: `/games/${gameId}/stats`, params: { state: 'loading-metadata', torrentKey }, method: 'POST' });
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }
@@ -966,17 +967,16 @@ const demoData = {
           torrentId,
           getters[GAME_DOWNLOAD_PATH](gameId),
           null);
-        return;
+      } else {
+        ipcRenderer.emit(
+          'wt-start-torrenting',
+          torrentKey, // key
+          torrentId,
+          getters[GAME_DOWNLOAD_PATH](gameId),
+          null,
+          // select all torrent files by default
+        );
       }
-
-      ipcRenderer.send(
-        'wt-start-torrenting',
-        torrentKey, // key
-        torrentId,
-        getters[GAME_DOWNLOAD_PATH](gameId),
-        null,
-        // select all torrent files by default
-      );
     },
 
     async [PAUSE_DOWNLOAD_GAME]({ commit, getters }, { gameId }) {
@@ -997,9 +997,9 @@ const demoData = {
       if (infoHash) {
         if (!ipcRenderer) {
           ipcMain.emit('wt-stop-torrenting', null, infoHash);
-          return;
+        } else {
+          ipcRenderer.emit('wt-stop-torrenting', infoHash);
         }
-        ipcRenderer.send('wt-stop-torrenting', infoHash);
       } else {
         // metadata hasn't been parsed yet. when metadata will be received torrent will be paused
       }
@@ -1022,9 +1022,9 @@ const demoData = {
           if (infoHash) {
             if (!ipcRenderer) {
               ipcMain.emit('wt-stop-torrenting', null, infoHash);
-              return;
+            } else {
+              ipcRenderer.emit('wt-stop-torrenting', infoHash);
             }
-            ipcRenderer.send('wt-stop-torrenting', infoHash);
           }
         }
       });

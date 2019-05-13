@@ -354,15 +354,13 @@ setupIpc();
 // Remove all torrents to reset webtorrent state (fixes hot-reload issues because of desynchronization)
 // FIXME: sometimes it finishes after load state
 console.log('SHOULD (DONE) wt-reset');
-// ipcRenderer.send('wt-reset');
+ipcRenderer.send('wt-reset');
 
 // ipcRenderer.once(AUTHORIZED, () => {
 //   ipcRenderer.send('wt-reset');
 // });
 
 function startSeeding() {
-  ipcRenderer.send('wt-reset');
-
   ipcRenderer.once(UNAUTHORIZED, () => {
     console.log(UNAUTHORIZED, store);
 

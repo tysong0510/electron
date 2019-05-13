@@ -126,9 +126,10 @@
           </b-card>
         </b-col>
       </b-row>
-      <b-row v-for="(game, index) in content.slice(3)"
-             :key="currentStore + index"
-             class="border-bottom limited-height-row mt-3 pb-3"
+      <b-row
+        v-for="(game, index) in content.slice(3)"
+        :key="currentStore + index"
+        class="border-bottom limited-height-row mt-3 pb-3"
       >
         <b-col
           :key="index"

@@ -88,7 +88,7 @@ let client = window.client = new WebTorrent({
   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
 });
 
-function sendPeerId() {
+function setPeerId() {
   console.log('prevPeerId', client.peerId);
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
   console.log('newPeerId string', newPeerIdBuffer.toString('utf-8'));
@@ -97,11 +97,11 @@ function sendPeerId() {
   client.peerId = newPeerIdBuffer.toString('hex');
 
   ipc.once(UNAUTHORIZED, () => {
-    ipc.once(AUTHORIZED, sendPeerId);
+    ipc.once(AUTHORIZED, setPeerId);
   });
 }
 
-ipc.once(AUTHORIZED, sendPeerId);
+ipc.once(AUTHORIZED, setPeerId);
 
 // Used for diffing, so we only send progress updates when necessary
 let prevProgress = null;
@@ -225,6 +225,9 @@ function addTorrentEvents(torrent) {
         console.log('wire download add group done', res);
       }).catch((err) => {
         console.log('wire download add group error:', err);
+        if (err.request && Array.isArray(err.request.data)) {
+          downloadedPieces.concat(err.request.data);
+        }
       });
 
       downloadedPieces = [];
@@ -243,7 +246,6 @@ function addTorrentEvents(torrent) {
   torrent.on('ready', torrentReady);
   torrent.on('done', () => {
     console.log('torrent done');
-    console.log(downloadedPieces);
     // console.log('numberOfDownloadedBytes:', numberOfDownloadedBytes);
     // console.log('numberOfUploadedBytes:', numberOfUploadedBytes);
 
@@ -384,6 +386,9 @@ function addTorrentEvents(torrent) {
           })
           .catch((err) => {
             console.log('wire upload add group error:', err);
+            if (err.request && Array.isArray(err.request.data)) {
+              uploadedPieces.concat(err.request.data);
+            }
           });
 
         uploadedPieces = [];
@@ -547,6 +552,9 @@ function addTorrentEvents(torrent) {
             })
             .catch((err) => {
               console.log('wire upload add group error:', err);
+              if (err.request && Array.isArray(err.request.data)) {
+                uploadedPieces.concat(err.request.data);
+              }
             });
 
           uploadedPieces = [];

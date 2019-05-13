@@ -43,7 +43,7 @@
                   </b-card-title>
                   <b-card-text>
                     <small class="text-muted">{{ game.releaseDate | dateFormat }}</small>
-                    <small class="text-muted d-block">{{ game.size.toFixed(1) }} {{ game.sizeUnit }}</small>
+                    <small class="text-muted d-block">{{ game.sizeBytes | memorySize }}</small>
                   </b-card-text>
                 </b-col>
               </b-row>

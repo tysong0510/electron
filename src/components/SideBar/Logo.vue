@@ -1,9 +1,20 @@
 <template>
   <b-row class="logo mt-4 mb-4">
     <b-col class="text-center">
-      <router-link :to="{name: 'home'}" title="VoxPop">
-        <img class="logo-normal" alt="VoxPop" src="../../assets/logo.svg">
-        <img class="logo-icon" alt="VoxPop" src="../../assets/icons/voxpop.svg">
+      <router-link
+        :to="{name: 'home'}"
+        title="VoxPop"
+      >
+        <img
+          class="logo-normal"
+          alt="VoxPop"
+          src="../../assets/logo.svg"
+        >
+        <img
+          class="logo-icon"
+          alt="VoxPop"
+          src="../../assets/icons/voxpop.svg"
+        >
       </router-link>
     </b-col>
   </b-row>

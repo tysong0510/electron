@@ -1,7 +1,24 @@
 import { mapActions, mapState } from 'vuex';
 import { baseURL } from '../apiConfig';
 
+const sizeUnits = ["B", "KB", "MB", "GB", "TB"];
+
 export default {
+  filters: {
+    memorySize(val) {
+      const parsedVal = Number.parseFloat(val);
+      let iteration = 0;
+
+      let resultVal = parsedVal;
+
+      while (resultVal > 1024 && (iteration + 1 < sizeUnits.length)) {
+        resultVal = resultVal / 1024;
+        iteration += 1;
+      }
+
+      return `${resultVal.toFixed(1)} ${sizeUnits[iteration]}`;
+    }
+  },
   computed: {
     /**
      * Get current store name (route name)

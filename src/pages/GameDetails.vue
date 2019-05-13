@@ -1,27 +1,45 @@
 <template>
   <div :class="`${loadingClass} game-details`">
-    <div v-if="error.game" class="error">
+    <div
+      v-if="error.game"
+      class="error"
+    >
       {{ 'Not Found' || error.game }} {{ /* TODO print user friendly error message */ }}
     </div>
 
-    <div v-if="!pending.game && game" class="content">
-      <b-card no-body class="no-border mb-4 pb-4">
+    <div
+      v-if="!pending.game && game"
+      class="content"
+    >
+      <b-card
+        no-body
+        class="no-border mb-4 pb-4"
+      >
         <b-row no-gutters>
           <b-col cols="5">
             {{ /* TODO add placeholder image to src/assets */ }}
-            <b-card-img left
-                        :src="(game.images && game.images.main && getImagePath(game)) || 'https://via.placeholder.com/320'"
-                        :alt="game.title" class="rounded-lg" style="width: 100%;"
+            <b-card-img
+              left
+              :src="(game.images && game.images.main && getImagePath(game)) || 'https://via.placeholder.com/320'"
+              :alt="game.title"
+              class="rounded-lg"
+              style="width: 100%;"
             />
           </b-col>
           <b-col cols="7">
             <b-card-body>
               <b-row>
                 <b-col cols="7">
-                  <b-card-title title-tag="h2" class="game-title font-weight-normal">
+                  <b-card-title
+                    title-tag="h2"
+                    class="game-title font-weight-normal"
+                  >
                     {{ game.title || game.name }}
                   </b-card-title>
-                  <b-card-sub-title sub-title-tag="h6" sub-title-text-variant="white">
+                  <b-card-sub-title
+                    sub-title-tag="h6"
+                    sub-title-text-variant="white"
+                  >
                     {{ game.category }}
                   </b-card-sub-title>
                   <b-card-text>
@@ -33,21 +51,48 @@
                     </div>
                   </b-card-text>
                 </b-col>
-                <b-col cols="5" class="text-center">
+                <b-col
+                  cols="5"
+                  class="text-center"
+                >
                   <div v-if="currentRouteIs('game-details')">
                     <div v-if="showBuyBtn">
-                      <b-button variant="primary" size="lg" class="btn-buy" @click="gameBuy()">
+                      <b-button
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="gameBuy()"
+                      >
                         {{ game.price | currency(game.currency) }}
                       </b-button>
                     </div>
                     <div v-if="!showBuyBtn">
-                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
+                      <b-button
+                        v-if="showPauseBtn"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="pauseDownloading()"
+                      >
                         Pause
                       </b-button>
-                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
+                      <b-button
+                        v-if="showResumeBtn"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="resumeDownloading()"
+                      >
                         Resume
                       </b-button>
-                      <b-button v-if="showPlayBtn" variant="primary" size="lg" class="btn-buy" :disabled="!isGameInstalled" @click="playGame()">
+                      <b-button
+                        v-if="showPlayBtn"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        :disabled="!isGameInstalled"
+                        @click="playGame()"
+                      >
                         Play
                       </b-button>
                       <transition>
@@ -61,7 +106,10 @@
                             width="160"
                             height="6"
                           />
-                          <div v-if="showDownloadProgress" class="torrent-info">
+                          <div
+                            v-if="showDownloadProgress"
+                            class="torrent-info"
+                          >
                             Peers: {{ numberOfPeers }}
                           </div>
                         </div>
@@ -73,13 +121,19 @@
                     class="float-right btn-settings"
                     variant="link"
                   >
-                    <img src="../assets/icons/settings.svg" alt="Settings">
+                    <img
+                      src="../assets/icons/settings.svg"
+                      alt="Settings"
+                    >
                   </b-button>
                 </b-col>
               </b-row>
               <b-row ref="hLine">
                 <b-col>
-                  <b-col cols="12" class="h-line" />
+                  <b-col
+                    cols="12"
+                    class="h-line"
+                  />
                 </b-col>
               </b-row>
 
@@ -95,9 +149,15 @@
                     />
                   </b-col>
                 </b-row>
-                <b-row class="mt-2" size="sm">
+                <b-row
+                  class="mt-2"
+                  size="sm"
+                >
                   <b-col>
-                    <b-button variant="outline-secondary" class="btn-voted">
+                    <b-button
+                      variant="outline-secondary"
+                      class="btn-voted"
+                    >
                       Voted
                     </b-button>
                   </b-col>
@@ -107,10 +167,20 @@
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
-                    <b-button variant="primary" class="border-0" :disabled="!isGameInstalled" @click="playGame()">
+                    <b-button
+                      variant="primary"
+                      class="border-0"
+                      :disabled="!isGameInstalled"
+                      @click="playGame()"
+                    >
                       Play
                     </b-button>
-                    <b-button variant="light" class="text-primary border-0 btn-delete" :disabled="!isGameInstalled" @click="uninstallGame()">
+                    <b-button
+                      variant="light"
+                      class="text-primary border-0 btn-delete"
+                      :disabled="!isGameInstalled"
+                      @click="uninstallGame()"
+                    >
                       Uninstall
                     </b-button>
                   </b-col>
@@ -122,19 +192,29 @@
       </b-card>
       <b-row class="mb-4 mt-4">
         <b-col class="col-carousel">
-          <carousel v-if="game.images && (game.images.slides || game.images.images)" v-bind="carouselOptions">
+          <carousel
+            v-if="game.images && (game.images.slides || game.images.images)"
+            v-bind="carouselOptions"
+          >
             <slide
               v-for="(image, index) in getImagePath(game, 'slides')"
               :key="'slide-' + index"
               class="pr-1 pl-1 carousel-slide"
             >
-              <b-card :img-src="image" class="no-border" no-body />
+              <b-card
+                :img-src="image"
+                class="no-border"
+                no-body
+              />
             </slide>
           </carousel>
         </b-col>
       </b-row>
       <b-row class="mt-4">
-        <b-col cols="9" v-html="description(game.description)" />
+        <b-col
+          cols="9"
+          v-html="description(game.description)"
+        />
       </b-row>
     </div>
   </div>
