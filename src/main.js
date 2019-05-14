@@ -363,6 +363,9 @@ ipcRenderer.send('wt-reset');
 function startSeeding() {
   ipcRenderer.once(UNAUTHORIZED, () => {
     console.log(UNAUTHORIZED, store);
+    if (router.currentRoute.meta.auth) {
+      router.push({ name: "home" });
+    }
 
     store.dispatch(STOP_TORRENTS);
 

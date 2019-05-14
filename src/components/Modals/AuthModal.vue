@@ -55,13 +55,25 @@
                       type="password"
                     />
                   </b-form-group>
-                  <b-form-checkbox
-                    v-model="rememberMe"
-                    class="text-left"
-                    name="remember"
-                  >
-                    Remember me
-                  </b-form-checkbox>
+                  <b-row>
+                    <b-col cols="6">
+                      <b-form-checkbox
+                        v-model="rememberMe"
+                        class="text-left"
+                        name="remember"
+                      >
+                        Remember me
+                      </b-form-checkbox>
+                    </b-col>
+                    <b-col cols="6">
+                      <a
+                        href="#"
+                        class="float-right"
+                        style="color: #696E80;"
+                        @click.prevent="goTo('restore')"
+                      >Forgot password?</a>
+                    </b-col>
+                  </b-row>
                   <b-form-invalid-feedback :state="loginValid">
                     Invalid username or password
                   </b-form-invalid-feedback>
@@ -247,6 +259,7 @@
                   >
                     <b-form-input
                       id="email"
+                      ref="restore"
                       v-model="email"
                       required
                       name="email"
@@ -395,9 +408,24 @@ export default {
   },
   mounted() {
     this.$root.$on('unauthorized', this.showModal);
-    ipcRenderer.once(AUTHORIZED, () => { this.$authModal.showModal = false; });
+
+    if (!this.$authModal.onAuthorized) {
+      this.$authModal.onAuthorized = true;
+
+      ipcRenderer.once(AUTHORIZED, () => {
+        this.$authModal.showModal = false;
+        this.$authModal.onAuthorized = false;
+      });
+    }
   },
   methods: {
+    formReset() {
+      this.username = null;
+      this.password = null;
+      this.email = null;
+      this.firstName = null;
+      this.lastName = null;
+    },
     onHide() {
       this.$authModal.showModal = false;
     },
@@ -441,6 +469,8 @@ export default {
 
         console.log('Authorized');
 
+        this.formReset();
+
         // ipcRenderer.send(AUTHORIZED);
 
         if (!this.$route.query['no-redirect']) {
@@ -471,6 +501,8 @@ export default {
         password: this.password,
       }).then(() => {
         that.$authModal.showModal = false;
+
+        this.formReset();
 
         console.log('Registered');
 

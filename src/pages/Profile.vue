@@ -680,8 +680,8 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfGameFirstDownloads,
-            're-downloads': value.numberOfGameFirstDownloads + value.numberOfGameSecondaryDownloads
+            countUnique: value.numberOfGameFullFirstDownloads,
+            're-downloads': value.numberOfGameFullFirstDownloads + value.numberOfGameFullSecondaryDownloads
           };
         });
       }
@@ -691,8 +691,8 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfBytesFirstDownloads,
-            're-downloads': value.numberOfBytesFirstDownloads + value.numberOfBytesSecondaryDownloads + value.numberOfBytesPartialDownloads
+            countUnique: value.numberOfBytesOnlyFirstDownloads,
+            're-downloads': value.numberOfBytesAllDownloads
           };
         });
       }
@@ -702,9 +702,9 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfGameFirstUploads,
-            usersCount: value.numberOfGameFirstUploads,
-            're-downloads': value.numberOfGameFirstUploads + value.numberOfGameSecondaryUploads
+            countUnique: value.numberOfGameFullFirstUploads,
+            usersCount: value.numberOfGameFullFirstUploads + value.numberOfGamePartialFirstUploads,
+            're-downloads': value.numberOfGameFullFirstUploads + value.numberOfGameFullSecondaryUploads
           };
         });
       }
@@ -714,9 +714,9 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfBytesFirstUploads,
-            usersCount: value.numberOfGameFirstUploads,
-            're-downloads': value.numberOfBytesFirstUploads + value.numberOfBytesSecondaryUploads + value.numberOfBytesPartialUploads
+            countUnique: value.numberOfBytesPartialFirstUploads + value.numberOfBytesFullFirstUploads,
+            usersCount: value.numberOfGameFullFirstUploads + value.numberOfGamePartialFirstUploads,
+            're-downloads': value.numberOfBytesAllUploads
           };
         });
       }

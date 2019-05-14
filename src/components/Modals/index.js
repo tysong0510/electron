@@ -2,6 +2,7 @@ import AuthModal from './AuthModal.vue';
 
 const AuthModalStore = {
   showModal: false,
+  onAuthorized: false
 };
 
 export default {
