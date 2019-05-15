@@ -38,15 +38,8 @@
             <b-col>
               <h2>{{ storeTitle }}</h2>
             </b-col>
-            <b-col
-              v-if="filter"
-              cols="4"
-            >
-              <b-select
-                v-model="filterSelected"
-                :options="filter.options"
-                class="filter-period text-white"
-              />
+            <b-col v-if="filter" cols="4">
+              <b-select v-model="filterSelected" :options="filter.options" class="filter-period text-white" />
             </b-col>
             <b-col v-if="filter" />
           </b-row>
@@ -59,53 +52,29 @@
           :key="currentStore + index"
           class="p-2 rounded-lg game mb-4 mt-2"
           tag="a"
-          :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href"
+          :href="$router.resolve({ name: 'game-details', params: { id: game.id } }).href"
         >
-          <b-card
-            no-body
-            class="border-0"
-          >
+          <b-card no-body class="border-0">
             <b-row>
-              <b-col
-                cols="12"
-                class="col-img"
-              >
+              <b-col cols="12" class="col-img">
                 <b-row class="h-100">
                   <b-col class="m-auto">
-                    <b-card-img
-                      :src="getImagePath(game)"
-                      class="rounded-lg"
-                    />
+                    <b-card-img :src="getImagePath(game)" class="rounded-lg" />
                   </b-col>
                 </b-row>
               </b-col>
               <b-col cols="12">
                 <b-card-body class="p-0 pt-2">
-                  <b-card-title
-                    title-tag="h5"
-                    class="font-weight-normal"
-                  >
+                  <b-card-title title-tag="h5" class="font-weight-normal">
                     {{ game.title }}
                   </b-card-title>
-                  <b-card-sub-title
-                    title-tag="h6"
-                    class="font-weight-normal"
-                  >
+                  <b-card-sub-title title-tag="h6" class="font-weight-normal">
                     <b-row>
-                      <b-col
-                        class="text-white"
-                        cols="5"
-                      >
+                      <b-col class="text-white" cols="5">
                         {{ game.price | currency }}
                       </b-col>
-                      <b-col
-                        class="downloaded"
-                        :title="'Downloaded ' + (game.downloaded || 0) + ' times'"
-                      >
-                        <img
-                          src="../assets/icons/downloaded.svg"
-                          alt="Downloaded"
-                        >
+                      <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
+                        <img src="../assets/icons/downloaded.svg" alt="Downloaded" />
                         {{ game.downloaded || 0 }}
                       </b-col>
                     </b-row>
@@ -115,7 +84,7 @@
                     <b-link
                       v-if="textCutter(game.description).length > 140"
                       class="text-primary"
-                      :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href"
+                      :href="$router.resolve({ name: 'game-details', params: { id: game.id } }).href"
                     >
                       More
                     </b-link>
@@ -126,58 +95,32 @@
           </b-card>
         </b-col>
       </b-row>
-      <b-row
-        v-for="(game, index) in content.slice(3)"
-        :key="currentStore + index"
-        class="border-bottom limited-height-row mt-3 pb-3"
-      >
+      <b-row v-for="(game, index) in content.slice(3)" :key="currentStore + index" class="border-bottom limited-height-row mt-3 pb-3">
         <b-col
           :key="index"
           class="p-2 rounded-lg game mt-1 mb-1"
           tag="a"
-          :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href"
+          :href="$router.resolve({ name: 'game-details', params: { id: game.id } }).href"
         >
-          <b-card
-            no-body
-            class="border-0"
-          >
+          <b-card no-body class="border-0">
             <b-row>
-              <b-col
-                cols="2"
-                class="m-auto text-center"
-              >
-                <b-card-img
-                  :src="getImagePath(game)"
-                  class="rounded-lg"
-                />
+              <b-col cols="2" class="m-auto text-center">
+                <b-card-img :src="getImagePath(game)" class="rounded-lg" />
               </b-col>
               <b-col>
                 <b-card-body class="p-0">
-                  <b-card-title
-                    title-tag="h5"
-                    class="font-weight-normal mb-2"
-                  >
+                  <b-card-title title-tag="h5" class="font-weight-normal mb-2">
                     {{ game.title }}
                   </b-card-title>
                   <b-row>
                     <b-col cols="4">
-                      <b-card-sub-title
-                        sub-title-tag="div"
-                        class="font-weight-normal mt-0"
-                        style="font-size: 14px;"
-                      >
+                      <b-card-sub-title sub-title-tag="div" class="font-weight-normal mt-0" style="font-size: 14px;">
                         <b-row>
                           <b-col class="text-white">
                             {{ game.price | currency }}
                           </b-col>
-                          <b-col
-                            class="downloaded"
-                            :title="'Downloaded ' + (game.downloaded || 0) + ' times'"
-                          >
-                            <img
-                              src="../assets/icons/downloaded.svg"
-                              alt="Downloaded"
-                            >
+                          <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
+                            <img src="../assets/icons/downloaded.svg" alt="Downloaded" />
                             {{ game.downloaded || 0 }}
                           </b-col>
                         </b-row>
@@ -189,7 +132,7 @@
                         <b-link
                           v-if="textCutter(game.description).length > 140"
                           class="text-primary"
-                          :href="$router.resolve({name: 'game-details', params: {id: game.id}}).href"
+                          :href="$router.resolve({ name: 'game-details', params: { id: game.id } }).href"
                         >
                           More
                         </b-link>
@@ -207,9 +150,9 @@
 </template>
 
 <script>
-import store from '../mixins/store';
-import currency from '../mixins/currency';
-import user from '../mixins/user';
+import store from "../mixins/store";
+import currency from "../mixins/currency";
+import user from "../mixins/user";
 
 let colCounter = 0;
 
@@ -220,11 +163,11 @@ export default {
   mixins: [store, currency, user],
   data() {
     return {
-      name: 'Store',
-      filterSelected: 'day',
-      storeTitle: '',
+      name: "Store",
+      filterSelected: "day",
+      storeTitle: "",
       store: null,
-      filter: null,
+      filter: null
     };
   },
 
@@ -235,46 +178,42 @@ export default {
           this.getData(this.currentStore);
         }
 
-        if (this.store && this.store.hasOwnProperty('content')) {
+        if (this.store && this.store.hasOwnProperty("content")) {
           if (this.filter) {
             return this.store.content[this.filterSelected] || [];
           }
           if (Array.isArray(this.store.content)) {
             return this.store.content;
           }
-          return this.store.content[Object.keys(this.store.content)
-            .pop()];
+          return this.store.content[Object.keys(this.store.content).pop()];
         }
         return [];
-      },
-    },
+      }
+    }
   },
   watch: {
-    'pending.featuredGames': function () {
-      if (!this.pending.featuredGames && this.currentStore === 'store-featured') {
+    "pending.featuredGames": function() {
+      if (!this.pending.featuredGames && this.currentStore === "store-featured") {
         this.getData(this.currentStore);
       }
     },
-    'pending.topGames': function () {
-      if (!this.pending.topGames && this.currentStore === 'store-top') {
+    "pending.topGames": function() {
+      if (!this.pending.topGames && this.currentStore === "store-top") {
         this.getData(this.currentStore);
       }
-    },
+    }
   },
-  mounted() {
-
-  },
+  mounted() {},
   created() {
     this.getGames();
 
-    if (this.currentStore === 'store-featured') {
+    if (this.currentStore === "store-featured") {
       this.getFeatured();
-    } else if (this.currentStore === 'store-top') {
+    } else if (this.currentStore === "store-top") {
       this.getTopGames();
     }
   },
-  beforeDestroy() {
-  },
+  beforeDestroy() {},
   methods: {
     getCols(index) {
       if (index === 0) {
@@ -284,19 +223,17 @@ export default {
       colCounter += 1;
 
       if (colCounter < 4) {
-        return '4';
+        return "4";
       }
-      return '2_5';
+      return "2_5";
     },
     textCutter(text = null) {
-      let cuttedText = '';
+      let cuttedText = "";
 
       if (text && text.length > 140) {
-        cuttedText = text
-          .replace(/(([\S\s]{140})[\S\s]*)/gm, '$2')
-          .replace(/[.,\s]*?$/, '...');
+        cuttedText = text.replace(/(([\S\s]{140})[\S\s]*)/gm, "$2").replace(/[.,\s]*?$/, "...");
       } else {
-        cuttedText = text || '';
+        cuttedText = text || "";
       }
 
       return cuttedText;
@@ -306,7 +243,7 @@ export default {
 
       this.storeTitle = store.title;
 
-      if (!['store-featured', 'store-top'].includes(storeName)) {
+      if (!["store-featured", "store-top"].includes(storeName)) {
         const filter = this.$store.getters.getFilterByName(storeName);
         if (filter) {
           this.filter = filter;
@@ -316,136 +253,136 @@ export default {
         this.storeSort(store);
       }
 
-      if (storeName === 'store-featured') {
+      if (storeName === "store-featured") {
         if (!this.pending.featuredGames) {
           store.content = this.featuredGames || [];
         }
-      } else if (storeName === 'store-top') {
+      } else if (storeName === "store-top") {
         if (!this.pending.topGames) {
           store.content = this.topGames || [];
         }
       }
 
       this.store = store;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../assets/scss/partials/store";
+@import "../assets/scss/partials/store";
+
+.game {
+  transition: ease-in-out 0.25s;
+
+  &:link {
+    text-decoration: none;
+  }
+
+  .card-text {
+    font-size: 12px;
+  }
+
+  .downloaded {
+    vertical-align: middle;
+
+    img {
+      height: 1em;
+    }
+  }
+
+  .col-img {
+    height: auto;
+    max-height: 280px;
+
+    img {
+      max-height: 280px;
+    }
+  }
+
+  &:hover {
+    background-color: $block-hover-background-color;
+  }
+}
+
+.limited-height-row {
+  max-height: 300px;
 
   .game {
-    transition: ease-in-out 0.25s;
-
-    &:link {
-      text-decoration: none;
+    img {
+      max-height: 300px;
+      max-width: 300px;
     }
+  }
+}
 
-    .card-text {
-      font-size: 12px;
-    }
+.col-2_5 {
+  -webkit-box-flex: 0;
+  flex: 0 0 20%;
+  max-width: 20%;
+}
 
-    .downloaded {
-      vertical-align: middle;
-
-      img {
-        height: 1em;
-      }
-    }
-
+@media (max-width: 2000px) {
+  .game {
     .col-img {
-      height: auto;
-      max-height: 280px;
+      height: 200px;
+      max-height: 200px;
 
       img {
-        max-height: 280px;
+        max-height: 200px;
       }
-    }
-
-    &:hover {
-      background-color: $block-hover-background-color;
     }
   }
 
   .limited-height-row {
-    max-height: 300px;
+    max-height: 180px;
 
     .game {
       img {
-        max-height: 300px;
-        max-width: 300px;
+        max-height: 150px;
+        max-width: 220px;
       }
     }
   }
+}
 
-  .col-2_5 {
-    -webkit-box-flex: 0;
-    flex: 0 0 20%;
-    max-width: 20%;
-  }
+@media (max-width: 1500px) {
+  .game {
+    .col-img {
+      height: 140px;
+      max-height: 140px;
 
-  @media (max-width: 2000px) {
-    .game {
-      .col-img {
-        height: 200px;
-        max-height: 200px;
-
-        img {
-          max-height: 200px;
-        }
-      }
-    }
-
-    .limited-height-row {
-      max-height: 180px;
-
-      .game {
-        img {
-          max-height: 150px;
-          max-width: 220px;
-        }
-      }
-    }
-  }
-
-  @media (max-width: 1500px) {
-    .game {
-      .col-img {
-        height: 140px;
+      img {
         max-height: 140px;
-
-        img {
-          max-height: 140px;
-        }
       }
     }
   }
+}
 
-  @media (max-width: 1200px) {
-    .game {
-      .col-img {
-        height: 130px;
+@media (max-width: 1200px) {
+  .game {
+    .col-img {
+      height: 130px;
+      max-height: 130px;
+
+      img {
         max-height: 130px;
-
-        img {
-          max-height: 130px;
-        }
       }
     }
   }
+}
 
-  @media (max-width: 968px) {
-    .game {
-      .col-img {
-        height: 120px;
+@media (max-width: 968px) {
+  .game {
+    .col-img {
+      height: 120px;
+      max-height: 120px;
+
+      img {
         max-height: 120px;
-
-        img {
-          max-height: 120px;
-        }
       }
     }
   }
+}
 </style>

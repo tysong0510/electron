@@ -22,15 +22,8 @@
           <b-col>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-form
-                  id="sign-in"
-                  @submit="login"
-                >
-                  <b-form-group
-                    label="Username"
-                    label-for="username"
-                    class="text-left"
-                  >
+                <b-form id="sign-in" @submit="login">
+                  <b-form-group label="Username" label-for="username" class="text-left">
                     <b-form-input
                       id="username"
                       ref="sign-in"
@@ -41,37 +34,17 @@
                       type="text"
                     />
                   </b-form-group>
-                  <b-form-group
-                    label="Password"
-                    label-for="password"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="password"
-                      v-model="password"
-                      name="password"
-                      required
-                      placeholder="Password"
-                      type="password"
-                    />
+                  <b-form-group label="Password" label-for="password" class="text-left">
+                    <b-form-input id="password" v-model="password" name="password" required placeholder="Password" type="password" />
                   </b-form-group>
                   <b-row>
                     <b-col cols="6">
-                      <b-form-checkbox
-                        v-model="rememberMe"
-                        class="text-left"
-                        name="remember"
-                      >
+                      <b-form-checkbox v-model="rememberMe" class="text-left" name="remember">
                         Remember me
                       </b-form-checkbox>
                     </b-col>
                     <b-col cols="6">
-                      <a
-                        href="#"
-                        class="float-right"
-                        style="color: #696E80;"
-                        @click.prevent="goTo('restore')"
-                      >Forgot password?</a>
+                      <a href="#" class="float-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password?</a>
                     </b-col>
                   </b-row>
                   <b-form-invalid-feedback :state="loginValid">
@@ -82,24 +55,11 @@
             </b-row>
             <b-row>
               <b-col class="mt-5 w-100 d-flex">
-                <b-button
-                  size="lg"
-                  variant="primary"
-                  class="btn-auth"
-                  style="min-width: 180px;"
-                  type="submit"
-                  form="sign-in"
-                >
+                <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="sign-in">
                   Login
                 </b-button>
                 <span class="p-2" />
-                <b-button
-                  size="lg"
-                  variant="light"
-                  class="btn-auth"
-                  style="min-width: 180px;"
-                  @click="goBack"
-                >
+                <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
                   Back
                 </b-button>
               </b-col>
@@ -110,15 +70,8 @@
           <b-col>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-form
-                  id="registration"
-                  @submit="register"
-                >
-                  <b-form-group
-                    label="First Name"
-                    label-for="firstName"
-                    class="text-left"
-                  >
+                <b-form id="registration" @submit="register">
+                  <b-form-group label="First Name" label-for="firstName" class="text-left">
                     <b-form-input
                       id="firstName"
                       ref="registration"
@@ -129,91 +82,34 @@
                       type="text"
                     />
                   </b-form-group>
-                  <b-form-group
-                    label="Last Name"
-                    label-for="lastName"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="lastName"
-                      v-model="lastName"
-                      name="lastName"
-                      required
-                      placeholder="Last Name"
-                      type="text"
-                    />
+                  <b-form-group label="Last Name" label-for="lastName" class="text-left">
+                    <b-form-input id="lastName" v-model="lastName" name="lastName" required placeholder="Last Name" type="text" />
                   </b-form-group>
-                  <b-form-group
-                    label="Username"
-                    label-for="username"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="username"
-                      v-model="username"
-                      name="username"
-                      required
-                      placeholder="Username"
-                      type="text"
-                    />
+                  <b-form-group label="Username" label-for="username" class="text-left">
+                    <b-form-input id="username" v-model="username" name="username" required placeholder="Username" type="text" />
                     <b-form-invalid-feedback :state="usernameValidation">
                       This username is not available!
                     </b-form-invalid-feedback>
                   </b-form-group>
-                  <b-form-group
-                    label="Email"
-                    label-for="email"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="email"
-                      v-model="email"
-                      name="email"
-                      required
-                      placeholder="Email"
-                      type="email"
-                    />
+                  <b-form-group label="Email" label-for="email" class="text-left">
+                    <b-form-input id="email" v-model="email" name="email" required placeholder="Email" type="email" />
                     <b-form-invalid-feedback :state="emailValidation">
                       This email is taken!
                     </b-form-invalid-feedback>
                   </b-form-group>
-                  <b-form-group
-                    label="Password"
-                    label-for="password"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="password"
-                      v-model="password"
-                      name="password"
-                      required
-                      placeholder="Password"
-                      type="password"
-                    />
+                  <b-form-group label="Password" label-for="password" class="text-left">
+                    <b-form-input id="password" v-model="password" name="password" required placeholder="Password" type="password" />
                   </b-form-group>
                 </b-form>
               </b-col>
             </b-row>
             <b-row>
               <b-col class="mt-5 w-100 d-flex">
-                <b-button
-                  size="lg"
-                  variant="primary"
-                  class="btn-auth"
-                  style="min-width: 180px;"
-                  type="submit"
-                  form="registration"
-                >
+                <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="registration">
                   Register
                 </b-button>
                 <span class="p-2" />
-                <b-button
-                  size="lg"
-                  variant="light"
-                  class="btn-auth"
-                  style="min-width: 180px;"
-                  @click="goBack"
-                >
+                <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
                   Back
                 </b-button>
               </b-col>
@@ -231,13 +127,7 @@
             </b-row>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-button
-                  size="lg"
-                  variant="primary"
-                  class="btn-auth"
-                  style="max-width: 250px;"
-                  @click="goTo('sign-in')"
-                >
+                <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="goTo('sign-in')">
                   Continue
                 </b-button>
               </b-col>
@@ -250,21 +140,14 @@
               <b-col class="text-center">
                 <b-form
                   id="restore"
-                  @submit="(e) => { e.preventDefault(); }"
+                  @submit="
+                    e => {
+                      e.preventDefault();
+                    }
+                  "
                 >
-                  <b-form-group
-                    label="Email"
-                    label-for="email"
-                    class="text-left"
-                  >
-                    <b-form-input
-                      id="email"
-                      ref="restore"
-                      v-model="email"
-                      required
-                      name="email"
-                      type="email"
-                    />
+                  <b-form-group label="Email" label-for="email" class="text-left">
+                    <b-form-input id="email" ref="restore" v-model="email" required name="email" type="email" />
                   </b-form-group>
                 </b-form>
               </b-col>
@@ -273,14 +156,7 @@
               <b-col>
                 <b-row class="my-3">
                   <b-col class="text-center">
-                    <b-button
-                      size="lg"
-                      variant="primary"
-                      class="btn-auth"
-                      style="min-width: 180px;"
-                      type="submit"
-                      form="restore"
-                    >
+                    <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="restore">
                       Reset password
                     </b-button>
                   </b-col>
@@ -288,13 +164,7 @@
                 <b-col>
                   <b-row class="my-3">
                     <b-col class="text-center">
-                      <b-button
-                        size="lg"
-                        variant="light"
-                        class="btn-auth"
-                        style="min-width: 180px;"
-                        @click="goBack"
-                      >
+                      <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
                         Back
                       </b-button>
                     </b-col>
@@ -308,24 +178,14 @@
           <b-col>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-button
-                  size="lg"
-                  variant="outline-secondary"
-                  class="btn-auth"
-                  @click="goTo('registration')"
-                >
+                <b-button size="lg" variant="outline-secondary" class="btn-auth" @click="goTo('registration')">
                   Create new account
                 </b-button>
               </b-col>
             </b-row>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-button
-                  size="lg"
-                  variant="outline-secondary"
-                  class="btn-auth"
-                  @click="goTo('sign-in')"
-                >
+                <b-button size="lg" variant="outline-secondary" class="btn-auth" @click="goTo('sign-in')">
                   Sign in
                 </b-button>
               </b-col>
@@ -342,33 +202,33 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron';
-import { ACTION_LOGIN, ACTION_REGISTER } from '../../store/modules/auth';
+import { ipcRenderer } from "electron";
+import { ACTION_LOGIN, ACTION_REGISTER } from "../../store/modules/auth";
 // import { UNAUTHORIZED } from '../../dispatch-types';
-import { AUTHORIZED } from '../../dispatch-types';
+import { AUTHORIZED } from "../../dispatch-types";
 
-const modalTypes = ['select', 'sign-in', 'confirm', 'registration', 'restore'];
+const modalTypes = ["select", "sign-in", "confirm", "registration", "restore"];
 
 const modals = {
   select: {
-    title: 'VoxPop',
+    title: "VoxPop"
   },
   registration: {
-    title: 'Create an account',
+    title: "Create an account"
   },
   confirm: {
-    title: 'New account created successfully',
+    title: "New account created successfully"
   },
-  'sign-in': {
-    title: 'Sign in',
+  "sign-in": {
+    title: "Sign in"
   },
   restore: {
-    title: 'Forgot password',
-  },
+    title: "Forgot password"
+  }
 };
 
 export default {
-  name: 'AuthModal',
+  name: "AuthModal",
   data() {
     return {
       noRedirect: false,
@@ -380,22 +240,22 @@ export default {
       rememberMe: false,
       loginValid: true,
       usernameValidation: true,
-      emailValidation: true,
+      emailValidation: true
     };
   },
   computed: {
     modal: {
       get() {
         return modals[this.modalType];
-      },
+      }
     },
     modalType: {
       get() {
         if (!modalTypes.includes(this.$route.query.auth)) {
-          return 'select';
+          return "select";
         }
         return this.$route.query.auth;
-      },
+      }
     },
     show: {
       get() {
@@ -403,11 +263,11 @@ export default {
       },
       set(value) {
         this.$authModal.showModal = value;
-      },
-    },
+      }
+    }
   },
   mounted() {
-    this.$root.$on('unauthorized', this.showModal);
+    this.$root.$on("unauthorized", this.showModal);
 
     if (!this.$authModal.onAuthorized) {
       this.$authModal.onAuthorized = true;
@@ -446,45 +306,52 @@ export default {
     //     this.$emit('auth:modal:change:state');
     //   // }
     // },
-    goTo(modal = 'login') {
-      if (typeof modal === 'object') {
+    goTo(modal = "login") {
+      if (typeof modal === "object") {
         return;
       }
 
-      this.$router.push({ query: Object.assign({}, this.$route.query, { auth: modal }, this.noRedirect ? { 'no-redirect': true } : {}) });
+      this.$router.push({ query: Object.assign({}, this.$route.query, { auth: modal }, this.noRedirect ? { "no-redirect": true } : {}) });
     },
     goBack() {
-      this.$router.replace({ query: Object.assign({}, this.$route.query, { auth: 'select' }, this.noRedirect ? { 'no-redirect': true } : {}) });
+      this.$router.replace({
+        query: Object.assign({}, this.$route.query, { auth: "select" }, this.noRedirect ? { "no-redirect": true } : {})
+      });
     },
     login(evt) {
       evt.preventDefault();
 
       this.loginValid = true;
 
-      this.$store.dispatchPromise(ACTION_LOGIN, {
-        username: this.username,
-        password: this.password,
-      }).then(() => {
-        this.$authModal.showModal = false;
+      this.$store
+        .dispatchPromise(ACTION_LOGIN, {
+          username: this.username,
+          password: this.password
+        })
+        .then(() => {
+          this.$authModal.showModal = false;
 
-        console.log('Authorized');
+          console.log("Authorized");
 
-        this.formReset();
+          this.formReset();
 
-        // ipcRenderer.send(AUTHORIZED);
+          // ipcRenderer.send(AUTHORIZED);
 
-        if (!this.$route.query['no-redirect']) {
-          this.$router.push(this.$route.query.redirect || { name: 'profile' });
-        }
+          if (!this.$route.query["no-redirect"]) {
+            this.$router.push(this.$route.query.redirect || { name: "profile" });
+          }
 
-        this.$root.$emit('authorized');
-      }).catch((err) => {
-        const res = err.response;
+          this.$root.$emit("authorized");
+        })
+        .catch(err => {
+          console.log(err);
 
-        if (res.status === 404) {
-          this.loginValid = false;
-        }
-      });
+          const res = err && err.response;
+
+          if (res && res.status === 404) {
+            this.loginValid = false;
+          }
+        });
 
       // localStorage.auth = 1;
     },
@@ -493,79 +360,83 @@ export default {
 
       const that = this;
 
-      this.$store.dispatchPromise(ACTION_REGISTER, { // Vue-resource
-        firstName: this.firstName,
-        lastName: this.lastName,
-        email: this.email,
-        username: this.username,
-        password: this.password,
-      }).then(() => {
-        that.$authModal.showModal = false;
+      this.$store
+        .dispatchPromise(ACTION_REGISTER, {
+          // Vue-resource
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          username: this.username,
+          password: this.password
+        })
+        .then(() => {
+          that.$authModal.showModal = false;
 
-        this.formReset();
+          this.formReset();
 
-        console.log('Registered');
+          console.log("Registered");
 
-        this.goTo('confirm');
-      }).catch((err) => {
-        const res = err.response;
+          this.goTo("confirm");
+        })
+        .catch(err => {
+          const res = err.response;
 
-        if (res.status === 500) {
-          const message = res.data && res.data.message;
+          if (res.status === 500) {
+            const message = res.data && res.data.message;
 
-          this.usernameValidation = !(/username/.test(message));
-          this.emailValidation = !(/email/.test(message));
+            this.usernameValidation = !/username/.test(message);
+            this.emailValidation = !/email/.test(message);
 
-          console.log('Incorrect username or password');
-        }
+            console.log("Incorrect username or password");
+          }
 
-        console.log(err.response);
-      });
-    },
-  },
+          console.log(err.response);
+        });
+    }
+  }
 };
 </script>
 
-<style scoped lang="scss">
-  @import "../../assets/scss/main";
+<style lang="scss">
+@import "../../assets/scss/main";
 
-  $close-size: 2em;
+$close-size: 2em;
 
-  /deep/ .modal-dialog {
-    min-width: 650px;
+#modal-authorize .modal-dialog {
+  min-width: 650px;
 
-    .modal-content {
-      .btn-auth {
-        border-radius: 30px;
-        padding-left: 2em;
-        padding-right: 2em;
-        width: 100%;
-        font-size: 1.5em;
-        min-height: 2em;
-      }
-
-      .modal-header {
-        border: 0;
-
-        .close {
-          color: white;
-          font-size: $close-size;
-          width: $close-size;
-          font-weight: normal;
-        }
-      }
-
-      .modal-footer {
-        border: 0;
-      }
-
-      .modal-body {
-        padding-bottom: 50px;
-        padding-top: 50px;
-      }
-
-      min-height: 300px;
-      background-color: $primary-states;
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
     }
+
+    .modal-header {
+      border: 0;
+
+      .close {
+        color: white;
+        font-size: $close-size;
+        width: $close-size;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    .modal-body {
+      padding-bottom: 50px;
+      padding-top: 50px;
+    }
+
+    min-height: 300px;
+    background-color: $primary-states;
   }
+}
 </style>

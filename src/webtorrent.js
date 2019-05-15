@@ -4,30 +4,31 @@
 
 // To keep the UI snappy, we run WebTorrent in its own hidden window, a separate
 // process from the main window.
-import ExtendableError from 'es6-error';
-import Axios from 'axios';
-import store from './store';
-import { USER } from './store/modules/auth';
-import { AUTHORIZED, UNAUTHORIZED } from './dispatch-types';
+import ExtendableError from "es6-error";
+import Axios from "axios";
+import store from "./store";
+import { USER } from "./store/modules/auth";
+import { AUTHORIZED, UNAUTHORIZED } from "./dispatch-types";
+import { ADD_TORRENT_SEED } from "./store/mutation-types";
 
-console.time('init');
+console.time("init");
 
-const crypto = require('crypto');
-const deepEqual = require('deep-equal');
-const electron = require('electron');
-const fs = require('fs');
-const mkdirp = require('mkdirp');
+const crypto = require("crypto");
+const deepEqual = require("deep-equal");
+const electron = require("electron");
+const fs = require("fs");
+const mkdirp = require("mkdirp");
 // const networkAddress = require('network-address')
-const path = require('path');
-const WebTorrent = require('webtorrent');
+const path = require("path");
+const WebTorrent = require("webtorrent");
 
 // const crashReporter = require('../crash-reporter')
-const config = require('./config');
+const config = require("./config");
 
 const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST; // require('create-torrent').announceList
+const pieceLength = config.PIECE_LENGTH;
 
-class TorrentError extends ExtendableError {
-}
+class TorrentError extends ExtendableError {}
 
 class TorrentKeyNotFoundError extends TorrentError {
   constructor(torrentKey) {
@@ -46,7 +47,7 @@ const ipc = electron.ipcRenderer;
 // Force use of webtorrent trackers on all torrents
 global.WEBTORRENT_ANNOUNCE = defaultAnnounceList
   .map(arr => arr[0])
-  .filter(url => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0);
+  .filter(url => url.indexOf("wss://") === 0 || url.indexOf("ws://") === 0);
 
 global.GET_STORE = () => store;
 
@@ -73,28 +74,28 @@ global.ICECOMPLETE_TIMEOUT = 5 * 1000;
  * For example:
  *   '-WW0102-'...
  */
-const VERSION_PREFIX = '-WD' + '0000' /* VERSION_STR */ + '-';
+const VERSION_PREFIX = "-WD" + "0000" /* VERSION_STR */ + "-";
 
 /**
  * Generate an ephemeral peer ID each time.
  */
-const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString('base64'));
+const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString("base64"));
 
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
-let client = window.client = new WebTorrent({
+let client = (window.client = new WebTorrent({
   peerId: PEER_ID,
-  dht: false,
+  dht: false
   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
-});
+}));
 
 function setPeerId() {
-  console.log('prevPeerId', client.peerId);
+  console.log("prevPeerId", client.peerId);
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
-  console.log('newPeerId string', newPeerIdBuffer.toString('utf-8'));
+  console.log("newPeerId string", newPeerIdBuffer.toString("utf-8"));
 
   client.peerIdBuffer = newPeerIdBuffer;
-  client.peerId = newPeerIdBuffer.toString('hex');
+  client.peerId = newPeerIdBuffer.toString("hex");
 
   ipc.once(UNAUTHORIZED, () => {
     ipc.once(AUTHORIZED, setPeerId);
@@ -111,51 +112,55 @@ init();
 function init() {
   listenToClientEvents();
 
-  ipc.on('wt-start-torrenting', (e, torrentKey, torrentID, path, fileModtimes, selections) => {
+  ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
     // console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
     startTorrenting(torrentKey, torrentID, path, fileModtimes, selections);
   });
 
-  ipc.on('wt-stop-torrenting', (e, infoHash) => stopTorrenting(infoHash));
-  ipc.on('wt-create-torrent', (e, torrentKey, options) => createTorrent(torrentKey, options));
-  ipc.on('wt-save-torrent-file', (e, torrentKey) => saveTorrentFile(torrentKey));
-  ipc.on('wt-select-files', (e, infoHash, selections) => selectFiles(infoHash, selections));
+  ipc.on("wt-stop-torrenting", (e, infoHash) => stopTorrenting(infoHash));
+  ipc.on("wt-create-torrent", (e, torrentKey, options) => createTorrent(torrentKey, options));
+  ipc.on("wt-save-torrent-file", (e, torrentKey) => saveTorrentFile(torrentKey));
+  ipc.on("wt-select-files", (e, infoHash, selections) => selectFiles(infoHash, selections));
 
-  ipc.on('wt-reset', () => reset());
+  ipc.on("wt-reset", () => reset());
 
-  console.log('ipcReadyWebTorrent');
-  ipc.send('ipcReadyWebTorrent');
+  console.log("ipcReadyWebTorrent");
+  ipc.send("ipcReadyWebTorrent");
 
-  window.addEventListener('error', e => ipc.send('wt-uncaught-error', {
-    message: e.error ? e.error.message : String(e),
-    stack: e.error ? e.error.stack : void 0,
-  }),
-  true);
+  window.addEventListener(
+    "error",
+    e =>
+      ipc.send("wt-uncaught-error", {
+        message: e.error ? e.error.message : String(e),
+        stack: e.error ? e.error.stack : void 0
+      }),
+    true
+  );
 
   setInterval(updateTorrentProgress, 1000);
-  console.timeEnd('init');
+  console.timeEnd("init");
 }
 
 function listenToClientEvents() {
-  client.on('warning', (err) => {
+  client.on("warning", err => {
     console.warn(err.message);
-    ipc.send('wt-warning', null, err.message);
+    ipc.send("wt-warning", null, err.message);
   });
-  client.on('error', (err) => {
+  client.on("error", err => {
     console.error(err.message);
-    ipc.send('wt-error', null, err.message);
+    ipc.send("wt-error", null, err.message);
   });
 }
 
 // Starts a given TorrentID, which can be an infohash, magnet URI, etc.
 // Returns a WebTorrent object. See https://git.io/vik9M
 function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) {
-  console.log('wt-start-torrenting');
-  console.log('starting torrent %s: %s', torrentKey, torrentID);
+  console.log("wt-start-torrenting");
+  console.log("starting torrent %s: %s", torrentKey, torrentID);
 
   const torrent = client.add(torrentID, {
     path,
-    fileModtimes,
+    fileModtimes
     // announce: 'wss://tracker.webtorrent.io'
   });
   torrent.key = torrentKey;
@@ -164,26 +169,41 @@ function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) 
   addTorrentEvents(torrent);
 
   // Only download the files the user wants, not necessarily all files
-  torrent.once('ready', () => selectFiles(torrent, selections));
+  torrent.once("ready", () => selectFiles(torrent, selections));
 }
 
 function stopTorrenting(infoHash) {
-  console.log('--- STOP TORRENTING: ', infoHash);
+  console.log("--- STOP TORRENTING: ", infoHash);
   const torrent = client.get(infoHash);
   if (torrent) torrent.destroy();
 }
 
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
-  console.log('creating torrent', torrentKey, options);
+  console.log("creating torrent", torrentKey, options);
   const paths = options.files.map(f => f.path);
   // Force private
   options.private = true;
-  console.log('START SEEDING');
+  options.announceList = defaultAnnounceList;
+  options.pieceLength = pieceLength;
+  console.log("START SEEDING");
   const torrent = client.seed(paths, options);
   torrent.key = torrentKey;
   addTorrentEvents(torrent);
-  ipc.send('wt-new-torrent');
+  ipc.send("wt-new-torrent");
+
+  torrent.once("ready", function() {
+    store.dispatch({
+      type: ADD_TORRENT_SEED,
+      payload: {
+        gameId: options.gameId,
+        state: "seeding",
+        torrentURL: torrent.magnetURI,
+        torrentKey: torrent.key,
+        sizeBytes: torrent.length
+      }
+    });
+  });
 }
 
 // function requestToPair(request, pieceLength) {
@@ -209,43 +229,45 @@ function addTorrentEvents(torrent) {
   // let numberOfUploadedBytes = 0;
   // let peerId = '';
   const keys = Object.keys(torrent).sort();
-  console.log('keys:', keys);
+  console.log("keys:", keys);
 
-  const t = store.getters.findTorrentByKey(torrent.key);
-  const gameId = t && t.gameId;
+  let t = store.getters.findTorrentByKey(torrent.key);
+  let gameId = t && t.gameId;
   const userId = store.getters[USER].id;
   // const defaultBlockSize = 16384;
 
-  torrent.on('download', (bytes) => {
-    console.log('torrent download bytes:', bytes);
+  torrent.on("download", bytes => {
+    console.log("torrent download bytes:", bytes);
     // numberOfDownloadedBytes += bytes;
 
     if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length >= 24) {
-      Axios({ url: '/user-game-download-blocks/group', data: downloadedPieces, method: 'POST' }).then((res) => {
-        console.log('wire download add group done', res);
-      }).catch((err) => {
-        console.log('wire download add group error:', err);
-        if (err.request && Array.isArray(err.request.data)) {
-          downloadedPieces.concat(err.request.data);
-        }
-      });
+      Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
+        .then(res => {
+          console.log("wire download add group done", res);
+        })
+        .catch(err => {
+          console.log("wire download add group error:", err, err.request);
+          if (err.request && Array.isArray(err.request.data)) {
+            downloadedPieces.concat(err.request.data);
+          }
+        });
 
       downloadedPieces = [];
     }
   });
 
-  torrent.on('upload', (bytes) => {
-    console.log('torrent upload bytes:', bytes);
+  torrent.on("upload", bytes => {
+    console.log("torrent upload bytes:", bytes);
     // numberOfUploadedBytes += bytes;
   });
 
-  torrent.on('warning', err => ipc.send('wt-warning', torrent.key, err.message));
-  torrent.on('error', err => ipc.send('wt-error', torrent.key, err.message));
-  torrent.on('infoHash', () => ipc.send('wt-infohash', torrent.key, torrent.infoHash));
-  torrent.on('metadata', torrentMetadata);
-  torrent.on('ready', torrentReady);
-  torrent.on('done', () => {
-    console.log('torrent done');
+  torrent.on("warning", err => ipc.send("wt-warning", torrent.key, err.message));
+  torrent.on("error", err => ipc.send("wt-error", torrent.key, err.message));
+  torrent.on("infoHash", () => ipc.send("wt-infohash", torrent.key, torrent.infoHash));
+  torrent.on("metadata", torrentMetadata);
+  torrent.on("ready", torrentReady);
+  torrent.on("done", () => {
+    console.log("torrent done");
     // console.log('numberOfDownloadedBytes:', numberOfDownloadedBytes);
     // console.log('numberOfUploadedBytes:', numberOfUploadedBytes);
 
@@ -273,12 +295,12 @@ function addTorrentEvents(torrent) {
     // }
 
     if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length) {
-      Axios({ url: '/user-game-download-blocks/group', data: downloadedPieces, method: 'POST' })
-        .then((res) => {
-          console.log('wire download add group done', res);
+      Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
+        .then(res => {
+          console.log("wire download add group done", res);
         })
-        .catch((err) => {
-          console.log('wire download add group error:', err);
+        .catch(err => {
+          console.log("wire download add group error:", err, err.request);
         });
 
       downloadedPieces = [];
@@ -286,44 +308,49 @@ function addTorrentEvents(torrent) {
 
     torrentDone();
   });
-  torrent.on('peer', (peer) => {
-    console.log('new peer', peer);
+  torrent.on("peer", peer => {
+    console.log("new peer", peer);
   });
-  torrent.on('wire', (wire, addr) => {
-    console.log('wire peerId utf-8 string', Buffer.from(wire.peerId, 'hex').toString('utf-8'));
+  torrent.on("wire", (wire, addr) => {
+    console.log("wire peerId utf-8 string", Buffer.from(wire.peerId, "hex").toString("utf-8"));
     const wireRequests = [];
 
-    console.log('wire', wire);
-    console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting game ${gameId}`);
-    console.log('torrent', torrent);
+    console.log("wire", wire);
 
-    wire.on('close', () => {
-      console.log('wire closed. Send stats to server');
+    if (!t && !gameId) {
+      t = store.getters.findTorrentByKey(torrent.key);
+      gameId = t && t.gameId;
+    }
+
+    console.log(`connected to remote peer with ID ${wire.peerId} and address ${addr}, torrenting game ${gameId}`);
+    console.log("torrent", torrent);
+
+    wire.on("close", () => {
+      console.log("wire closed. Send stats to server");
 
       if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length) {
-        Axios({ url: '/user-game-download-blocks/group', data: downloadedPieces, method: 'POST' })
-          .then((res) => {
-            console.log('wire download add group done', res);
+        Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
+          .then(res => {
+            console.log("wire download add group done", res);
           })
-          .catch((err) => {
-            console.log('wire download add group error:', err);
+          .catch(err => {
+            console.log("wire download add group error:", err, err.request);
           });
 
         downloadedPieces = [];
       }
 
       if (uploadedPieces && Array.isArray(uploadedPieces) && uploadedPieces.length) {
-        Axios({ url: '/user-game-upload-blocks/group', data: uploadedPieces, method: 'POST' })
-          .then((res) => {
-            console.log('wire upload add group done', res);
+        Axios({ url: "/user-game-upload-blocks/group", data: uploadedPieces, method: "POST" })
+          .then(res => {
+            console.log("wire upload add group done", res);
           })
-          .catch((err) => {
-            console.log('wire upload add group error:', err);
+          .catch(err => {
+            console.log("wire upload add group error:", err, err.request);
           });
 
         uploadedPieces = [];
       }
-
     });
 
     // let previousDownloadRequests = {};
@@ -355,19 +382,20 @@ function addTorrentEvents(torrent) {
 
     // peerId = wire.peerId;
 
-    ipc.send('wt-wire-connect', torrent.key, addr);
+    ipc.send("wt-wire-connect", torrent.key, addr);
 
-    wire.on('interested', () => {
-      console.log(`peer ${addr} is now interested in ${wire.peerInterested ? 'us' : ''}`);
+    wire.on("interested", () => {
+      console.log(`peer ${addr} is now interested in ${wire.peerInterested ? "us" : ""}`);
     });
 
-    wire.on('piece', (index, offset, buffer) => {
+    wire.on("piece", (index, offset, buffer) => {
       const downloadedBlock = {
         blockOffset: index * torrent.pieceLength + offset,
         blockLength: buffer.length,
         gameId,
-        peerId: Buffer.from(wire.peerId, 'hex').toString('utf-8'),
+        peerId: Buffer.from(wire.peerId, "hex").toString("utf-8"),
         userId,
+        autoFix: false
       };
 
       if (!downloadedPieces) {
@@ -377,15 +405,15 @@ function addTorrentEvents(torrent) {
       downloadedPieces.push(downloadedBlock);
     });
 
-    wire.on('uninterested', () => {
+    wire.on("uninterested", () => {
       console.log(`peer ${addr} is no longer interested`);
       if (uploadedPieces && Array.isArray(uploadedPieces) && uploadedPieces.length) {
-        Axios({ url: '/user-game-upload-blocks/group', data: uploadedPieces, method: 'POST' })
-          .then((res) => {
-            console.log('wire upload add group done', res);
+        Axios({ url: "/user-game-upload-blocks/group", data: uploadedPieces, method: "POST" })
+          .then(res => {
+            console.log("wire upload add group done", res);
           })
-          .catch((err) => {
-            console.log('wire upload add group error:', err);
+          .catch(err => {
+            console.log("wire upload add group error:", err, err.request);
             if (err.request && Array.isArray(err.request.data)) {
               uploadedPieces.concat(err.request.data);
             }
@@ -395,47 +423,49 @@ function addTorrentEvents(torrent) {
       }
     });
 
-    wire.on('handshake', (infoHash, peerId, extensions) => {
-      console.log('wire handshake', { infoHash, peerId, extensions });
+    wire.on("handshake", (infoHash, peerId, extensions) => {
+      console.log("wire handshake", { infoHash, peerId, extensions });
     });
 
-    wire.on('choke', () => {
-      console.log('peer is now choking us');
+    wire.on("choke", () => {
+      console.log("peer is now choking us");
     });
 
-    wire.on('unchoke', () => {
-      console.log('peer unchoked us');
+    wire.on("unchoke", () => {
+      console.log("peer unchoked us");
     });
 
-    wire.on('request', (pieceIndex, offset, length) => {
+    wire.on("request", (pieceIndex, offset, length) => {
       const request = wire.peerRequests.filter(val => val.piece === pieceIndex && val.offset === offset && val.length === length).shift();
 
       if (request) {
         wireRequests.push({
-          request, pieceIndex, offset, length,
+          request,
+          pieceIndex,
+          offset,
+          length
         });
       }
 
       // console.log('wire request', { pieceIndex, offset, length });
     });
 
-    wire.on('have', (index) => {
+    wire.on("have", index => {
       console.log(`wire have ${index}`);
     });
 
-    wire.on('timeout', () => {
+    wire.on("timeout", () => {
       console.log(`wire timeout ${wire.addr}. Destroy...`);
     });
 
     // wire.on('bitfield', (wire, bitfield) => {
     //   console.log(`bitfield received from the peer with ID ${wire.peerId}: ${bitfield}`);
     // });
-    wire.on('download', () => {
+    wire.on("download", () => {
       // console.log(`number of bytes downloaded ${wire.downloaded} from peerId ${wire.peerId}/${addr}/${gameId}`);
       // console.log('wire download wire.peerId:', wire.peerId);
       // console.log('wire download bytes:', bytes);
       // console.log('wire.downloaded:', wire.downloaded);
-
       // currentDownloadRequests = {};
       //
       // if (wire.requests) {
@@ -500,7 +530,6 @@ function addTorrentEvents(torrent) {
       //     });
       //   }
       // });
-
       // console.log('downloaded:', downloadedRequests);
       // if (downloadedRequests.length > 0) {
       //   Axios({ url: '/user-game-download-blocks/group', data: downloadedRequests, method: 'POST' }).then((request) => {
@@ -521,15 +550,16 @@ function addTorrentEvents(torrent) {
       // Axios({ url: `/games/1/stats/${wire.downloaded}`, data: { peerId: wire.peerId, ip: addr }, method: 'PUT' });
     });
 
-    wire.on('upload', () => {
+    wire.on("upload", () => {
       wireRequests.forEach((value, key) => {
         if (!wire.peerRequests.includes(value.request)) {
           const uploadedBlock = {
             blockOffset: value.pieceIndex * torrent.pieceLength + value.offset,
             blockLength: value.length,
             gameId,
-            peerId: Buffer.from(wire.peerId, 'hex').toString('utf-8'),
+            peerId: Buffer.from(wire.peerId, "hex").toString("utf-8"),
             userId,
+            autoFix: false
           };
 
           if (!uploadedPieces) {
@@ -546,12 +576,12 @@ function addTorrentEvents(torrent) {
 
       if (uploadedPieces.length >= 24) {
         if (uploadedPieces && Array.isArray(uploadedPieces) && uploadedPieces.length) {
-          Axios({ url: '/user-game-upload-blocks/group', data: uploadedPieces, method: 'POST' })
-            .then((res) => {
-              console.log('wire upload add group done', res);
+          Axios({ url: "/user-game-upload-blocks/group", data: uploadedPieces, method: "POST" })
+            .then(res => {
+              console.log("wire upload add group done", res);
             })
-            .catch((err) => {
-              console.log('wire upload add group error:', err);
+            .catch(err => {
+              console.log("wire upload add group error:", err, err.request);
               if (err.request && Array.isArray(err.request.data)) {
                 uploadedPieces.concat(err.request.data);
               }
@@ -613,22 +643,22 @@ function addTorrentEvents(torrent) {
       // previousUploadRequests = currentUploadRequests;
     });
   });
-  torrent.on('noPeers', (announceType) => {
+  torrent.on("noPeers", announceType => {
     console.log(`noPeers after announceType=${announceType}`);
-    ipc.send('wt-no-peers', torrent.key, announceType);
+    ipc.send("wt-no-peers", torrent.key, announceType);
   });
 
   function torrentMetadata() {
     const info = getTorrentInfo(torrent);
-    ipc.send('wt-metadata', torrent.key, info);
+    ipc.send("wt-metadata", torrent.key, info);
 
     updateTorrentProgress();
   }
 
   function torrentReady() {
     const info = getTorrentInfo(torrent);
-    console.log('torrentReady');
-    ipc.send('wt-ready', torrent.key, info);
+    console.log("torrentReady");
+    ipc.send("wt-ready", torrent.key, info);
     ipc.send(`wt-ready-${torrent.infoHash}`, torrent.key, info);
 
     updateTorrentProgress();
@@ -636,13 +666,13 @@ function addTorrentEvents(torrent) {
 
   function torrentDone() {
     const info = getTorrentInfo(torrent);
-    ipc.send('wt-done', torrent.key, info);
+    ipc.send("wt-done", torrent.key, info);
 
     updateTorrentProgress();
 
     torrent.getFileModtimes((err, fileModtimes) => {
       if (err) return onError(err);
-      ipc.send('wt-file-modtimes', torrent.key, fileModtimes);
+      ipc.send("wt-file-modtimes", torrent.key, fileModtimes);
     });
   }
 }
@@ -655,7 +685,7 @@ function getTorrentInfo(torrent) {
     name: torrent.name,
     path: torrent.path,
     files: torrent.files.map(getTorrentFileInfo),
-    bytesReceived: torrent.received,
+    bytesReceived: torrent.received
   };
 }
 
@@ -664,7 +694,7 @@ function getTorrentFileInfo(file) {
   return {
     name: file.name,
     length: file.length,
-    path: file.path,
+    path: file.path
   };
 }
 
@@ -674,26 +704,23 @@ function getTorrentFileInfo(file) {
 function saveTorrentFile(torrentKey) {
   const user = store.getters[USER];
   const torrent = getTorrent(torrentKey);
-  const torrentsDir = path.join(
-    (electron.app || electron.remote.app).getPath('userData'),
-    'torrents',
-  );
+  const torrentsDir = path.join((electron.app || electron.remote.app).getPath("userData"), "torrents");
   const torrentsUserDir = path.join(torrentsDir, user.username);
   if (!fs.existsSync(torrentsDir)) fs.mkdirSync(torrentsDir, { recursive: true });
 
   const fileName = `${torrent.infoHash}.torrent`;
   const torrentPath = path.join(torrentsUserDir, fileName);
-  fs.access(torrentPath, fs.constants.R_OK, (err) => {
+  fs.access(torrentPath, fs.constants.R_OK, err => {
     if (!err) {
       // We've already saved the file
-      return ipc.send('wt-file-saved', torrentKey, fileName);
+      return ipc.send("wt-file-saved", torrentKey, fileName);
     }
 
     mkdirp(torrentsUserDir, () => {
-      fs.writeFile(torrentPath, torrent.torrentFile, (err) => {
-        if (err) return console.log('error saving torrent file %s: %o', torrentPath, err);
-        console.log('saved torrent file %s', torrentPath);
-        return ipc.send('wt-file-saved', torrentKey, fileName);
+      fs.writeFile(torrentPath, torrent.torrentFile, err => {
+        if (err) return console.log("error saving torrent file %s: %o", torrentPath, err);
+        console.log("saved torrent file %s", torrentPath);
+        return ipc.send("wt-file-saved", torrentKey, fileName);
       });
     });
   });
@@ -705,7 +732,7 @@ function updateTorrentProgress() {
   if (prevProgress && deepEqual(progress, prevProgress, { strict: true })) {
     return; /* don't send heavy object if it hasn't changed */
   }
-  ipc.send('wt-progress', progress);
+  ipc.send("wt-progress", progress);
   prevProgress = progress;
 }
 
@@ -717,20 +744,22 @@ function getTorrentProgress() {
   // Track progress for every file in each torrent
   // TODO: ideally this would be tracked by WebTorrent, which could do it
   // more efficiently than looping over torrent.bitfield
-  const torrentProg = client.torrents.map((torrent) => {
-    const fileProg = torrent.files && torrent.files.map((file) => {
-      const numPieces = file._endPiece - file._startPiece + 1;
-      let numPiecesPresent = 0;
-      for (let piece = file._startPiece; piece <= file._endPiece; piece++) {
-        if (torrent.bitfield.get(piece)) numPiecesPresent++;
-      }
-      return {
-        startPiece: file._startPiece,
-        endPiece: file._endPiece,
-        numPieces,
-        numPiecesPresent,
-      };
-    });
+  const torrentProg = client.torrents.map(torrent => {
+    const fileProg =
+      torrent.files &&
+      torrent.files.map(file => {
+        const numPieces = file._endPiece - file._startPiece + 1;
+        let numPiecesPresent = 0;
+        for (let piece = file._startPiece; piece <= file._endPiece; piece++) {
+          if (torrent.bitfield.get(piece)) numPiecesPresent++;
+        }
+        return {
+          startPiece: file._startPiece,
+          endPiece: file._endPiece,
+          numPieces,
+          numPiecesPresent
+        };
+      });
     return {
       torrentKey: torrent.key,
       ready: torrent.ready,
@@ -741,21 +770,21 @@ function getTorrentProgress() {
       numPeers: torrent.numPeers,
       length: torrent.length,
       bitfield: torrent.bitfield,
-      files: fileProg,
+      files: fileProg
     };
   });
 
   return {
     torrents: torrentProg,
     progress,
-    hasActiveTorrents,
+    hasActiveTorrents
   };
 }
 
 function selectFiles(torrentOrInfoHash, selections) {
   // Get the torrent object
   let torrent;
-  if (typeof torrentOrInfoHash === 'string') {
+  if (typeof torrentOrInfoHash === "string") {
     torrent = client.get(torrentOrInfoHash);
   } else {
     torrent = torrentOrInfoHash;
@@ -774,8 +803,7 @@ function selectFiles(torrentOrInfoHash, selections) {
 
   // Selections specified incorrectly?
   if (selections.length !== torrent.files.length) {
-    throw new Error(`got ${selections.length} file selections, `
-      + `but the torrent contains ${torrent.files.length} files`);
+    throw new Error(`got ${selections.length} file selections, ` + `but the torrent contains ${torrent.files.length} files`);
   }
 
   // Remove default selection (whole torrent)
@@ -808,13 +836,13 @@ function onError(err) {
 // TODO: remove this once the following bugs are fixed:
 // https://bugs.chromium.org/p/chromium/issues/detail?id=490143
 // https://github.com/electron/electron/issues/7212
-window.testOfflineMode = function () {
-  console.log('Test, going OFFLINE');
+window.testOfflineMode = function() {
+  console.log("Test, going OFFLINE");
   client = window.client = new WebTorrent({
     peerId: PEER_ID,
     tracker: false,
     dht: false,
-    webSeeds: false,
+    webSeeds: false
   });
   listenToClientEvents();
 };
@@ -823,19 +851,22 @@ window.testOfflineMode = function () {
 window.wtClient = client;
 
 function reset() {
-  console.log('reset');
+  console.log("reset");
   if (!client || !client.torrents.length) {
-    ipc.send('wt-reset-ok');
+    ipc.send("wt-reset-ok");
     return;
   }
   if (client.torrents.length) {
-    Promise.all(client.torrents.map(t => ({
-      then: (res) => {
-        t.destroy(() => { /* err ? rej(err) : res(); */
-          res();
-        });
-      },
-    }))).then(() => ipc.send('wt-reset-ok'));
+    Promise.all(
+      client.torrents.map(t => ({
+        then: res => {
+          t.destroy(() => {
+            /* err ? rej(err) : res(); */
+            res();
+          });
+        }
+      }))
+    ).then(() => ipc.send("wt-reset-ok"));
   }
 }
 

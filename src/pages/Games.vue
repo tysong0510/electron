@@ -8,15 +8,12 @@
         No games :(
       </b-col>
       <template v-for="(game, index) in userGames">
-        <b-col
-          :key="'game-' + index"
-          cols="6"
-        >
+        <b-col :key="'game-' + index" cols="6">
           <b-card
             no-body
             class="mb-2 mt-2 border-0 game"
             tag="a"
-            :href="$router.resolve({name: 'my-game-details', params: {id: game.id}}).href"
+            :href="$router.resolve({ name: 'my-game-details', params: { id: game.id } }).href"
           >
             <!-- class="overflow-hidden" style="max-width: 540px;" -->
             <!--<b-row no-gutters>-->
@@ -25,20 +22,11 @@
             <!--<b-col md="6">-->
             <b-card-body>
               <b-row>
-                <b-col
-                  cols="3"
-                  class="m-auto text-center"
-                >
-                  <b-card-img
-                    :src="getImagePath(game)"
-                    class="rounded-lg"
-                  />
+                <b-col cols="3" class="m-auto text-center">
+                  <b-card-img :src="getImagePath(game)" class="rounded-lg" />
                 </b-col>
                 <b-col>
-                  <b-card-title
-                    class="text-white font-weight-normal"
-                    title-tag="h6"
-                  >
+                  <b-card-title class="text-white font-weight-normal" title-tag="h6">
                     {{ game.title }}
                   </b-card-title>
                   <b-card-text>
@@ -59,16 +47,9 @@
             <!--</b-row>-->
           </b-card>
         </b-col>
-        <b-col
-          v-if="index % 2"
-          :key="'line-' + (index / 2 >> 0)"
-          cols="12"
-        >
+        <b-col v-if="index % 2" :key="'line-' + ((index / 2) >> 0)" cols="12">
           <b-row class="ml-1 mr-1">
-            <b-col
-              cols="12"
-              class="border-bottom"
-            />
+            <b-col cols="12" class="border-bottom" />
           </b-row>
         </b-col>
       </template>
@@ -77,105 +58,100 @@
 </template>
 
 <script>
-import store from '../mixins/store';
-import date from '../mixins/date';
-import user from '../mixins/user';
+import store from "../mixins/store";
+import date from "../mixins/date";
+import user from "../mixins/user";
 
 export default {
-  name: 'Games',
+  name: "Games",
   mixins: [store, date, user],
   data() {
-    return {
-
-    };
+    return {};
   },
-  computed: {
-  },
+  computed: {},
   created() {
     this.getUserGames();
   },
   methods: {
-    getData() {
-
-    },
-    play: (gameId) => {
+    getData() {},
+    play: gameId => {
       alert(`Running game with id ${gameId}`);
     },
-    settings: (gameId) => {
+    settings: gameId => {
       alert(`Settings for game with id ${gameId}`);
     },
-    deleteGame: (gameId) => {
+    deleteGame: gameId => {
       alert(`Delete game with id ${gameId}`);
-    },
-  },
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../assets/scss/partials/store";
+@import "../assets/scss/partials/store";
 
-  .game {
-    transition: ease-in-out 0.25s;
+.game {
+  transition: ease-in-out 0.25s;
 
-    &:link {
-      text-decoration: none;
-    }
-
-    &:hover {
-      background-color: $block-hover-background-color;
-    }
-
-    img {
-      max-height: 75px;
-      max-width: 120px;
-    }
+  &:link {
+    text-decoration: none;
   }
 
-  /*.card-img {*/
-  /*max-width: 100px;*/
-  /*max-height: 100px;*/
-  /*width: unset;*/
-  /*}*/
-  /*.col {*/
-  /*padding-bottom: 3rem;*/
-  /*margin-bottom: 3rem;*/
-  /*}*/
-
-  /*.card-title {*/
-  /*max-width: 540px;*/
-  /*border: none;*/
-  /*margin-bottom: 1.5em;*/
-  /*}*/
-
-  /*h4.card-title {*/
-  /*margin-bottom: 0.1em;*/
-  /*}*/
-
-  button {
-    width: 92px;
-    font-size: 12px;
-    border-radius: 30px;
-    /*margin-right: 10px;*/
-    /*margin-left: 10px;*/
+  &:hover {
+    background-color: $block-hover-background-color;
   }
 
-  /*.card-img {*/
-  /*width: 141px;*/
-  /*height: 141px;*/
-  /*}*/
-
-  #playButton {
-    background: #2B6DF9;
+  img {
+    max-height: 75px;
+    max-width: 120px;
   }
+}
 
-  #deleteButton {
-    background: #ffffff;
-    color: #2b6df9;
-    font-size: 12px;
-  }
+/*.card-img {*/
+/*max-width: 100px;*/
+/*max-height: 100px;*/
+/*width: unset;*/
+/*}*/
+/*.col {*/
+/*padding-bottom: 3rem;*/
+/*margin-bottom: 3rem;*/
+/*}*/
 
-  #a {
-    float: right;
-  }
+/*.card-title {*/
+/*max-width: 540px;*/
+/*border: none;*/
+/*margin-bottom: 1.5em;*/
+/*}*/
+
+/*h4.card-title {*/
+/*margin-bottom: 0.1em;*/
+/*}*/
+
+button {
+  width: 92px;
+  font-size: 12px;
+  border-radius: 30px;
+  /*margin-right: 10px;*/
+  /*margin-left: 10px;*/
+}
+
+/*.card-img {*/
+/*width: 141px;*/
+/*height: 141px;*/
+/*}*/
+
+#playButton {
+  background: #2b6df9;
+}
+
+#deleteButton {
+  background: #ffffff;
+  color: #2b6df9;
+  font-size: 12px;
+}
+
+#a {
+  float: right;
+}
 </style>

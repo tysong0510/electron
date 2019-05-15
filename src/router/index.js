@@ -1,37 +1,37 @@
-import VueRouter from 'vue-router';
+import VueRouter from "vue-router";
 
-import routes from './routes';
-import store from '../store';
-import { IS_LOGGED_IN } from '../store/modules/auth';
+import routes from "./routes";
+import store from "../store";
+import { IS_LOGGED_IN } from "../store/modules/auth";
 
 const router = new VueRouter({
   routes,
-  linkExactActiveClass: 'active',
+  linkExactActiveClass: "active",
 
-  scrollBehavior: (to) => {
+  scrollBehavior: to => {
     if (to.hash) {
       return { selector: to.hash };
     }
 
     return { x: 0, y: 0 };
-  },
+  }
 });
 
 // It seems like this code prevents navigating to game page if auth got 401 error
 router.beforeEach((to, from, next) => {
-  if (to.name === 'login') {
+  if (to.name === "login") {
     let name = null;
 
     if (from.name === to.name) {
-      name = 'home';
+      name = "home";
     }
 
     return next({
       name: name || from.name,
       params: name ? {} : from.params,
       query: {
-        auth: 'select',
-      },
+        auth: "select"
+      }
     });
   }
   if (!router.app.$store.getters[IS_LOGGED_IN] && to.query.auth) {
@@ -46,11 +46,14 @@ router.beforeEach((to, from, next) => {
 
     router.app.$authModal.showModal = true;
 
+    if (!from.name) {
+      return next({ name: "home" });
+    }
+
     return next(false);
   }
 
   return next(true);
-
 
   // if (to.meta.hasOwnProperty('auth') && to.meta.auth) {
   //   if (router.app.$auth.check()) {
