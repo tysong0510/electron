@@ -113,3 +113,23 @@ button {
 //::-webkit-scrollbar-thumb {
 //  background: #ffffff40;
 //}
+#auth-error {
+  .modal-content {
+    background-color: $primary-states;
+
+    .modal-header {
+      color: red;
+    }
+
+    .modal-body {
+      font-size: 1.2em;
+      color: $white;
+    }
+
+    .modal-footer {
+      .btn {
+        font-size: 1.2em;
+      }
+    }
+  }
+}

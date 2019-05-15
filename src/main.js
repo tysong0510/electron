@@ -1,21 +1,21 @@
 // import devtools from '@vue/devtools'
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import BootstrapVue from 'bootstrap-vue';
-import Vs from 'd3-vs';
-import Axios from 'axios';
-import VueAxios from 'vue-axios';
-import VueProgress from 'vue-progress-path';
-import VueSidebarMenu from 'vue-sidebar-menu';
-import electron from 'electron';
-import deepEqual from 'deep-equal';
+import Vue from "vue";
+import VueRouter from "vue-router";
+import BootstrapVue from "bootstrap-vue";
+import Vs from "d3-vs";
+import Axios from "axios";
+import VueAxios from "vue-axios";
+import VueProgress from "vue-progress-path";
+import VueSidebarMenu from "vue-sidebar-menu";
+import electron from "electron";
+import deepEqual from "deep-equal";
 
-import App from './App.vue';
-import router from './router';
-import store from './store';
-import i18n from './i18n';
-import Dashboard from './plugins/dashboard';
-import { baseURL } from './apiConfig';
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
+import i18n from "./i18n";
+import Dashboard from "./plugins/dashboard";
+import { baseURL } from "./apiConfig";
 import {
   UPDATE_TORRENT,
   UNARCHIVE_OK,
@@ -23,24 +23,28 @@ import {
   TORRENT_DOWNLOADED,
   UPDATE_TORRENT_INFOHASH,
   UPDATE_TORRENT_PROGRESS,
-  STOP_TORRENTS,
-} from './store/mutation-types';
-import './registerServiceWorker';
+  STOP_TORRENTS
+} from "./store/mutation-types";
+import "./registerServiceWorker";
 
-import './assets/scss/main.scss';
+import "./assets/scss/main.scss";
 
-import { State } from './state';
+import { State } from "./state";
 import {
   STATE_SAVE,
   STATE_SAVE_IMMEDIATE,
   UNCAUGHT_ERROR,
   UNZIP_GAME_OK,
-  UNZIP_GAME_FAIL, AUTHORIZED, UNAUTHORIZED,
-} from './dispatch-types';
+  UNZIP_GAME_FAIL,
+  AUTHORIZED,
+  UNAUTHORIZED
+} from "./dispatch-types";
 
-import { UNARCHIVE_GAME } from './store/actions-types';
+import { UNARCHIVE_GAME } from "./store/actions-types";
 
-const IS_DEV = process.env.NODE_ENV === 'development';
+const { ipcRenderer } = electron;
+
+const IS_DEV = process.env.NODE_ENV === "development";
 
 Vue.use(VueProgress);
 
@@ -69,21 +73,40 @@ const app = new Vue({
   i18n,
   mounted() {
     // Prevent blank screen in Electron builds
-    this.$router.push({ name: 'home' });
+    // this.$router.push({ name: 'home' });
+
+    const that = this;
+
+    ipcRenderer.on(UNAUTHORIZED, message => {
+      console.log(UNAUTHORIZED, message);
+
+      if (message && message.reason) {
+        that.$bvModal.msgBoxOk(message.reason, {
+          title: "Authorization failed",
+          size: "sm",
+          okVariant: "outline-secondary",
+          id: "auth-error",
+          headerClass: "p-2 border-bottom-0 m-auto",
+          bodyClass: "text-center",
+          footerClass: "m-auto border-0",
+          centered: true
+        });
+      }
+    });
 
     if (IS_DEV) {
       // require('devtron').install();
     }
   },
-  render: h => h(App),
-}).$mount('#app');
+  render: h => h(App)
+}).$mount("#app");
+
 window.app = app;
 
 if (IS_DEV) {
-  window.require('devtron').install();
+  window.require("devtron").install();
 }
 
-const { ipcRenderer } = electron;
 // Save is restored on app load and saved before quitting
 let state;
 
@@ -99,8 +122,8 @@ function getSavedUserState() {
     vue: {
       route: {
         name: app.$route.name,
-        params: app.$route.params,
-      },
+        params: app.$route.params
+      }
     },
     torrents: vueTorrents.map(t => ({
       gameId: t.gameId,
@@ -109,11 +132,11 @@ function getSavedUserState() {
       path: t.path,
       state: t.state,
       torrentFileName: t.torrentFileName,
-      torrentURL: t.torrentURL,
-    })),
+      torrentURL: t.torrentURL
+    }))
   };
-  console.log('saved state=', result);
-  console.log('vue state', app.$store.state);
+  console.log("saved state=", result);
+  console.log("vue state", app.$store.state);
   return result;
 }
 
@@ -169,12 +192,12 @@ const dispatchHandlers = {
       State.saveUserImmediate(username, getSavedUserState());
     }
   },
-  error: (err) => {
+  error: err => {
     console.error(err.stack || err);
   },
-  [UNCAUGHT_ERROR]: (err) => {
-    console.error('Uncaught error', err.stack || err);
-  },
+  [UNCAUGHT_ERROR]: err => {
+    console.error("Uncaught error", err.stack || err);
+  }
 };
 
 function dispatch(action, ...args) {
@@ -184,26 +207,26 @@ function dispatch(action, ...args) {
 }
 
 function setupIpc() {
-  ipcRenderer.on('wt-infohash', (e, torrentKey, infoHash) => {
-    console.log('wt-metadata', torrentKey, infoHash);
+  ipcRenderer.on("wt-infohash", (e, torrentKey, infoHash) => {
+    console.log("wt-metadata", torrentKey, infoHash);
     const { getters, dispatch } = app.$store;
     const { findTorrentByInfoHash } = getters;
     const existingTorrent = findTorrentByInfoHash(infoHash);
     if (existingTorrent && existingTorrent.torrentKey !== torrentKey) {
-      ipcRenderer.send('wt-stop-torrenting', infoHash);
-      return dispatch('error', 'Cannot add duplicate torrent');
+      ipcRenderer.send("wt-stop-torrenting", infoHash);
+      return dispatch("error", "Cannot add duplicate torrent");
     }
     dispatch({
       type: UPDATE_TORRENT_INFOHASH,
       payload: {
         torrentKey,
-        infoHash,
-      },
+        infoHash
+      }
     });
   });
 
-  ipcRenderer.on('wt-metadata', (e, torrentKey, torrentInfo) => {
-    console.log('wt-metadata', torrentKey, torrentInfo);
+  ipcRenderer.on("wt-metadata", (e, torrentKey, torrentInfo) => {
+    console.log("wt-metadata", torrentKey, torrentInfo);
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const torrent = findTorrentByKey(torrentKey);
@@ -212,20 +235,20 @@ function setupIpc() {
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
-          state: 'downloading',
-          path: torrentInfo.path,
-        },
+          state: "downloading",
+          path: torrentInfo.path
+        }
       });
 
       // Save the .torrent file, if it hasn't been saved already
       if (!torrent.torrentFileName) {
-        ipcRenderer.send('wt-save-torrent-file', torrentKey);
+        ipcRenderer.send("wt-save-torrent-file", torrentKey);
       }
     }
   });
 
-  ipcRenderer.on('wt-file-saved', (e, torrentKey, torrentFileName) => {
-    console.log('torrent file saved %s: %s', torrentKey, torrentFileName);
+  ipcRenderer.on("wt-file-saved", (e, torrentKey, torrentFileName) => {
+    console.log("torrent file saved %s: %s", torrentKey, torrentFileName);
 
     const { getters } = app.$store;
     const { findTorrentByKey } = getters;
@@ -235,15 +258,15 @@ function setupIpc() {
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
-          torrentFileName,
-        },
+          torrentFileName
+        }
       });
       dispatch(STATE_SAVE);
     }
   });
 
-  ipcRenderer.on('wt-progress', (e, progressInfo) => {
-    progressInfo.torrents.forEach((p) => {
+  ipcRenderer.on("wt-progress", (e, progressInfo) => {
+    progressInfo.torrents.forEach(p => {
       const { torrentKey } = p;
       const { getters, dispatch } = app.$store;
       const { findTorrentByKey } = getters;
@@ -256,82 +279,82 @@ function setupIpc() {
             type: UPDATE_TORRENT,
             payload: {
               torrentKey,
-              downloaded: false,
-            },
+              downloaded: false
+            }
           });
         }
         const patch = {
           torrentKey,
-          progress: p,
+          progress: p
         };
         dispatch({
           type: UPDATE_TORRENT_PROGRESS,
-          payload: patch,
+          payload: patch
         });
       }
     });
   });
 
-  ipcRenderer.on('wt-done', (e, torrentKey, torrentInfo) => {
-    console.log('wt-done', torrentKey, torrentInfo);
+  ipcRenderer.on("wt-done", (e, torrentKey, torrentInfo) => {
+    console.log("wt-done", torrentKey, torrentInfo);
     const { getters, dispatch } = app.$store;
     const { findTorrentByKey } = getters;
     const { files } = torrentInfo;
     const torrent = findTorrentByKey(torrentKey);
     // console.log('wt-done', torrentKey, torrent);
     if (torrent) {
-      console.log('wt-done START SEEDING');
+      console.log("wt-done START SEEDING");
       dispatch({
         type: UPDATE_TORRENT,
         payload: {
           torrentKey,
           downloaded: true,
-          state: 'seeding',
-          files,
-        },
+          state: "seeding",
+          files
+        }
       });
     }
 
     if (torrentInfo.bytesReceived > 0) {
-      console.log('wt-done TORRENT_DOWNLOADED');
+      console.log("wt-done TORRENT_DOWNLOADED");
       dispatch({
         type: TORRENT_DOWNLOADED,
         payload: {
-          torrentKey,
-        },
+          torrentKey
+        }
       });
 
       // Autorun unzip
       dispatch(UNARCHIVE_GAME, {
-        gameId: torrent.gameId,
+        gameId: torrent.gameId
       });
       // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
     }
   });
 
   ipcRenderer.on(UNZIP_GAME_OK, (e, gameId) => {
-    console.log('UNARCHIVE_OK', gameId);
+    console.log("UNARCHIVE_OK", gameId);
     const { dispatch } = app.$store;
     dispatch({
       type: UNARCHIVE_OK,
-      payload: { gameId },
+      payload: { gameId }
     });
   });
   ipcRenderer.on(UNZIP_GAME_FAIL, (e, gameId) => {
-    console.log('UNARCHIVE_FAIL', gameId);
+    console.log("UNARCHIVE_FAIL", gameId);
     const { dispatch } = app.$store;
     dispatch({
       type: UNARCHIVE_FAIL,
-      payload: { gameId },
+      payload: { gameId }
     });
   });
 
-  ipcRenderer.on('wt-warning', (e, torrentKey, message) => {
+  ipcRenderer.on("wt-warning", (e, torrentKey, message) => {
     console.warn(`torrentKey=${torrentKey}, msg: ${message}`);
   });
 
-  ipcRenderer.on('wt-error', (e, torrentKey, message) => {
-    console.error('wt-error', torrentKey, message);
+  ipcRenderer.on("wt-error", (e, torrentKey, message) => {
+    console.error("wt-error", torrentKey, message);
     // const torrent = store.getters.findTorrentByKey(torrentKey);
     // const { state } = torrent;
     const { dispatch } = app.$store;
@@ -339,22 +362,22 @@ function setupIpc() {
       type: UPDATE_TORRENT,
       payload: {
         torrentKey,
-        state: 'error',
-        errorMessage: message,
-      },
+        state: "error",
+        errorMessage: message
+      }
     });
   });
 
-  ipcRenderer.on('dispatch', (e, ...args) => dispatch(...args));
-  State.on('stateSaved', () => ipcRenderer.send('stateSaved'));
+  ipcRenderer.on("dispatch", (e, ...args) => dispatch(...args));
+  State.on("stateSaved", () => ipcRenderer.send("stateSaved"));
 }
 
 setupIpc();
 
 // Remove all torrents to reset webtorrent state (fixes hot-reload issues because of desynchronization)
 // FIXME: sometimes it finishes after load state
-console.log('SHOULD (DONE) wt-reset');
-ipcRenderer.send('wt-reset');
+console.log("SHOULD (DONE) wt-reset");
+ipcRenderer.send("wt-reset");
 
 // ipcRenderer.once(AUTHORIZED, () => {
 //   ipcRenderer.send('wt-reset');
