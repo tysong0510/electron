@@ -1,11 +1,11 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 // import { promisify } from 'util';
 // import * as ApplicationConfigFactory from 'application-config';
-import electron from 'electron';
+import electron from "electron";
 // import config from './config';
-import * as fs from 'fs';
-import path from 'path';
-import * as config from './config';
+import * as fs from "fs";
+import path from "path";
+import * as config from "./config";
 
 const { readFileSync, writeFileSync, renameSync } = fs;
 // ['readFile', 'writeFile', 'rename'].forEach(name => { fs[`${name}Async`] = promisify(fs[name]) })
@@ -22,7 +22,7 @@ const SAVE_DEBOUNCE_INTERVAL = 1000;
 async function createNewAppState() {
   return {
     // To allow migrations in future
-    version: config.APP_VERSION,
+    version: config.APP_VERSION
   };
 }
 
@@ -37,7 +37,7 @@ async function createNewUserState(userId) {
     torrents: [],
     torrentsToResume: [],
     // To allow migrations in future
-    version: config.APP_VERSION,
+    version: config.APP_VERSION
   };
 }
 
@@ -46,23 +46,23 @@ async function applyLoadedUserState(userId, state) {
   return state;
 }
 
-const appSettingsDir = (electron.app || electron.remote.app).getPath('userData');
-const appSettingsFile = path.join(appSettingsDir, 'config.json');
+const appSettingsDir = (electron.app || electron.remote.app).getPath("userData");
+const appSettingsFile = path.join(appSettingsDir, "config.json");
 
 function getUserConfigPath(userId) {
-  return path.join(appSettingsDir, 'voxpop', userId, 'config.json');
+  return path.join(appSettingsDir, "voxpop", userId, "config.json");
 }
 
 async function readConfigFile(configPath) {
   let raw;
   let result;
   try {
-    raw = readFileSync(configPath, 'utf8');
+    raw = readFileSync(configPath, "utf8");
   } catch (err) {
-    if (err.code !== 'ENOENT') {
+    if (err.code !== "ENOENT") {
       throw err;
     }
-    raw = '{}';
+    raw = "{}";
   }
   result = JSON.parse(raw);
 
@@ -85,8 +85,12 @@ async function readConfigFile(configPath) {
 // }
 
 async function writeConfigFile(configPath, data) {
-  const tempFilePath = configPath + Math.random().toString().substr(2)
-    + Date.now().toString();
+  const tempFilePath =
+    configPath +
+    Math.random()
+      .toString()
+      .substr(2) +
+    Date.now().toString();
   writeFileSync(tempFilePath, JSON.stringify(data, void 0, 2));
   renameSync(tempFilePath, configPath);
 }
@@ -99,16 +103,16 @@ State.load = async function load() {
     result = await readConfigFile(appSettingsFile);
     // result = await appConfig.readAsync();
     if (!result.version) {
-      throw new Error('Invalid state file');
+      throw new Error("Invalid state file");
     }
   } catch (err) {
     isNewState = true;
     result = await createNewAppState();
-    console.warn('new app state', result);
+    console.warn("new app state", result);
   }
   if (!isNewState) {
     result = await applyLoadedAppState(result);
-    console.warn('loaded app state', result);
+    console.warn("loaded app state", result);
   }
 
   return result;
@@ -116,7 +120,7 @@ State.load = async function load() {
 
 State.save = async function save(state) {
   // Perf optimization: Lazy-require debounce (and it's dependencies)
-  const debounce = require('debounce');
+  const debounce = require("debounce");
   // After first State.save() invokation, future calls go straight to the
   // debounced function
   State.save = debounce(State.saveImmediate, SAVE_DEBOUNCE_INTERVAL);
@@ -127,12 +131,12 @@ State.saveImmediate = async function saveImmediate(state) {
   try {
     const data = {
       ...state,
-      version: config.APP_VERSION,
+      version: config.APP_VERSION
     };
     // await appConfig.writeAsync(copy);
     await writeConfigFile(appSettingsFile, data);
-    console.warn('saved app state', data);
-    State.emit('stateSaved');
+    console.warn("saved app state", data);
+    State.emit("stateSaved");
   } catch (err) {
     console.error(err);
   }
@@ -145,16 +149,16 @@ State.loadUser = async function loadUser(userId) {
     result = await readConfigFile(getUserConfigPath(userId));
     // result = await appConfig.readAsync();
     if (!result.version) {
-      throw new Error('Invalid state file');
+      throw new Error("Invalid state file");
     }
   } catch (err) {
     isNewState = true;
     result = await createNewUserState(userId);
-    console.warn('new user state', userId, result);
+    console.warn("new user state", userId, result);
   }
   if (!isNewState) {
     result = await applyLoadedUserState(userId, result);
-    console.warn('loaded user state', userId, result);
+    console.warn("loaded user state", userId, result);
   }
 
   return result;
@@ -162,7 +166,7 @@ State.loadUser = async function loadUser(userId) {
 
 State.saveUser = async function save(userId, state) {
   // Perf optimization: Lazy-require debounce (and it's dependencies)
-  const debounce = require('debounce');
+  const debounce = require("debounce");
   // After first State.save() invokation, future calls go straight to the
   // debounced function
   State.saveUser = debounce(State.saveUserImmediate, SAVE_DEBOUNCE_INTERVAL);
@@ -174,11 +178,11 @@ State.saveUserImmediate = async function saveImmediate(userId, state) {
     const data = {
       ...state,
       userId,
-      version: config.APP_VERSION,
+      version: config.APP_VERSION
     };
     await writeConfigFile(getUserConfigPath(userId), data);
-    console.warn('saved user state', userId, data);
-    State.emit('userStateSaved', { userId });
+    console.warn("saved user state", userId, data);
+    State.emit("userStateSaved", { userId });
   } catch (err) {
     console.error(err);
   }

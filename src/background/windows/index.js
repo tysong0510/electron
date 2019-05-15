@@ -1,3 +1,3 @@
-import * as webtorrent from './webtorrent';
+import * as webtorrent from "./webtorrent";
 
 export { webtorrent };

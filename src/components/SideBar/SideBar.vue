@@ -1,34 +1,19 @@
 <template>
-  <div
-    class="sidebar"
-    :data="backgroundColor"
-  >
+  <div class="sidebar" :data="backgroundColor">
     <!--
             Tip 1: you can change the color of the sidebar's background using: data-background-color="white | black | darkblue"
             Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
         -->
     <!-- -->
-    <div
-      id="style-3"
-      class="sidebar-wrapper"
-    >
+    <div id="style-3" class="sidebar-wrapper">
       <div class="logo">
-        <span
-          aria-label="sidebar logo"
-          class="simple-text"
-        >VOXPOP</span>
+        <span aria-label="sidebar logo" class="simple-text">VOXPOP</span>
       </div>
 
       <ul class="nav">
         <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
         <slot name="links">
-          <sidebar-link
-            v-for="(link,index) in sidebarLinks"
-            :key="index"
-            :to="link.path"
-            :name="link.name"
-            :icon="link.icon"
-          />
+          <sidebar-link v-for="(link, index) in sidebarLinks" :key="index" :to="link.path" :name="link.name" :icon="link.icon" />
         </slot>
       </ul>
     </div>
@@ -36,45 +21,39 @@
 </template>
 
 <script>
-import SidebarLink from './SidebarLink.vue';
+import SidebarLink from "./SidebarLink.vue";
 
 export default {
   components: {
-    SidebarLink,
+    SidebarLink
   },
   props: {
     backgroundColor: {
       type: String,
-      default: 'vue',
+      default: "vue"
     },
     activeColor: {
       type: String,
-      default: 'success',
-      validator: (value) => {
-        const acceptedValues = [
-          'primary',
-          'info',
-          'success',
-          'warning',
-          'danger',
-        ];
+      default: "success",
+      validator: value => {
+        const acceptedValues = ["primary", "info", "success", "warning", "danger"];
         return acceptedValues.indexOf(value) !== -1;
-      },
+      }
     },
     sidebarLinks: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     autoClose: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   provide() {
     return {
       autoClose: this.autoClose,
       addLink: this.addLink,
-      removeLink: this.removeLink,
+      removeLink: this.removeLink
     };
   },
   data() {
@@ -84,26 +63,28 @@ export default {
       windowWidth: 0,
       isWindows: false,
       hasAutoHeight: false,
-      links: [],
+      links: []
     };
   },
   computed: {
     /**
-       * Styles to animate the arrow near the current active sidebar link
-       * @returns {{transform: string}}
-       */
+     * Styles to animate the arrow near the current active sidebar link
+     * @returns {{transform: string}}
+     */
     arrowMovePx() {
       return this.linkHeight * this.activeLinkIndex;
     },
     shortTitle() {
-      return this.title.split(' ')
+      return this.title
+        .split(" ")
         .map(word => word.charAt(0))
-        .join('').toUpperCase();
-    },
+        .join("")
+        .toUpperCase();
+    }
   },
   mounted() {
-    this.$watch('$route', this.findActiveLink, {
-      immediate: true,
+    this.$watch("$route", this.findActiveLink, {
+      immediate: true
     });
   },
   methods: {
@@ -123,7 +104,7 @@ export default {
       if (index > -1) {
         this.links.splice(index, 1);
       }
-    },
-  },
+    }
+  }
 };
 </script>

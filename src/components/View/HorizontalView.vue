@@ -5,20 +5,14 @@
         <b-row>
           <slot name="title">
             <b-col>
-              <component
-                :is="titleTag"
-                :class="titleClass"
-              >
+              <component :is="titleTag" :class="titleClass">
                 {{ title }}
               </component>
             </b-col>
           </slot>
           <slot name="view-all">
             <b-col>
-              <b-link
-                :href="viewAllUrl"
-                class="float-right view-all"
-              >
+              <b-link :href="viewAllUrl" class="float-right view-all">
                 {{ viewAllText }}
               </b-link>
             </b-col>
@@ -35,44 +29,42 @@
 
 <script>
 export default {
-  name: 'HorizontalView',
+  name: "HorizontalView",
   props: {
     title: {
       type: String,
-      default: '',
+      default: ""
     },
     titleTag: {
       type: String,
-      default: 'h3',
+      default: "h3"
     },
     titleClass: {
       type: String,
-      default: '',
+      default: ""
     },
     viewAllTo: {
       type: [String, Object],
-      required: true,
+      required: true
     },
     viewAllText: {
       type: String,
-      default: 'View all',
-    },
+      default: "View all"
+    }
   },
   computed: {
     viewAllUrl: {
       get() {
         return this.$router.resolve(this.viewAllTo).href;
-      },
-    },
+      }
+    }
   },
-  methods: {
-
-  },
+  methods: {}
 };
 </script>
 
 <style scoped lang="scss">
-  .view-all {
-    color: #696E80;
-  }
+.view-all {
+  color: #696e80;
+}
 </style>

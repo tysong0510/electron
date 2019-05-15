@@ -7,7 +7,7 @@ export default {
      * @param locales
      * @return {string}
      */
-    currency(value, currency = 'USD', locales = 'en-US') {
+    currency(value, currency = "USD", locales = "en-US") {
       /**
        * Convert value to float
        * @type {number}
@@ -18,7 +18,7 @@ export default {
        * If price value invalid than return free
        * @type {string}
        */
-      const defaultPrice = 'FREE';
+      const defaultPrice = "FREE";
 
       /**
        * Parse not valid price
@@ -30,9 +30,9 @@ export default {
       /**
        * @type {Intl.NumberFormat}
        */
-      const formatter = Intl.NumberFormat(locales, { style: 'currency', currency });
+      const formatter = Intl.NumberFormat(locales, { style: "currency", currency });
 
       return formatter.format(value);
-    },
-  },
+    }
+  }
 };

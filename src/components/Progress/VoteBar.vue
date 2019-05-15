@@ -1,22 +1,8 @@
 <template>
-  <b-row
-    class="vote-bar"
-    v-bind="$attrs"
-    :title="nVote.toFixed(1)"
-  >
-    <b-col
-      class="rating"
-      tag="span"
-    >
-      <i
-        v-for="(value, index) in progressData"
-        :key="index"
-        :class="{star: true}"
-      >
-        <i
-          class="progress"
-          :style="`width: ${value}%;`"
-        />
+  <b-row class="vote-bar" v-bind="$attrs" :title="nVote.toFixed(1)">
+    <b-col class="rating" tag="span">
+      <i v-for="(value, index) in progressData" :key="index" :class="{ star: true }">
+        <i class="progress" :style="`width: ${value}%;`" />
       </i>
     </b-col>
   </b-row>
@@ -24,25 +10,25 @@
 
 <script>
 export default {
-  name: 'VoteBar',
+  name: "VoteBar",
   props: {
     min: {
       type: Number,
-      default: 0,
+      default: 0
     },
     max: {
       type: Number,
-      default: 5,
+      default: 5
     },
     vote: {
       required: true,
-      type: [Number, String],
-    },
+      type: [Number, String]
+    }
   },
   data() {
     return {
       nMin: 0,
-      nMax: 5,
+      nMax: 5
     };
   },
   computed: {
@@ -56,7 +42,7 @@ export default {
         } else if (this.nVote < this.nMin + step * (i - 1)) {
           result.push(0);
         } else {
-          result.push(Math.floor((this.nVote - (this.nMin + (step * (i - 1)))) * 100));
+          result.push(Math.floor((this.nVote - (this.nMin + step * (i - 1))) * 100));
         }
       }
 
@@ -68,8 +54,8 @@ export default {
       },
       get() {
         return Number.parseFloat(this.vote);
-      },
-    },
+      }
+    }
   },
   created() {
     this.normalizeVote();
@@ -92,52 +78,52 @@ export default {
       } else if (this.nVote > this.nMax) {
         this.nVote = this.nMax;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped lang="scss">
-  $margin: .25em;
-  $after-size: 120%;
-  $size: 1em;
+$margin: 0.25em;
+$after-size: 120%;
+$size: 1em;
 
-  .vote-bar {
+.vote-bar {
+  margin: auto 0;
+  padding: 0;
+  width: calc(#{$size} * 5 + #{$margin} * 10);
+
+  .col {
     margin: auto 0;
     padding: 0;
-    width: calc(#{$size} * 5 + #{$margin} * 10);
-
-    .col {
-      margin: auto 0;
-      padding: 0;
-    }
   }
+}
 
-  .star {
-    background-image: url("../../assets/icons/star-empty.svg");
+.star {
+  background-image: url("../../assets/icons/star-empty.svg");
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  width: $size;
+  height: $size;
+  margin: 0 $margin;
+  display: inline-flex;
+  position: relative;
+
+  /*&.full {*/
+  /*background-image: none;*/
+  /*}*/
+
+  .progress {
+    background-image: url("../../assets/icons/star.svg");
     background-color: transparent;
     background-size: cover;
-    background-position: center;
-    width: $size;
-    height: $size;
-    margin: 0 $margin;
-    display: inline-flex;
-    position: relative;
+    height: 100%;
+    display: block;
+    position: absolute;
+  }
 
-    /*&.full {*/
-      /*background-image: none;*/
-    /*}*/
-
-    .progress {
-      background-image: url("../../assets/icons/star.svg");
-      background-color: transparent;
-      background-size: cover;
-      height: 100%;
-      display: block;
-      position: absolute;
-    }
-
-    /*&:after {
+  /*&:after {
       content: "";
       display: block;
       position: absolute;
@@ -149,5 +135,5 @@ export default {
       background-size: cover;
       z-index: -1;
     }*/
-  }
+}
 </style>

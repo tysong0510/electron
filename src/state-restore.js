@@ -1,5 +1,5 @@
-import { NEXT_TORRENT_KEY_USED, ADD_TORRENT } from './store/mutation-types';
-import { START_DOWNLOAD_GAME } from './store/actions-types';
+import { NEXT_TORRENT_KEY_USED, ADD_TORRENT } from "./store/mutation-types";
+import { START_DOWNLOAD_GAME } from "./store/actions-types";
 
 export async function restoreStoreFromSavedUserState(store, state) {
   // Improve Dev Exp: Restore last page you worked in
@@ -8,15 +8,15 @@ export async function restoreStoreFromSavedUserState(store, state) {
   // }
   const { torrents = [] } = state;
   const { rootState: storeState, dispatch, getters } = store;
-  console.log('restoreStoreFromSavedUserState() main renderer state', state);
+  console.log("restoreStoreFromSavedUserState() main renderer state", state);
   console.log(`isAuthenticated ${getters.IS_LOGGED_IN}`);
   // if (getters['IS_LOGGED_IN']) {
   // const user = getters[USER];
   // console.log(`user ${user}`);
   const promises = [];
-  torrents.forEach((t) => {
+  torrents.forEach(t => {
     if (!t || !t.infoHash) {
-      console.warn('Badly saved torrent', t);
+      console.warn("Badly saved torrent", t);
       return;
     }
     const torrentKey = storeState.nextTorrentKey;
@@ -26,19 +26,21 @@ export async function restoreStoreFromSavedUserState(store, state) {
       ...t,
       torrentKey,
       // Force pause
-      state: 'paused',
+      state: "paused"
     };
-    console.log('restoring torrent state', torrent, {
+    console.log("restoring torrent state", torrent, {
       dwnld: t.downloaded,
-      notpaused: originalState !== 'paused',
-      start: t.downloaded || originalState !== 'paused',
+      notpaused: originalState !== "paused",
+      start: t.downloaded || originalState !== "paused"
     });
-    promises.push(dispatch({
-      type: ADD_TORRENT,
-      payload: torrent,
-    }));
-    if (t.downloaded || originalState !== 'paused') {
-      console.log('dispatching start download', torrent.gameId);
+    promises.push(
+      dispatch({
+        type: ADD_TORRENT,
+        payload: torrent
+      })
+    );
+    if (t.downloaded || originalState !== "paused") {
+      console.log("dispatching start download", torrent.gameId);
       // seed downloaded or download not paused
       promises.push(dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId }));
     }

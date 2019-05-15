@@ -1,5 +1,5 @@
-import Vapi from 'vuex-rest-api';
-import { baseURL } from '../apiConfig';
+import Vapi from "vuex-rest-api";
+import { baseURL } from "../apiConfig";
 
 /**
  * Games store from api
@@ -7,26 +7,26 @@ import { baseURL } from '../apiConfig';
 export default new Vapi({
   baseURL,
   state: {
-    userFilesStatistic: [],
-  },
+    userFilesStatistic: []
+  }
 })
   .get({
-    action: 'getUserFilesStatistic',
-    property: 'userFilesStatistic',
-    path: '/users/games/stats',
+    action: "getUserFilesStatistic",
+    property: "userFilesStatistic",
+    path: "/users/games/stats"
   })
   .get({
-    action: 'fixStatistics',
-    path: '/statistics/fix'
+    action: "fixStatistics",
+    path: "/statistics/fix"
   })
   .get({
-    action: 'getGamesStatistics',
-    property: 'gamesStatistics',
-    path: '/user-game-statistics/last',
+    action: "getGamesStatistics",
+    property: "gamesStatistics",
+    path: "/user-game-statistics/last"
   })
   .get({
-    action: 'getUserGames',
-    property: 'userGames',
-    path: '/users/games',
+    action: "getUserGames",
+    property: "userGames",
+    path: "/users/games"
   })
   .getStore();

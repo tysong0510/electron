@@ -1,5 +1,5 @@
-import { mapActions, mapState } from 'vuex';
-import { baseURL } from '../apiConfig';
+import { mapActions, mapState } from "vuex";
+import { baseURL } from "../apiConfig";
 
 const sizeUnits = ["B", "KB", "MB", "GB", "TB"];
 
@@ -11,7 +11,7 @@ export default {
 
       let resultVal = parsedVal;
 
-      while (resultVal > 1024 && (iteration + 1 < sizeUnits.length)) {
+      while (resultVal > 1024 && iteration + 1 < sizeUnits.length) {
         resultVal = resultVal / 1024;
         iteration += 1;
       }
@@ -34,18 +34,18 @@ export default {
       featuredGames: state => state.featuredGames,
       topGames: state => state.topGames,
       pending: state => state.pending,
-      error: state => state.error,
-    }),
+      error: state => state.error
+    })
   },
   watch: {
-    'pending.games': function () {
+    "pending.games": function() {
       if (!this.pending.games) {
         this.getData(this.currentStore);
       }
-    },
+    }
   },
   methods: {
-    ...mapActions(['getGames', 'getFeatured', 'getTopGames', 'getUserGames']),
+    ...mapActions(["getGames", "getFeatured", "getTopGames", "getUserGames"]),
     /**
      * Sort store by options
      *
@@ -62,7 +62,7 @@ export default {
        */
       if (!sort) {
         if (sort === undefined) {
-          if (store.hasOwnProperty('sort')) {
+          if (store.hasOwnProperty("sort")) {
             if (!(store.sort === undefined || store.sort)) {
               return;
             }
@@ -73,24 +73,24 @@ export default {
       }
 
       if (!byField) {
-        if (store.hasOwnProperty('byField') && store.byField) {
+        if (store.hasOwnProperty("byField") && store.byField) {
           byField = store.byField;
         } else {
-          byField = 'rating';
+          byField = "rating";
         }
       }
 
       if (!order) {
-        order = store.order || 'DESC';
+        order = store.order || "DESC";
       }
 
       let orderVector = 0;
 
       switch (order) {
-        case 'ASC':
+        case "ASC":
           orderVector = 1;
           break;
-        case 'DESC':
+        case "DESC":
         default:
           orderVector = -1;
       }
@@ -99,20 +99,20 @@ export default {
         for (const key in store.content) {
           if (store.content.hasOwnProperty(key)) {
             if (Array.isArray(store.content[key])) {
-              store.content[key].sort((a, b) => (a[byField] - b[byField]) * (orderVector));
+              store.content[key].sort((a, b) => (a[byField] - b[byField]) * orderVector);
             }
           }
         }
       } else {
-        store.content.sort((a, b) => (a[byField] - b[byField]) * (orderVector));
+        store.content.sort((a, b) => (a[byField] - b[byField]) * orderVector);
       }
     },
-    getImagePath(game, type = 'main') {
+    getImagePath(game, type = "main") {
       if (game.images) {
         switch (type) {
-          case 'main':
+          case "main":
             return game.images.main ? `${baseURL}/apps/${game.id}/${game.images.main}` : null;
-          case 'slides':
+          case "slides":
             if (game.images.slides || game.images.images) {
               const slides = [];
 
@@ -127,6 +127,6 @@ export default {
       } else {
         return null;
       }
-    },
-  },
+    }
+  }
 };

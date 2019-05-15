@@ -1,4 +1,4 @@
-import * as dateFns from 'date-fns';
+import * as dateFns from "date-fns";
 
 export default {
   filters: {
@@ -9,14 +9,14 @@ export default {
      * @return {string}
      */
     distanceInWordsToNow(date, options) {
-      if (!date || isNaN((new Date(date)).valueOf())) {
-        return 'never';
+      if (!date || isNaN(new Date(date).valueOf())) {
+        return "never";
       }
 
       return dateFns.distanceInWordsToNow(date, options);
     },
-    dateFormat(date, format = 'DD MMM YYYY', options = {}) {
+    dateFormat(date, format = "DD MMM YYYY", options = {}) {
       return dateFns.format(date, format, options);
-    },
-  },
+    }
+  }
 };

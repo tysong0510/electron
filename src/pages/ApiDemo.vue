@@ -1,11 +1,7 @@
 <template>
   <div>
     <ul>
-      <li
-        v-for="(game, index) in games"
-        :key="index"
-        @click="gameShow(game)"
-      >
+      <li v-for="(game, index) in games" :key="index" @click="gameShow(game)">
         {{ game }}
       </li>
     </ul>
@@ -16,26 +12,22 @@
       loading failed
     </p>
 
-    <b-modal
-      v-if="game || error.game"
-      v-model="modalShow"
-      :title="modalTitle"
-    >
+    <b-modal v-if="game || error.game" v-model="modalShow" :title="modalTitle">
       {{ game || error.game }}
     </b-modal>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
-import user from '../mixins/user';
+import { mapActions, mapState } from "vuex";
+import user from "../mixins/user";
 
 export default {
-  name: 'ApiDemo',
+  name: "ApiDemo",
   mixins: [user],
   data() {
     return {
-      modalShow: false,
+      modalShow: false
     };
   },
   computed: {
@@ -43,22 +35,19 @@ export default {
       games: state => state.games,
       game: state => state.game,
       pending: state => state.pending,
-      error: state => state.error,
+      error: state => state.error
     }),
     modalTitle: {
       get() {
-        return this.game ? this.game.title : 'Modal';
-      },
-    },
+        return this.game ? this.game.title : "Modal";
+      }
+    }
   },
   created() {
     this.getGames();
   },
   methods: {
-    ...mapActions([
-      'getGame',
-      'getGames',
-    ]),
+    ...mapActions(["getGame", "getGames"]),
     gameShow(game) {
       this.getGame({ params: game }).then(
         () => {
@@ -66,13 +55,11 @@ export default {
         },
         () => {
           this.modalShow = true;
-        },
+        }
       );
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

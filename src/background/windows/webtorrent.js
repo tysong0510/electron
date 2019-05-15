@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow } from "electron";
 
 let win = null;
 export function getInstance({ debug } = {}) {
@@ -6,7 +6,7 @@ export function getInstance({ debug } = {}) {
     return win;
   }
   win = new BrowserWindow({
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     backgroundThrottling: false, // do not throttle animations/timers when page is background
     center: true,
     fullscreen: false,
@@ -17,26 +17,26 @@ export function getInstance({ debug } = {}) {
     resizable: false,
     show: false,
     skipTaskbar: true,
-    title: 'webtorrent-hidden-window',
+    title: "webtorrent-hidden-window",
     useContentSize: true,
-    width: 150,
+    width: 150
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}webtorrent`);
-    if (!process.env.IS_TEST) win.webContents.openDevTools({ mode: 'detach' });
+    if (!process.env.IS_TEST) win.webContents.openDevTools({ mode: "detach" });
   } else {
     // createProtocol('app');
     // Load the index.html when not in development
-    win.loadURL('app://./webtorrent.html');
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG === 'true' || process.argv.includes('--debug') || debug) {
-      win.webContents.openDevTools({ mode: 'detach' });
+    win.loadURL("app://./webtorrent.html");
+    if (process.env.NODE_ENV === "development" || process.env.DEBUG === "true" || process.argv.includes("--debug") || debug) {
+      win.webContents.openDevTools({ mode: "detach" });
     }
   }
 
   // Prevent killing the WebTorrent process
-  win.on('close', (e) => {
+  win.on("close", e => {
     if (app.isQuitting) {
       return;
     }
@@ -62,6 +62,6 @@ export function toggleDevTools() {
     win.webContents.closeDevTools();
     win.hide();
   } else {
-    win.webContents.openDevTools({ mode: 'detach' });
+    win.webContents.openDevTools({ mode: "detach" });
   }
 }
