@@ -547,8 +547,8 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfGameFullFirstDownloads,
-            "re-downloads": value.numberOfGameFullFirstDownloads + value.numberOfGameFullSecondaryDownloads
+            countUnique: value.numberOfDownloadedFirstGames || 0,
+            "re-downloads": value.numberOfDownloadedAllGames || 0
           };
         });
       }
@@ -558,8 +558,8 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfBytesOnlyFirstDownloads,
-            "re-downloads": value.numberOfBytesAllDownloads
+            countUnique: value.numberOfDownloadedFirstBytes || 0,
+            "re-downloads": value.numberOfDownloadedAllBytes || 0
           };
         });
       }
@@ -569,9 +569,9 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfGameFullFirstUploads,
-            usersCount: value.numberOfGameFullFirstUploads + value.numberOfGamePartialFirstUploads,
-            "re-downloads": value.numberOfGameFullFirstUploads + value.numberOfGameFullSecondaryUploads
+            countUnique: value.numberOfUploadedFirstGames || 0,
+            usersCount: value.numberOfUploadedFirstGames || 0,
+            "re-downloads": value.numberOfUploadedAllGames || 0
           };
         });
       }
@@ -581,9 +581,9 @@ export default {
         return (this.gamesStatistics || []).map(value => {
           return {
             game: value.game,
-            countUnique: value.numberOfBytesPartialFirstUploads + value.numberOfBytesFullFirstUploads,
-            usersCount: value.numberOfGameFullFirstUploads + value.numberOfGamePartialFirstUploads,
-            "re-downloads": value.numberOfBytesAllUploads
+            countUnique: value.numberOfUploadedFirstBytes || 0,
+            usersCount: value.numberOfUploadedFirstGames || 0,
+            "re-downloads": value.numberOfUploadedAllBytes || 0
           };
         });
       }
