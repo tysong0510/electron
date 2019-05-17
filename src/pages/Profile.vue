@@ -83,13 +83,16 @@
               File Statistics
             </h4>
           </b-col>
-        </b-row>
-        <b-row v-if="pending.userFilesStatistic && !statistic">
-          <b-col>
-            Loading...
+          <b-col cols="1" class="float-right">
+            <b-button class="update-button float-right" title="Update statistics" @click="fixAndGetStats"></b-button>
           </b-col>
         </b-row>
-        <b-row v-else>
+        <!--        <b-row v-if="pending.userFilesStatistic && !statistic">-->
+        <!--          <b-col>-->
+        <!--            Loading...-->
+        <!--          </b-col>-->
+        <!--        </b-row>-->
+        <b-row>
           <b-col>
             <!--            <b-table :fields="statisticFields" :items="statistic" show-empty class="text-white statistic-table"-->
             <!--                     striped @row-clicked="rowStatisticDetailsToggle"-->
@@ -440,13 +443,13 @@ export default {
       masterGameStatsFields: [
         { key: "game", label: "Game" },
         { key: "countUnique", label: "Downloads by unique users" },
-        { key: "usersCount", label: "Users downloaded game" },
+        // { key: "usersCount", label: "Users downloaded game" },
         { key: "re-downloads", label: "With RE-downloads" }
       ],
       masterBytesStatsFields: [
         { key: "game", label: "Game" },
         { key: "countUnique", label: "Bytes by unique users" },
-        { key: "usersCount", label: "Users downloaded bytes" },
+        // { key: "usersCount", label: "Users downloaded bytes" },
         { key: "re-downloads", label: "With RE-downloads" }
       ],
       peerGameStatsFields: [
@@ -570,7 +573,7 @@ export default {
           return {
             game: value.game,
             countUnique: value.numberOfUploadedFirstGames || 0,
-            usersCount: value.numberOfUploadedFirstGames || 0,
+            // usersCount: value.numberOfUploadedFirstGames || 0,
             "re-downloads": value.numberOfUploadedAllGames || 0
           };
         });
@@ -582,7 +585,7 @@ export default {
           return {
             game: value.game,
             countUnique: value.numberOfUploadedFirstBytes || 0,
-            usersCount: value.numberOfUploadedFirstGames || 0,
+            // usersCount: value.numberOfUploadedFirstGames || 0,
             "re-downloads": value.numberOfUploadedAllBytes || 0
           };
         });
@@ -652,13 +655,13 @@ export default {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
     fixAndGetStats() {
       console.log("Fix and get stats");
-      // this.fixStatisticsPending = true;
+      this.fixStatisticsPending = true;
 
       // this.$store.dispatchPromise("fixStatistics").then((res) => {
       //   console.log(res);
-      this.fixStatisticsPending = false;
       this.$store.dispatchPromise("getGamesStatistics").then(res => {
-        console.log(res);
+        this.fixStatisticsPending = false;
+        console.log("getGamesStatistics", res);
       });
       // });
     },
@@ -688,6 +691,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "../assets/scss/partials/store";
+
+.update-button {
+  &:before {
+    content: "\21BB";
+  }
+}
 
 /deep/ .statistic-table > tbody > [role="row"]:not(.b-table-details) {
   cursor: pointer;
