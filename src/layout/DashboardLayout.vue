@@ -126,6 +126,12 @@ export default {
                 // class:''
             }
             */
+        },
+        {
+          href: "/logout",
+          title: "Logout",
+          icon: "icon icon-logout",
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
         }
       ],
       sidebarCollapsed: false
@@ -277,6 +283,10 @@ export default {
 
     .icon.icon-news:before {
       background-image: url("../assets/icons/news.svg");
+    }
+
+    .icon.icon-logout:before {
+      background-image: url("../assets/icons/logout.svg");
     }
 
     .icon:before {

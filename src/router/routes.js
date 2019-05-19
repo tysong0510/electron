@@ -8,6 +8,7 @@ const News = () => import(/* webpackChunkName: 'news' */ "@/pages/News.vue");
 const NewsDetails = () => import(/* webpackChunkName: 'newsDetails' */ "@/pages/NewsDetails.vue");
 const ProfileViewAll = () => import(/* webpackChunkName: 'profileViewAll' */ "@/pages/ProfileViewAll.vue");
 const ApiDemo = () => import(/* webpackChunkName: 'apiDemo' */ "@/pages/ApiDemo");
+const Logout = () => import(/* webpackChunkName: 'logout' */ "@/pages/Logout");
 
 const routes = [
   {
@@ -109,6 +110,11 @@ const routes = [
         component: ApiDemo
       }
     ]
+  },
+  {
+    path: "/logout",
+    name: "logout",
+    component: Logout
   }
 ];
 
