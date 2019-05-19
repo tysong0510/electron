@@ -81,24 +81,33 @@
                       placeholder="First Name"
                       type="text"
                     />
+                    <b-form-invalid-feedback :state="!validationErrors.firstName">
+                      {{ validationErrors.firstName }}
+                    </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Last Name" label-for="lastName" class="text-left">
                     <b-form-input id="lastName" v-model="lastName" name="lastName" required placeholder="Last Name" type="text" />
+                    <b-form-invalid-feedback :state="!validationErrors.lastName">
+                      {{ validationErrors.lastName }}
+                    </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Username" label-for="username" class="text-left">
                     <b-form-input id="username" v-model="username" name="username" required placeholder="Username" type="text" />
-                    <b-form-invalid-feedback :state="usernameValidation">
-                      This username is not available!
+                    <b-form-invalid-feedback :state="!validationErrors.username">
+                      {{ validationErrors.username }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Email" label-for="email" class="text-left">
                     <b-form-input id="email" v-model="email" name="email" required placeholder="Email" type="email" />
-                    <b-form-invalid-feedback :state="emailValidation">
-                      This email is taken!
+                    <b-form-invalid-feedback :state="!validationErrors.email">
+                      {{ validationErrors.email }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Password" label-for="password" class="text-left">
                     <b-form-input id="password" v-model="password" name="password" required placeholder="Password" type="password" />
+                    <b-form-invalid-feedback :state="!validationErrors.password">
+                      {{ validationErrors.password }}
+                    </b-form-invalid-feedback>
                   </b-form-group>
                 </b-form>
               </b-col>
@@ -148,6 +157,9 @@
                 >
                   <b-form-group label="Email" label-for="email" class="text-left">
                     <b-form-input id="email" ref="restore" v-model="email" required name="email" type="email" />
+                    <b-form-invalid-feedback :state="!validationErrors.email">
+                      {{ validationErrors.email }}
+                    </b-form-invalid-feedback>
                   </b-form-group>
                 </b-form>
               </b-col>
@@ -240,7 +252,8 @@ export default {
       rememberMe: false,
       loginValid: true,
       usernameValidation: true,
-      emailValidation: true
+      emailValidation: true,
+      validationErrors: {}
     };
   },
   computed: {
@@ -346,6 +359,10 @@ export default {
         .catch(err => {
           console.log(err);
 
+          if (res && res.data) {
+            this.validationErrors = res.data.userValidationResult || {};
+          }
+
           const res = err && err.response;
 
           if (res && res.status === 404) {
@@ -381,16 +398,20 @@ export default {
         .catch(err => {
           const res = err.response;
 
-          if (res.status === 500) {
-            const message = res.data && res.data.message;
-
-            this.usernameValidation = !/username/.test(message);
-            this.emailValidation = !/email/.test(message);
-
-            console.log("Incorrect username or password");
+          if (res && res.data) {
+            this.validationErrors = res.data.userValidationResult || {};
           }
 
-          console.log(err.response);
+          // if (res.status === 500) {
+          //   const message = res.data && res.data.message;
+          //
+          //   this.usernameValidation = !/username/.test(message);
+          //   this.emailValidation = !/email/.test(message);
+          //
+          //   console.log("Incorrect username or password");
+          // }
+          //
+          // console.log(err.response);
         });
     }
   }
