@@ -3,3 +3,6 @@ export const START_SEEDING = "START_SEEDING";
 export const PAUSE_DOWNLOAD_GAME = "PAUSE_DOWNLOAD_GAME";
 export const START_GAME = "START_GAME";
 export const UNARCHIVE_GAME = "UNARCHIVE_GAME";
+
+export const LOAD_NEWS = "LOAD_NEWS";
+export const LOAD_NEWS_ITEM = "LOAD_NEWS_ITEM";

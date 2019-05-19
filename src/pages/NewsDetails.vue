@@ -1,8 +1,11 @@
 <template>
-  <div>
-    <b-card v-if="news" no-body class="pb-3 mb-2 border-0">
+  <div :class="{ loading: pending }">
+    <b-row v-if="error" class="error">
+      <b-col>News with id "{{ id }}" not found {{ error }} {{ /* TODO print user friendly error message */ }}</b-col>
+    </b-row>
+    <b-card v-if="!pending && news" no-body class="pb-3 mb-2 border-0">
       <b-card-header class="border-0 d-inline-flex p-0">
-        <b-card-img :src="news.img" class="rounded-lg card-image" />
+        <b-card-img :src="getImagePath(news)" class="rounded-lg card-image" />
         <b-card-body>
           <b-card-title title-tag="h2" class="display-2 text-white" style="font-size: 2.25rem;">
             {{ news.title }}
@@ -13,8 +16,8 @@
         </b-card-body>
       </b-card-header>
       <b-card-body class="text-white pl-0">
-        <carousel v-if="news.slides" v-bind="carouselOptions" class="mt-4 mb-2">
-          <slide v-for="(slide, index) in news.slides" :key="'slide-' + index" class="pr-1 pl-1">
+        <carousel v-if="news.images && news.images.slides" v-bind="carouselOptions" class="mt-4 mb-2">
+          <slide v-for="(slide, index) in getImagePath(news, 'slides')" :key="'slide-' + index" class="pr-1 pl-1">
             <b-card :img-src="slide" class="no-border" no-body />
           </slide>
         </carousel>
@@ -29,9 +32,7 @@
               </b-col>
             </b-row>
           </template>
-          <template v-else>
-            {{ news.text }}
-          </template>
+          <div v-html="news.description"></div>
         </b-card-text>
       </b-card-body>
     </b-card>
@@ -44,6 +45,9 @@
 <script>
 import { Carousel, Slide } from "vue-carousel";
 import user from "../mixins/user";
+import news from "../mixins/news";
+import { mapActions, mapState } from "vuex";
+import { LOAD_NEWS_ITEM } from "../store/actions-types";
 
 const carouselOptions = {
   autoplay: true,
@@ -61,30 +65,42 @@ export default {
     Carousel,
     Slide
   },
-  mixins: [user],
-  data() {
-    return {
-      carouselOptions: null,
-      img:
-        "https://hb.imgix.net/e8d2f653d2d74a0aa26150fe7998ddfbf72674b1.jpg?auto=compress,format&fit=crop&h=353&w=616&s=5815a257aa9eeeac939970dea5e59048",
-      title: "Daily Deal - Rise of Industry",
-      publisher: "VoxPop",
-      text:
-        "Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!",
-      releaseDate: "17 Feb 2019"
-    };
-  },
+  mixins: [user, news],
+  // data() {
+  //   return {
+  //     carouselOptions: null,
+  //     img:
+  //       "https://hb.imgix.net/e8d2f653d2d74a0aa26150fe7998ddfbf72674b1.jpg?auto=compress,format&fit=crop&h=353&w=616&s=5815a257aa9eeeac939970dea5e59048",
+  //     title: "Daily Deal - Rise of Industry",
+  //     publisher: "VoxPop",
+  //     text:
+  //       "Look for the deals each day on the front page of Steam. Or follow us on twitter or Facebook for instant notifications wherever you are!",
+  //     releaseDate: "17 Feb 2019"
+  //   };
+  // },
   computed: {
     id() {
       return this.$route.params.id;
     },
-    news() {
-      return this.$store.getters.getNewsById(this.id);
-    }
+    ...mapState({
+      news: "newsItem",
+      pending: state => state.pending.newsItem,
+      error: state => state.error.newsItem
+    })
+    // news() {
+    //   return this.$store.getters.getNewsById(this.id);
+    // }
   },
+
+  watch: {
+    $route: "fetchData"
+  },
+
   created() {
     this.carouselOptions = carouselOptions;
+    this.fetchData();
   },
+
   methods: {
     normalizeText(text) {
       if (text) {
@@ -97,7 +113,12 @@ export default {
           .replace(/\n/g, "<br>");
       }
       return "";
-    }
+    },
+    fetchData() {
+      const itemId = this.$route.params.id || 0;
+      this.loadNewsItem({ params: { id: itemId } });
+    },
+    ...mapActions({ loadNewsItem: LOAD_NEWS_ITEM })
   }
 };
 </script>
