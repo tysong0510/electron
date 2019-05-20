@@ -537,7 +537,7 @@ export default {
     },
     tokens: {
       get() {
-        return 1000000;
+        return this[USER].numberOfTokens || 0;
       }
     },
     name: {
