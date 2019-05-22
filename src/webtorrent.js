@@ -10,6 +10,7 @@ import store from "./store";
 import { USER } from "./store/modules/auth";
 import { AUTHORIZED, UNAUTHORIZED } from "./dispatch-types";
 import { ADD_TORRENT_SEED } from "./store/mutation-types";
+import { GAME_DOWNLOAD_PATH } from "./store/modules/path";
 
 console.time("init");
 
@@ -48,10 +49,6 @@ const ipc = electron.ipcRenderer;
 global.WEBTORRENT_ANNOUNCE = defaultAnnounceList
   .map(arr => arr[0])
   .filter(url => url.indexOf("wss://") === 0 || url.indexOf("ws://") === 0 || url.indexOf("upd://") === 0);
-
-global.GET_STORE = () => store;
-
-global.ICECOMPLETE_TIMEOUT = 5 * 1000;
 /**
  * WebTorrent version.
  */
@@ -110,6 +107,7 @@ let prevProgress = null;
 init();
 
 function init() {
+  console.log("init start");
   listenToClientEvents();
 
   ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
@@ -139,9 +137,11 @@ function init() {
 
   setInterval(updateTorrentProgress, 1000);
   console.timeEnd("init");
+  console.log("init end");
 }
 
 function listenToClientEvents() {
+  console.log("listenToClientEvents");
   client.on("warning", err => {
     console.warn(err.message);
     ipc.send("wt-warning", null, err.message);
@@ -149,6 +149,9 @@ function listenToClientEvents() {
   client.on("error", err => {
     console.error(err.message);
     ipc.send("wt-error", null, err.message);
+  });
+  client.on("seed", torrent => {
+    console.log("seed", torrent);
   });
 }
 
@@ -181,16 +184,37 @@ function stopTorrenting(infoHash) {
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
   console.log("creating torrent", torrentKey, options);
+  const gameDownloadPath = store.getters[GAME_DOWNLOAD_PATH](options.gameId);
+
+  const oldFiles = fs.readdirSync(gameDownloadPath);
+
+  if (!oldFiles.length) {
+    oldFiles.forEach(filePath => {
+      fs.unlinkSync(filePath);
+    });
+  }
+
   const paths = options.files.map(f => f.path);
+  const files = [];
+
+  paths.forEach(filePath => {
+    const newPath = path.join(gameDownloadPath, path.basename(filePath));
+    files.push(newPath);
+    fs.copyFileSync(filePath, newPath);
+  });
+
   // Force private
   options.private = true;
   options.announceList = defaultAnnounceList;
   options.pieceLength = pieceLength;
+  options.path = gameDownloadPath;
   console.log("START SEEDING");
-  const torrent = client.seed(paths, options);
+
+  const torrent = client.seed(files, options);
   torrent.key = torrentKey;
   addTorrentEvents(torrent);
   ipc.send("wt-new-torrent");
+  saveTorrentFile(torrentKey);
 
   torrent.once("ready", function() {
     store.dispatch({
@@ -198,6 +222,7 @@ function createTorrent(torrentKey, options = {}) {
       payload: {
         gameId: options.gameId,
         state: "seeding",
+        infoHash: torrent.infoHash,
         torrentURL: torrent.magnetURI,
         torrentKey: torrent.key,
         sizeBytes: torrent.length
@@ -217,6 +242,7 @@ function createTorrent(torrentKey, options = {}) {
 // }
 
 function addTorrentEvents(torrent) {
+  console.log("addTorrentEvents", torrent);
   // let previousDownloadRequests = {};
   // let previousUploadRequests = {};
   let downloadedPieces = [];
@@ -228,8 +254,7 @@ function addTorrentEvents(torrent) {
   // let numberOfDownloadedBytes = 0;
   // let numberOfUploadedBytes = 0;
   // let peerId = '';
-  const keys = Object.keys(torrent).sort();
-  console.log("keys:", keys);
+  // const keys = Object.keys(torrent).sort();
 
   let t = store.getters.findTorrentByKey(torrent.key);
   let gameId = t && t.gameId;
@@ -651,13 +676,14 @@ function addTorrentEvents(torrent) {
   function torrentMetadata() {
     const info = getTorrentInfo(torrent);
     ipc.send("wt-metadata", torrent.key, info);
+    console.log("torrentMetadata", info);
 
     updateTorrentProgress();
   }
 
   function torrentReady() {
     const info = getTorrentInfo(torrent);
-    console.log("torrentReady");
+    console.log("torrentReady", info);
     ipc.send("wt-ready", torrent.key, info);
     ipc.send(`wt-ready-${torrent.infoHash}`, torrent.key, info);
 
@@ -666,6 +692,7 @@ function addTorrentEvents(torrent) {
 
   function torrentDone() {
     const info = getTorrentInfo(torrent);
+    console.log("torrentDone", info);
     ipc.send("wt-done", torrent.key, info);
 
     updateTorrentProgress();
@@ -679,6 +706,7 @@ function addTorrentEvents(torrent) {
 
 // Produces a JSON saveable summary of a torrent
 function getTorrentInfo(torrent) {
+  console.log("getTorrentInfo", torrent);
   return {
     infoHash: torrent.infoHash,
     magnetURI: torrent.magnetURI,
@@ -691,6 +719,7 @@ function getTorrentInfo(torrent) {
 
 // Produces a JSON saveable summary of a file in a torrent
 function getTorrentFileInfo(file) {
+  console.log("getTorrentFileInfo", file);
   return {
     name: file.name,
     length: file.length,
@@ -702,6 +731,7 @@ function getTorrentFileInfo(file) {
 // it on next startup. Starting with the full torrent metadata will be faster
 // than re-fetching it from peers using ut_metadata.
 function saveTorrentFile(torrentKey) {
+  console.log("saveTorrentFile", torrentKey);
   const user = store.getters[USER];
   const torrent = getTorrent(torrentKey);
   const torrentsDir = path.join((electron.app || electron.remote.app).getPath("userData"), "torrents");
