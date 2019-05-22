@@ -778,13 +778,15 @@ const demoData = {
       const { torrentFile, torrentURL } = torrent;
       const torrentId = torrentFile || torrentURL;
 
+      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+
       if (!ipcRenderer) {
         ipcMain.emit(
           "wt-start-torrenting",
           null,
           torrentKey, // key
           torrentId,
-          getters[GAME_DOWNLOAD_PATH](gameId),
+          downloadPath,
           null
         );
       } else {
@@ -792,7 +794,7 @@ const demoData = {
           "wt-start-torrenting",
           torrentKey, // key
           torrentId,
-          getters[GAME_DOWNLOAD_PATH](gameId),
+          downloadPath,
           null
           // select all torrent files by default
         );

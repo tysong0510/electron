@@ -47,7 +47,7 @@ const ipc = electron.ipcRenderer;
 // Force use of webtorrent trackers on all torrents
 global.WEBTORRENT_ANNOUNCE = defaultAnnounceList
   .map(arr => arr[0])
-  .filter(url => url.indexOf("wss://") === 0 || url.indexOf("ws://") === 0);
+  .filter(url => url.indexOf("wss://") === 0 || url.indexOf("ws://") === 0 || url.indexOf("upd://") === 0);
 
 global.GET_STORE = () => store;
 
