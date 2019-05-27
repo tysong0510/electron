@@ -197,6 +197,7 @@ const dispatchHandlers = {
   },
   [UNCAUGHT_ERROR]: err => {
     console.error("Uncaught error", err.stack || err);
+    console.log("Uncaught error message", err.message || "");
   }
 };
 

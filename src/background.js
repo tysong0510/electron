@@ -14,13 +14,12 @@ import {
   STATE_SAVE_IMMEDIATE,
   UNAUTHORIZED,
   UNCAUGHT_ERROR,
-  UNZIP_GAME,
-  UNZIP_GAME_FAIL,
-  UNZIP_GAME_OK
+  UNZIP_GAME
 } from "./dispatch-types";
 import store from "./store";
 import { ACTION_REFRESH } from "./store/modules/auth";
 import { INSTALL_PATH } from "./store/modules/path";
+import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
@@ -336,6 +335,8 @@ ipc.on(UNZIP_GAME, (e, msg) => {
   const { gameId, src, dst } = msg;
   const unzip = require("extract-zip");
 
+  const errors = [];
+
   src.forEach(file => {
     if (/\.zip$/.test(file)) {
       unzip(
@@ -344,17 +345,21 @@ ipc.on(UNZIP_GAME, (e, msg) => {
           dir: dst
         },
         err => {
-          console.log("unzip done", err);
-          if (!err) {
-            e.sender.send(UNZIP_GAME_OK, gameId);
-          } else {
+          console.log("unzip done", file);
+          if (err) {
+            errors.push(err);
             console.error("Unzip error", err);
-            e.sender.send(UNZIP_GAME_FAIL, gameId);
           }
         }
       );
     }
   });
+
+  if (!errors.length) {
+    store.dispatch(UNARCHIVE_OK, { payload: { gameId } });
+  } else {
+    store.dispatch(UNARCHIVE_FAIL, { payload: { gameId } });
+  }
 });
 
 ipc.on(AUTHORIZED, () => {

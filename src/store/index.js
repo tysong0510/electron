@@ -683,6 +683,14 @@ const demoData = {
       commit(UPDATE_TORRENT_INFOHASH, data);
     },
 
+    [UNARCHIVE_OK]({ commit }, data) {
+      commit(UNARCHIVE_OK, data);
+    },
+
+    [UNARCHIVE_FAIL]({ commit }, data) {
+      commit(UNARCHIVE_FAIL, data);
+    },
+
     async [START_SEEDING]({ state, commit }, { gameId }) {
       if (ipcMain) {
         const { dialog } = electron;
@@ -878,7 +886,7 @@ const demoData = {
         return;
       }
 
-      ipcRenderer.send(UNZIP_GAME, {
+      ipcRenderer.emit(UNZIP_GAME, {
         gameId, // s
         src,
         dst: getters[GAME_INSTALL_PATH](gameId)

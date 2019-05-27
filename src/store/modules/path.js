@@ -8,6 +8,7 @@ import { USER } from "./auth";
 Vue.use(Vuex);
 
 export const DOWNLOAD_PATH = "DOWNLOAD_PATH";
+export const TORRENTS_PATH = "TORRENTS_PATH";
 export const GAME_DOWNLOAD_PATH = "GAME_DOWNLOAD_PATH";
 export const INSTALL_PATH = "INSTALL_PATH";
 export const GAME_INSTALL_PATH = "GAME_INSTALL_PATH";
@@ -18,6 +19,7 @@ const USER_DATA_PATH = (app || remote.app).getPath("userData");
 const VOXPOP = "voxpop";
 const DOWNLOADS = "downloads";
 const APPS = "apps";
+const TORRENTS = "torrents";
 
 /**
  * The function recursively creates directories in the specified path if they do not exist
@@ -38,6 +40,29 @@ export default {
   },
   mutations: {},
   getters: {
+    [TORRENTS_PATH](state, getters) {
+      const user = getters[USER];
+
+      if (!user) {
+        return null;
+      }
+
+      const { username } = user;
+
+      if (!username) {
+        return null;
+      }
+
+      const userTorrentsPath = path.join(USER_DATA_PATH, VOXPOP, String(username), TORRENTS);
+
+      if (!fs.existsSync(userTorrentsPath)) {
+        mkdirDeep(userTorrentsPath);
+
+        console.log(`Directory '${userTorrentsPath}' created`);
+      }
+
+      return userTorrentsPath;
+    },
     [GAME_DOWNLOAD_PATH](state, getters) {
       /**
        * Returned string path where user and gameId is defined else return null
