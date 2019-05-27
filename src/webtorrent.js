@@ -64,8 +64,8 @@ const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString("bas
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
 let client = (window.client = new WebTorrent({
-  peerId: PEER_ID,
-  dht: false
+  peerId: PEER_ID
+  // dht: false
   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
 }));
 
