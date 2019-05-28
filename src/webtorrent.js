@@ -491,14 +491,14 @@ function saveTorrentFile(torrentKey) {
   fs.access(torrentPath, fs.constants.R_OK, err => {
     if (!err) {
       // We've already saved the file
-      return ipc.send("wt-file-saved", torrentKey, fileName);
+      return ipc.send("wt-file-saved", torrentKey, torrentPath);
     }
 
     mkdirp(torrentsUserDir, () => {
       fs.writeFile(torrentPath, torrent.torrentFile, err => {
         if (err) return console.log("error saving torrent file %s: %o", torrentPath, err);
         console.log("saved torrent file %s", torrentPath);
-        return ipc.send("wt-file-saved", torrentKey, fileName);
+        return ipc.send("wt-file-saved", torrentKey, torrentPath);
       });
     });
   });

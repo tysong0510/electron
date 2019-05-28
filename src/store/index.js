@@ -783,8 +783,8 @@ const demoData = {
         torrent = findTorrentByGameId(gameId);
       }
 
-      const { torrentFile, torrentURL } = torrent;
-      const torrentId = torrentFile || torrentURL;
+      const { torrentFileName, torrentURL } = torrent;
+      const torrentId = torrentFileName || torrentURL;
 
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
