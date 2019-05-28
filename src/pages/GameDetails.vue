@@ -306,7 +306,7 @@ export default {
         // ipcRenderer.once(AUTHORIZED, this.gameBuy);
         this.$root.$once("authorized", this.gameBuy);
       } else if (
-        confirm(`Confirm buy game "${this.game.title}" for ${this.$options.filters.currency(this.game.price, this.game.currency)}?`)
+        confirm(`Confirm purchasing game "${this.game.title}" for ${this.$options.filters.currency(this.game.price, this.game.currency)}?`)
       ) {
         this.$store
           .dispatchPromise("buyGame", { params: this.game })

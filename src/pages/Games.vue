@@ -7,7 +7,7 @@
       <b-col v-else-if="!userGames">
         No games :(
       </b-col>
-      <template v-for="(game, index) in userGames">
+      <template v-for="(game, index) in userGames" v-else>
         <b-col :key="'game-' + index" cols="6">
           <b-card
             no-body
