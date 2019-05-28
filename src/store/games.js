@@ -21,6 +21,16 @@ export default new Vapi({
     property: "game",
     path: ({ id }) => `/games/${id}`
   })
+  .post({
+    action: "buyGame",
+    property: "buyGame",
+    path: ({ id }) => `/users/games/buy-by-game-id/${id}`
+  })
+  .post({
+    action: "getGameStatus",
+    property: "gameStatus",
+    path: ({ id }) => `/users/games/find-by-game-id/${id}`
+  })
   .get({
     action: "getFeatured",
     property: "featuredGames",

@@ -2,7 +2,7 @@
   <div :class="`${loadingClass} game-details`">
     <div v-if="error.game" class="error">{{ "Not Found" || error.game }} {{ /* TODO print user friendly error message */ }}</div>
 
-    <div v-if="!pending.game && game" class="content">
+    <div v-if="!pending.game && game && !pending.gameStatus" class="content">
       <b-card no-body class="no-border mb-4 pb-4">
         <b-row no-gutters>
           <b-col cols="5">
@@ -32,12 +32,18 @@
                 </b-col>
                 <b-col cols="5" class="text-center">
                   <div v-if="currentRouteIs('game-details')">
-                    <div v-if="showBuyBtn">
-                      <b-button variant="primary" size="lg" class="btn-buy" @click="gameBuy()">
-                        {{ game.price | currency(game.currency) }}
+                    <div v-if="showBuyBtn && !gameStatus">
+                      <b-button variant="primary" size="lg" class="btn-buy" :disabled="pending.buyGame" @click="gameBuy()">
+                        <b-spinner v-if="pending.buyGame"></b-spinner>
+                        <span v-else>{{ game.price | currency(game.currency) }}</span>
                       </b-button>
                     </div>
-                    <div v-if="!showBuyBtn">
+                    <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn || showPlayBtn)">
+                      <b-button variant="primary" size="lg" class="btn-buy" @click="startDownload()">
+                        Download
+                      </b-button>
+                    </div>
+                    <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
@@ -186,6 +192,7 @@ export default {
   computed: {
     ...mapState({
       game: state => state.game,
+      gameStatus: state => state.gameStatus,
       pending: state => state.pending,
       error: state => state.error
     }),
@@ -258,7 +265,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["getGame"]),
+    ...mapActions(["getGame", "getGameStatus"]),
     currentRouteIs(route) {
       return route === this.$router.currentRoute.name;
     },
@@ -290,12 +297,29 @@ export default {
       });
     },
     gameBuy() {
-      // confirm(`Confirm buy game with id ${this.game.id} for ${this.game.price}?`);
+      if (this.$router.currentRoute.name !== "game-details") {
+        return;
+      }
+
       if (!this.$store.getters[IS_LOGGED_IN]) {
         this.$root.$emit("unauthorized", { noRedirect: true });
         // ipcRenderer.once(AUTHORIZED, this.gameBuy);
         this.$root.$once("authorized", this.gameBuy);
-      } else if (this.game.magnetURI) {
+      } else if (
+        confirm(`Confirm buy game "${this.game.title}" for ${this.$options.filters.currency(this.game.price, this.game.currency)}?`)
+      ) {
+        this.$store
+          .dispatchPromise("buyGame", { params: this.game })
+          .then(() => {
+            this.fetchData();
+          })
+          .catch(err => {
+            console.log(err, err.response);
+          });
+      }
+    },
+    startDownload() {
+      if (this.game.magnetURI) {
         if (this.$store.getters.findTorrentByGameId(this.game.id)) {
           return;
         }
@@ -318,6 +342,7 @@ export default {
     },
     fetchData() {
       const gameId = this.$route.params.id || 0;
+      this.getGameStatus({ params: { id: gameId } });
       this.getGame({ params: { id: gameId } });
     },
     getImagePath(game, type = "main") {
