@@ -61,10 +61,21 @@ const VERSION_PREFIX = "-WD" + "0000" /* VERSION_STR */ + "-";
  */
 const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString("base64"));
 
+// Temporary remove function window.requestIdleCallback for force torrent downloading
+window.requestIdleCallback = void 0;
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
 let client = (window.client = new WebTorrent({
-  peerId: PEER_ID
+  peerId: PEER_ID,
+  tracker: {
+    rtcConfig: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+        { urls: "turn:numb.viagenie.ca", username: "webrtc@live.com", credential: "muazkh" }
+      ]
+    }
+  }
   // dht: false
   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
 }));
