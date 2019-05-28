@@ -304,7 +304,7 @@ export default {
       if (!this.$store.getters[IS_LOGGED_IN]) {
         this.$root.$emit("unauthorized", { noRedirect: true });
         // ipcRenderer.once(AUTHORIZED, this.gameBuy);
-        this.$root.$once("authorized", this.gameBuy);
+        // this.$root.$once("authorized", this.gameBuy);
       } else if (
         confirm(`Confirm purchasing game "${this.game.title}" for ${this.$options.filters.currency(this.game.price, this.game.currency)}?`)
       ) {
