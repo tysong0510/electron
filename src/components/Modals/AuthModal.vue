@@ -359,10 +359,6 @@ export default {
         .catch(err => {
           console.log(err);
 
-          if (res && res.data) {
-            this.validationErrors = res.data.userValidationResult || {};
-          }
-
           const res = err && err.response;
 
           if (res && res.status === 404) {
