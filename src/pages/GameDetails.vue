@@ -102,7 +102,7 @@
                       Voted
                     </b-button>
                     <b-button
-                      v-if="$store.getters['IS_LOGGED_IN']"
+                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
                       variant="outline-secondary"
                       class="btn-voted ml-2"
                       @click="assignTorrent"

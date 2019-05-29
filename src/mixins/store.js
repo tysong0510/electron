@@ -16,6 +16,10 @@ export default {
         iteration += 1;
       }
 
+      if (Number.isNaN(resultVal)) {
+        resultVal = 0;
+      }
+
       return `${resultVal.toFixed(1)} ${sizeUnits[iteration]}`;
     }
   },

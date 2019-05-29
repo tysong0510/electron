@@ -20,6 +20,7 @@ import store from "./store";
 import { ACTION_REFRESH } from "./store/modules/auth";
 import { INSTALL_PATH } from "./store/modules/path";
 import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
+import fsExtra from "fs-extra";
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
@@ -333,6 +334,9 @@ ipc.emit = function(name, e) {
 
 ipc.on(UNZIP_GAME, (e, msg) => {
   const { gameId, src, dst } = msg;
+
+  fsExtra.emptyDirSync(dst);
+
   const unzip = require("extract-zip");
 
   const errors = [];

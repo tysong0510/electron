@@ -11,11 +11,11 @@
   >
     <div class="h-100 d-flex">
       <div class="m-auto">
-        <b-row class="mb-3">
+        <b-row>
           <b-col>
-            <h1 class="text-white font-weight-normal text-center">
+            <h2 class="text-white font-weight-normal text-center">
               {{ modal.title }}
-            </h1>
+            </h2>
           </b-col>
         </b-row>
         <b-row v-if="modalType === 'sign-in'">
@@ -24,18 +24,10 @@
               <b-col class="text-center">
                 <b-form id="sign-in" @submit="login">
                   <b-form-group label="Username" label-for="username" class="text-left">
-                    <b-form-input
-                      id="username"
-                      ref="sign-in"
-                      v-model="username"
-                      name="username"
-                      required
-                      placeholder="Username"
-                      type="text"
-                    />
+                    <b-form-input id="username" ref="sign-in" v-model="username" name="username" required type="text" />
                   </b-form-group>
                   <b-form-group label="Password" label-for="password" class="text-left">
-                    <b-form-input id="password" v-model="password" name="password" required placeholder="Password" type="password" />
+                    <b-form-input id="password" v-model="password" name="password" required type="password" />
                   </b-form-group>
                   <b-row>
                     <b-col cols="6">
@@ -68,43 +60,35 @@
         </b-row>
         <b-row v-else-if="modalType === 'registration'">
           <b-col>
-            <b-row class="my-3">
+            <b-row class="">
               <b-col class="text-center">
                 <b-form id="registration" @submit="register">
                   <b-form-group label="First Name" label-for="firstName" class="text-left">
-                    <b-form-input
-                      id="firstName"
-                      ref="registration"
-                      v-model="firstName"
-                      name="firstName"
-                      required
-                      placeholder="First Name"
-                      type="text"
-                    />
+                    <b-form-input id="firstName" ref="registration" v-model="firstName" name="firstName" required type="text" />
                     <b-form-invalid-feedback :state="!validationErrors.firstName">
                       {{ validationErrors.firstName }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Last Name" label-for="lastName" class="text-left">
-                    <b-form-input id="lastName" v-model="lastName" name="lastName" required placeholder="Last Name" type="text" />
+                    <b-form-input id="lastName" v-model="lastName" name="lastName" required type="text" />
                     <b-form-invalid-feedback :state="!validationErrors.lastName">
                       {{ validationErrors.lastName }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Username" label-for="username" class="text-left">
-                    <b-form-input id="username" v-model="username" name="username" required placeholder="Username" type="text" />
+                    <b-form-input id="username" v-model="username" name="username" required type="text" />
                     <b-form-invalid-feedback :state="!validationErrors.username">
                       {{ validationErrors.username }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Email" label-for="email" class="text-left">
-                    <b-form-input id="email" v-model="email" name="email" required placeholder="Email" type="email" />
+                    <b-form-input id="email" v-model="email" name="email" required placeholder="example@example.com" type="email" />
                     <b-form-invalid-feedback :state="!validationErrors.email">
                       {{ validationErrors.email }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Password" label-for="password" class="text-left">
-                    <b-form-input id="password" v-model="password" name="password" required placeholder="Password" type="password" />
+                    <b-form-input id="password" v-model="password" name="password" required type="password" />
                     <b-form-invalid-feedback :state="!validationErrors.password">
                       {{ validationErrors.password }}
                     </b-form-invalid-feedback>
@@ -113,7 +97,7 @@
               </b-col>
             </b-row>
             <b-row>
-              <b-col class="mt-5 w-100 d-flex">
+              <b-col class="w-100 d-flex">
                 <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="registration">
                   Register
                 </b-button>
@@ -447,10 +431,10 @@ $close-size: 2em;
       border: 0;
     }
 
-    .modal-body {
-      padding-bottom: 50px;
-      padding-top: 50px;
-    }
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
 
     min-height: 300px;
     background-color: $primary-states;

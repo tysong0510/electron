@@ -36,6 +36,7 @@
     "es6-error": "^4.1.1",
     "extract-zip": "^1.6.7",
     "fs": "^0.0.1-security",
+    "fs-extra": "^8.0.1",
     "register-service-worker": "^1.5.2",
     "vue": "^2.6.6",
     "vue-axios": "^2.1.4",

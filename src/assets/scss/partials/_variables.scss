@@ -1186,4 +1186,4 @@ $general-transition-time:     300ms !default;
 $full-width:                        100% !default;
 //$navbar-padding:                    10px 15px !default;
 
-$modal-backdrop-bg: #080e32 !default;
+$modal-backdrop-bg: lighten(#080e32, 10%) !default;

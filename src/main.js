@@ -132,7 +132,8 @@ function getSavedUserState() {
       path: t.path,
       state: t.state,
       torrentFileName: t.torrentFileName,
-      torrentURL: t.torrentURL
+      torrentURL: t.torrentURL,
+      unarchived: t.unarchived
     }))
   };
   console.log("saved state=", result);
@@ -324,12 +325,14 @@ function setupIpc() {
           torrentKey
         }
       });
+      // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
+    }
 
+    if (torrent && !torrent.unarchived) {
       // Autorun unzip
       dispatch(UNARCHIVE_GAME, {
         gameId: torrent.gameId
       });
-      // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
     }
   });
 

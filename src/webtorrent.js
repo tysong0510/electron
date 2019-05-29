@@ -207,15 +207,10 @@ function stopTorrenting(infoHash) {
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
   console.log("creating torrent", torrentKey, options);
+  const fsExtra = require("fs-extra");
   const gameDownloadPath = store.getters[GAME_DOWNLOAD_PATH](options.gameId);
 
-  const oldFiles = fs.readdirSync(gameDownloadPath);
-
-  if (!oldFiles.length) {
-    oldFiles.forEach(filePath => {
-      fs.unlinkSync(filePath);
-    });
-  }
+  fsExtra.emptyDirSync(gameDownloadPath);
 
   const paths = options.files.map(f => f.path);
   const files = [];
@@ -249,7 +244,8 @@ function createTorrent(torrentKey, options = {}) {
         infoHash: torrent.infoHash,
         torrentURL: torrent.magnetURI,
         torrentKey: torrent.key,
-        sizeBytes: torrent.length
+        sizeBytes: torrent.length,
+        path: torrent.path
       }
     });
   });
