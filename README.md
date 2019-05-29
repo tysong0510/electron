@@ -27,10 +27,40 @@ yarn install
 yarn serve
 ```
 
-### Compiles and minifies for production
+### Compiles and minifies for production (current OS)
 
 ```
 yarn build
+```
+
+### Compiles and minifies for production (for Windows)
+
+```
+yarn build:win
+```
+
+### Compiles and minifies for production (for Linux)
+
+```
+yarn build:linux
+```
+
+### Compiles and minifies for production (for Mac OS) `Mac OS only`
+
+```
+yarn build:mac
+```
+
+### Compiles and minifies for production (All OS) `Mac OS only`
+
+```
+yarn build:all
+```
+
+### Compiles and minifies for staging (current OS)
+
+```
+yarn build:staging
 ```
 
 ### Run your tests
