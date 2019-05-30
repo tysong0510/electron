@@ -657,7 +657,7 @@ const demoData = {
       return fsExtra.emptyDirSync(getters[GAME_INSTALL_PATH](gameId));
     },
 
-    [INSTALL_GAME]({ getters }, { gameId }) {
+    async [INSTALL_GAME]({ getters }, { gameId }) {
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
       const installPath = getters[GAME_INSTALL_PATH](gameId);
 
@@ -697,24 +697,33 @@ const demoData = {
         const unzip = require("extract-zip");
 
         const errors = [];
+        const promises = [];
 
         src.forEach(file => {
           if (/\.zip$/.test(file)) {
-            unzip(
-              file,
-              {
-                dir: installPath
-              },
-              err => {
-                console.log("unzip done", file);
-                if (err) {
-                  errors.push(err);
-                  console.error("Unzip error", err);
-                }
-              }
+            promises.push(
+              new Promise(resolve => {
+                unzip(
+                  file,
+                  {
+                    dir: installPath
+                  },
+                  err => {
+                    console.log("unzip done", file);
+                    resolve(file);
+
+                    if (err) {
+                      errors.push(err);
+                      console.error("Unzip error", err);
+                    }
+                  }
+                );
+              })
             );
           }
         });
+
+        await Promise.all(promises);
 
         return {
           success: true,
