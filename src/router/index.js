@@ -34,6 +34,7 @@ router.beforeEach((to, from, next) => {
       }
     });
   }
+
   if (!router.app.$store.getters[IS_LOGGED_IN] && to.query.auth) {
     router.app.$authModal.showModal = true;
   }

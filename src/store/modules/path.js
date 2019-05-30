@@ -13,6 +13,7 @@ export const GAME_DOWNLOAD_PATH = "GAME_DOWNLOAD_PATH";
 export const INSTALL_PATH = "INSTALL_PATH";
 export const GAME_INSTALL_PATH = "GAME_INSTALL_PATH";
 export const IS_GAME_INSTALLED = "IS_GAME_INSTALLED";
+export const CAN_GAME_INSTALL = "CAN_GAME_INSTALL";
 export const USER_CONFIG_PATH = "USER_CONFIG_PATH";
 
 const USER_DATA_PATH = (app || remote.app).getPath("userData");
@@ -173,8 +174,34 @@ export default {
       };
     },
     [IS_GAME_INSTALLED](state, getters) {
-      return gameId =>
-        gameId && getters[GAME_INSTALL_PATH](gameId) && fs.existsSync(path.join(getters[GAME_INSTALL_PATH](gameId), "Beglitched.exe"));
+      return gameId => {
+        const installPath = getters[GAME_INSTALL_PATH](gameId);
+
+        if (!installPath) {
+          return false;
+        }
+
+        const execFiles = fs.readdirSync(installPath).filter(absPath => path.extname(absPath).toLowerCase() === ".exe");
+
+        return gameId && getters[GAME_INSTALL_PATH](gameId) && execFiles.length;
+      };
+    },
+    [CAN_GAME_INSTALL](state, getters) {
+      return gameId => {
+        const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+
+        if (!downloadPath) {
+          return false;
+        }
+
+        const torrent = getters.findTorrentByGameId(gameId);
+
+        if (torrent) {
+          return torrent.downloaded;
+        } else {
+          return !!fs.readdirSync(downloadPath).filter(absPath => path.extname(absPath).toLowerCase() === ".zip").length;
+        }
+      };
     }
   }
 };

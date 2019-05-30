@@ -8,6 +8,7 @@ export default new Vapi({
   baseURL,
   state: {
     games: [],
+    startedGame: {},
     game: null
   }
 })

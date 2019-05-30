@@ -4,7 +4,15 @@ import path from "path";
 import fs from "fs";
 // import Axios from 'axios';
 import { createSharedMutations } from "vuex-electron";
-import { PAUSE_DOWNLOAD_GAME, START_DOWNLOAD_GAME, START_GAME, START_SEEDING, UNARCHIVE_GAME } from "./actions-types";
+import {
+  INSTALL_GAME,
+  PAUSE_DOWNLOAD_GAME,
+  START_DOWNLOAD_GAME,
+  START_GAME,
+  START_SEEDING,
+  UNARCHIVE_GAME,
+  UNINSTALL_GAME
+} from "./actions-types";
 import {
   ADD_TORRENT,
   ADD_TORRENT_SEED,
@@ -29,13 +37,15 @@ import { UNZIP_GAME } from "../dispatch-types";
 import createPromiseAction from "../plugins/promiseAction";
 import auth, { USER } from "./modules/auth";
 import Axios from "axios";
+import child_process from "child_process";
 // import torrent from './modules/torrent';
 import storePathModule, { GAME_DOWNLOAD_PATH, GAME_INSTALL_PATH } from "./modules/path";
+import fsExtra from "fs-extra";
 // import sharedMutation from '../plugins/shared-mutations';
 
 const electron = require("electron");
 
-const { ipcMain, ipcRenderer, /* app, remote, */ shell } = electron;
+const { ipcMain, ipcRenderer /*, app, remote, shell */ } = electron;
 
 Vue.use(Vuex);
 // const userDataPath = (app || remote.app).getPath('userData');
@@ -618,12 +628,90 @@ const demoData = {
   actions: {
     async [START_GAME]({ state, getters }, { gameId }) {
       const { game } = state;
-      if (!game) return;
+      if (!game) {
+        throw new Error("No exec file");
+      }
 
       // TODO once file is downloaded to `gameDownloadPath` it needs to be processed with game install script;
       //  the game will be installed to `gameInstalationPath`
-      const gamePath = path.join(getters[GAME_INSTALL_PATH](gameId), "Beglitched.exe");
-      if (fs.existsSync(gamePath)) shell.openItem(gamePath);
+      const execFile = fs
+        .readdirSync(getters[GAME_INSTALL_PATH](gameId))
+        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+        .shift();
+
+      if (!execFile) {
+        throw new Error("No exec file");
+      }
+
+      const gamePath = path.join(getters[GAME_INSTALL_PATH](gameId), execFile);
+      if (fs.existsSync(gamePath)) {
+        // await child_process.execSync(`chmod -R a+rwx ${gamePath}`);
+        return await child_process.spawnSync(gamePath);
+        // return shell.openItem(gamePath);
+      } else {
+        throw new Error("No exec file");
+      }
+    },
+
+    [UNINSTALL_GAME]({ getters }, { gameId }) {
+      return fsExtra.emptyDirSync(getters[GAME_INSTALL_PATH](gameId));
+    },
+
+    [INSTALL_GAME]({ getters }, { gameId }) {
+      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+      const installPath = getters[GAME_INSTALL_PATH](gameId);
+
+      if (!downloadPath) {
+        return false;
+      }
+
+      const torrent = getters.findTorrentByGameId(gameId);
+
+      if (torrent) {
+        if (torrent.downloaded) {
+          console.log(torrent.files);
+        } else {
+          throw new Error("Game not downloaded");
+        }
+      } else {
+        const src = fs
+          .readdirSync(downloadPath)
+          .filter(absPath => path.extname(absPath).toLowerCase() === ".zip")
+          .map(val => {
+            return path.join(downloadPath, val);
+          });
+
+        if (src.length) {
+          const unzip = require("extract-zip");
+
+          const errors = [];
+
+          src.forEach(file => {
+            if (/\.zip$/.test(file)) {
+              unzip(
+                file,
+                {
+                  dir: installPath
+                },
+                err => {
+                  console.log("unzip done", file);
+                  if (err) {
+                    errors.push(err);
+                    console.error("Unzip error", err);
+                  }
+                }
+              );
+            }
+          });
+
+          return {
+            success: true,
+            errors
+          };
+        } else {
+          throw new Error("Nothing to install");
+        }
+      }
     },
 
     [ADD_TORRENT]({ commit }, data) {

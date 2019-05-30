@@ -86,12 +86,14 @@ export default {
         {
           href: "/games",
           title: "My Games",
-          icon: "icon icon-game"
+          icon: "icon icon-game",
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
         },
         {
           href: "/profile",
           title: "Profile",
           icon: "icon icon-user",
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : "",
           child: [
             {
               href: "/profile/top-games",
@@ -132,6 +134,12 @@ export default {
           title: "Logout",
           icon: "icon icon-logout",
           class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
+        },
+        {
+          href: "/login",
+          title: "Login",
+          icon: "icon icon-login",
+          class: this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
         }
       ],
       sidebarCollapsed: false
@@ -154,11 +162,16 @@ export default {
   methods: {
     sidebarItemClick(event, item) {
       if (item) {
-        const { route } = this.$router.resolve(item.href);
+        const { route, href } = this.$router.resolve(item.href);
+        const loginRoute = this.$router.resolve({ name: "login" });
 
         if (route && route.meta && route.meta.auth && !this[IS_LOGGED_IN]) {
           event.preventDefault();
           item.disabled = true;
+        }
+
+        if (loginRoute.href === href) {
+          this.$authModal.showModal = true;
         }
       }
     },
@@ -287,6 +300,10 @@ export default {
 
     .icon.icon-logout:before {
       background-image: url("../assets/icons/logout.svg");
+    }
+
+    .icon.icon-login:before {
+      background-image: url("../assets/icons/login.svg");
     }
 
     .icon:before {

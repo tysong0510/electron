@@ -4,8 +4,8 @@
       <b-col v-if="pending.userGames">
         Loading...
       </b-col>
-      <b-col v-else-if="!userGames">
-        No games :(
+      <b-col v-else-if="!userGames || (userGames && !userGames.length)">
+        No Games Available
       </b-col>
       <template v-for="(game, index) in userGames" v-else>
         <b-col :key="'game-' + index" cols="6">

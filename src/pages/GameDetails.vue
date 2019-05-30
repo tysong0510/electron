@@ -38,7 +38,7 @@
                         <span v-else>{{ game.price | currency(game.currency) }}</span>
                       </b-button>
                     </div>
-                    <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn || showPlayBtn)">
+                    <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button variant="primary" size="lg" class="btn-buy" @click="startDownload()">
                         Download
                       </b-button>
@@ -50,16 +50,16 @@
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
                       </b-button>
-                      <b-button
-                        v-if="showPlayBtn"
-                        variant="primary"
-                        size="lg"
-                        class="btn-buy"
-                        :disabled="!isGameInstalled"
-                        @click="playGame()"
-                      >
-                        Play
-                      </b-button>
+                      <!--                      <b-button-->
+                      <!--                        v-if="showPlayBtn"-->
+                      <!--                        variant="primary"-->
+                      <!--                        size="lg"-->
+                      <!--                        class="btn-buy"-->
+                      <!--                        :disabled="!isGameInstalled"-->
+                      <!--                        @click="playGame()"-->
+                      <!--                      >-->
+                      <!--                        Play-->
+                      <!--                      </b-button>-->
                       <transition>
                         <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                           <loading-progress
@@ -116,16 +116,22 @@
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
-                    <b-button variant="primary" class="border-0" :disabled="!isGameInstalled" @click="playGame()">
+                    <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
                       Play
                     </b-button>
+                    <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
+                      <span v-if="!installing">Install</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                    </b-button>
                     <b-button
+                      v-if="isGameInstalled"
                       variant="light"
                       class="text-primary border-0 btn-delete"
-                      :disabled="!isGameInstalled"
+                      :disabled="uninstalling"
                       @click="uninstallGame()"
                     >
-                      Uninstall
+                      <span v-if="!uninstalling">Uninstall</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                     </b-button>
                   </b-col>
                 </b-row>
@@ -156,8 +162,8 @@ import { Carousel, Slide } from "vue-carousel";
 import currency from "../mixins/currency";
 
 import VoteBar from "../components/Progress/VoteBar.vue";
-import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME, START_SEEDING } from "../store/actions-types";
-import { IS_GAME_INSTALLED } from "../store/modules/path";
+import { START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME, START_SEEDING, UNINSTALL_GAME, INSTALL_GAME } from "../store/actions-types";
+import { CAN_GAME_INSTALL, IS_GAME_INSTALLED } from "../store/modules/path";
 import { baseURL } from "../apiConfig";
 import user from "../mixins/user";
 import { IS_LOGGED_IN } from "../store/modules/auth";
@@ -185,7 +191,9 @@ export default {
 
   data() {
     return {
-      carouselOptions: null
+      carouselOptions: null,
+      uninstalling: false,
+      installing: false
     };
   },
 
@@ -229,16 +237,16 @@ export default {
     },
     showPauseBtn() {
       const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-      return torrent && !torrent.downloaded && ["loading-metadata", "downloading"].includes(torrent.state);
+      return torrent && ["loading-metadata", "downloading", "seeding"].includes(torrent.state);
     },
     showResumeBtn() {
       const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-      return torrent && !torrent.downloaded && ["paused", "error"].includes(torrent.state);
+      return torrent && ["paused", "error"].includes(torrent.state);
     },
-    showPlayBtn() {
-      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-      return torrent && torrent.downloaded;
-    },
+    // showPlayBtn() {
+    //   const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+    //   return torrent && torrent.downloaded;
+    // },
     showDownloadProgress() {
       return this.$store.getters.findTorrentByGameId(this.game.id);
     },
@@ -248,6 +256,9 @@ export default {
     },
     isGameInstalled() {
       return this.game && this.game.id && this.$store.getters[IS_GAME_INSTALLED](this.game.id);
+    },
+    canGameInstall() {
+      return this.game && this.game.id && this.$store.getters[CAN_GAME_INSTALL](this.game.id);
     }
   },
 
@@ -333,12 +344,61 @@ export default {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
     playGame() {
-      this[START_GAME]({
-        gameId: this.game.id
-      });
+      this.$store
+        .dispatchPromise(START_GAME, {
+          gameId: this.game.id
+        })
+        .then(res => {
+          console.log(res);
+          if (res && res.error) {
+            confirm("An error occurred while starting the game");
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          confirm("An error occurred while starting the game");
+        });
+    },
+    installGame() {
+      this.installing = true;
+
+      this.$store
+        .dispatchPromise(INSTALL_GAME, { gameId: this.game.id })
+        .then(res => {
+          setTimeout(() => {
+            this.installing = false;
+            this.fetchData();
+          }, 500);
+          console.log(res);
+        })
+        .catch(err => {
+          setTimeout(() => {
+            this.installing = false;
+            this.fetchData();
+          }, 500);
+          console.log(err);
+        });
     },
     uninstallGame() {
-      confirm("Please confirm to remove the game");
+      if (confirm("Please confirm to uninstall the game")) {
+        this.uninstalling = true;
+        this.$store
+          .dispatchPromise(UNINSTALL_GAME, { gameId: this.game.id })
+          .then(res => {
+            setTimeout(() => {
+              this.uninstalling = false;
+              this.fetchData();
+            }, 500);
+            console.log(res);
+          })
+          .catch(err => {
+            setTimeout(() => {
+              this.uninstalling = false;
+              this.fetchData();
+            }, 500);
+            console.log(err);
+          });
+      }
     },
     fetchData() {
       const gameId = this.$route.params.id || 0;

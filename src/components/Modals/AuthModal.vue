@@ -42,13 +42,25 @@
                   <b-form-invalid-feedback :state="loginValid">
                     Invalid username or password
                   </b-form-invalid-feedback>
+                  <b-form-invalid-feedback :state="!otherError">
+                    Error connecting to server. Please try again
+                  </b-form-invalid-feedback>
                 </b-form>
               </b-col>
             </b-row>
             <b-row>
               <b-col class="mt-5 w-100 d-flex">
-                <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="sign-in">
-                  Login
+                <b-button
+                  size="lg"
+                  variant="primary"
+                  class="btn-auth"
+                  style="min-width: 180px;"
+                  type="submit"
+                  form="sign-in"
+                  :disabled="loading"
+                >
+                  <span v-if="!loading" style="max-width: 1em; max-height: 1em;">Login</span>
+                  <b-spinner v-else></b-spinner>
                 </b-button>
                 <span class="p-2" />
                 <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
@@ -98,8 +110,17 @@
             </b-row>
             <b-row>
               <b-col class="w-100 d-flex">
-                <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="registration">
-                  Register
+                <b-button
+                  size="lg"
+                  variant="primary"
+                  class="btn-auth"
+                  style="min-width: 180px;"
+                  type="submit"
+                  form="registration"
+                  :disabled="loading"
+                >
+                  <span v-if="!loading" style="max-width: 1em; max-height: 1em;">Register</span>
+                  <b-spinner v-else></b-spinner>
                 </b-button>
                 <span class="p-2" />
                 <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
@@ -235,6 +256,8 @@ export default {
       lastName: null,
       rememberMe: false,
       loginValid: true,
+      otherError: false,
+      loading: false,
       usernameValidation: true,
       emailValidation: true,
       validationErrors: {}
@@ -248,9 +271,10 @@ export default {
     },
     modalType: {
       get() {
-        if (!modalTypes.includes(this.$route.query.auth)) {
+        if (!modalTypes.includes(this.$route.query.auth) || this.$authModal.forceSelect) {
           return "select";
         }
+
         return this.$route.query.auth;
       }
     },
@@ -285,14 +309,17 @@ export default {
     },
     onHide() {
       this.$authModal.showModal = false;
+      this.$authModal.forceSelect = true;
     },
     showModal(params) {
       this.noRedirect = params && !!params.noRedirect;
 
       this.$authModal.showModal = true;
+      this.$authModal.forceSelect = false;
     },
     focusInput() {
       const input = this.$refs[this.modalType];
+      this.$authModal.forceSelect = false;
 
       if (input) {
         input.focus();
@@ -319,6 +346,8 @@ export default {
       evt.preventDefault();
 
       this.loginValid = true;
+      this.otherError = false;
+      this.loading = true;
 
       this.$store
         .dispatchPromise(ACTION_LOGIN, {
@@ -326,6 +355,7 @@ export default {
           password: this.password
         })
         .then(() => {
+          this.loading = false;
           this.$authModal.showModal = false;
 
           console.log("Authorized");
@@ -341,12 +371,15 @@ export default {
           this.$root.$emit("authorized");
         })
         .catch(err => {
+          this.loading = false;
           console.log(err);
 
           const res = err && err.response;
 
           if (res && res.status === 404) {
             this.loginValid = false;
+          } else {
+            this.otherError = true;
           }
         });
 
@@ -356,6 +389,7 @@ export default {
       evt.preventDefault();
 
       const that = this;
+      this.loading = true;
 
       this.$store
         .dispatchPromise(ACTION_REGISTER, {
@@ -367,6 +401,7 @@ export default {
           password: this.password
         })
         .then(() => {
+          this.loading = false;
           that.$authModal.showModal = false;
 
           this.formReset();
@@ -376,6 +411,7 @@ export default {
           this.goTo("confirm");
         })
         .catch(err => {
+          this.loading = false;
           const res = err.response;
 
           if (res && res.data) {

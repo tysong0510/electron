@@ -198,7 +198,9 @@ export default {
           .catch(err => {
             console.log("Error request", err);
 
-            commit(MUTATION_AUTH_ERROR, err);
+            if (err && err.response) {
+              commit(MUTATION_AUTH_ERROR, err);
+            }
 
             reject(err);
           });
