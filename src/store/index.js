@@ -667,50 +667,59 @@ const demoData = {
 
       const torrent = getters.findTorrentByGameId(gameId);
 
+      let src = [];
+
       if (torrent) {
         if (torrent.downloaded) {
-          console.log(torrent.files);
+          src = fs
+            .readdirSync(downloadPath)
+            .filter(absPath => path.extname(absPath).toLowerCase() === ".zip")
+            .map(val => {
+              return path.join(downloadPath, val);
+            });
         } else {
           throw new Error("Game not downloaded");
         }
       } else {
-        const src = fs
+        src = fs
           .readdirSync(downloadPath)
           .filter(absPath => path.extname(absPath).toLowerCase() === ".zip")
           .map(val => {
             return path.join(downloadPath, val);
           });
 
-        if (src.length) {
-          const unzip = require("extract-zip");
-
-          const errors = [];
-
-          src.forEach(file => {
-            if (/\.zip$/.test(file)) {
-              unzip(
-                file,
-                {
-                  dir: installPath
-                },
-                err => {
-                  console.log("unzip done", file);
-                  if (err) {
-                    errors.push(err);
-                    console.error("Unzip error", err);
-                  }
-                }
-              );
-            }
-          });
-
-          return {
-            success: true,
-            errors
-          };
-        } else {
+        if (!src.length) {
           throw new Error("Nothing to install");
         }
+      }
+
+      if (src.length) {
+        const unzip = require("extract-zip");
+
+        const errors = [];
+
+        src.forEach(file => {
+          if (/\.zip$/.test(file)) {
+            unzip(
+              file,
+              {
+                dir: installPath
+              },
+              err => {
+                console.log("unzip done", file);
+                if (err) {
+                  errors.push(err);
+                  console.error("Unzip error", err);
+                }
+              }
+            );
+          }
+        });
+
+        return {
+          success: true,
+          errors
+        };
       }
     },
 
