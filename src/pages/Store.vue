@@ -228,12 +228,13 @@ export default {
       return "2_5";
     },
     textCutter(text = null) {
+      let initial = new DOMParser().parseFromString(text, "text/html").body.textContent;
       let cuttedText = "";
 
-      if (text && text.length > 140) {
-        cuttedText = text.replace(/(([\S\s]{140})[\S\s]*)/gm, "$2").replace(/[.,\s]*?$/, "...");
+      if (initial && initial.length > 140) {
+        cuttedText = initial.replace(/(([\S\s]{140})[\S\s]*)/gm, "$2").replace(/[.,\s]*?$/, "...");
       } else {
-        cuttedText = text || "";
+        cuttedText = initial || "";
       }
 
       return cuttedText;
