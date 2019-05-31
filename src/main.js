@@ -17,13 +17,13 @@ import i18n from "./i18n";
 import Dashboard from "./plugins/dashboard";
 import { baseURL } from "./apiConfig";
 import {
-  UPDATE_TORRENT,
-  UNARCHIVE_OK,
-  UNARCHIVE_FAIL,
+  STOP_TORRENTS,
   TORRENT_DOWNLOADED,
+  UNARCHIVE_FAIL,
+  UNARCHIVE_OK,
+  UPDATE_TORRENT,
   UPDATE_TORRENT_INFOHASH,
-  UPDATE_TORRENT_PROGRESS,
-  STOP_TORRENTS
+  UPDATE_TORRENT_PROGRESS
 } from "./store/mutation-types";
 import "./registerServiceWorker";
 
@@ -31,16 +31,16 @@ import "./assets/scss/main.scss";
 
 import { State } from "./state";
 import {
+  AUTHORIZED,
   STATE_SAVE,
   STATE_SAVE_IMMEDIATE,
+  UNAUTHORIZED,
   UNCAUGHT_ERROR,
-  UNZIP_GAME_OK,
   UNZIP_GAME_FAIL,
-  AUTHORIZED,
-  UNAUTHORIZED
+  UNZIP_GAME_OK
 } from "./dispatch-types";
 
-import { UNARCHIVE_GAME } from "./store/actions-types";
+// import { UNARCHIVE_GAME } from "./store/actions-types";
 
 const { ipcRenderer } = electron;
 
@@ -93,10 +93,6 @@ const app = new Vue({
         });
       }
     });
-
-    if (IS_DEV) {
-      // require('devtron').install();
-    }
   },
   render: h => h(App)
 }).$mount("#app");
@@ -104,7 +100,11 @@ const app = new Vue({
 window.app = app;
 
 if (IS_DEV) {
-  window.require("devtron").install();
+  try {
+    window.require("devtron").install();
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 // Save is restored on app load and saved before quitting
@@ -132,8 +132,7 @@ function getSavedUserState() {
       path: t.path,
       state: t.state,
       torrentFileName: t.torrentFileName,
-      torrentURL: t.torrentURL,
-      unarchived: t.unarchived
+      torrentURL: t.torrentURL
     }))
   };
   console.log("saved state=", result);
@@ -317,23 +316,23 @@ function setupIpc() {
       });
     }
 
-    if (torrentInfo.bytesReceived > 0) {
-      console.log("wt-done TORRENT_DOWNLOADED");
-      dispatch({
-        type: TORRENT_DOWNLOADED,
-        payload: {
-          torrentKey
-        }
-      });
-      // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
-    }
+    // if (torrentInfo.bytesReceived > 0) {
+    console.log("wt-done TORRENT_DOWNLOADED");
+    dispatch({
+      type: TORRENT_DOWNLOADED,
+      payload: {
+        torrentKey
+      }
+    });
+    // ipcRenderer.send('downloadFinished', getTorrentPath(torrentSummary))
+    // }
 
-    if (torrent && !torrent.unarchived) {
-      // Autorun unzip
-      dispatch(UNARCHIVE_GAME, {
-        gameId: torrent.gameId
-      });
-    }
+    // if (torrent && !torrent.unarchived) {
+    //   // Autorun unzip
+    //   dispatch(UNARCHIVE_GAME, {
+    //     gameId: torrent.gameId
+    //   });
+    // }
   });
 
   ipcRenderer.on(UNZIP_GAME_OK, (e, gameId) => {

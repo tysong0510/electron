@@ -658,6 +658,7 @@ const demoData = {
     },
 
     async [INSTALL_GAME]({ getters }, { gameId }) {
+      console.log(`Installing game with id ${gameId} started`);
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
       const installPath = getters[GAME_INSTALL_PATH](gameId);
 
@@ -702,7 +703,7 @@ const demoData = {
         src.forEach(file => {
           if (/\.zip$/.test(file)) {
             promises.push(
-              new Promise(resolve => {
+              new Promise((resolve, reject) => {
                 unzip(
                   file,
                   {
@@ -714,6 +715,7 @@ const demoData = {
 
                     if (err) {
                       errors.push(err);
+                      reject(err);
                       console.error("Unzip error", err);
                     }
                   }
@@ -725,11 +727,18 @@ const demoData = {
 
         await Promise.all(promises);
 
+        console.log(`Installing game with id ${gameId} finished`);
+
         return {
           success: true,
           errors
         };
       }
+
+      return {
+        success: false,
+        errors: []
+      };
     },
 
     [ADD_TORRENT]({ commit }, data) {
