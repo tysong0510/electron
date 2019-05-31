@@ -5,9 +5,9 @@ const APP_VERSION = require("./../package.json").version;
 
 let ENV_TRACKER_ANNOUNCE_LIST = false;
 
-if (process.env.TRACKER_ANNOUNCE_LIST) {
+if (process.env.VUE_APP_TRACKER_ANNOUNCE_LIST) {
   try {
-    ENV_TRACKER_ANNOUNCE_LIST = JSON.parse(process.env.TRACKER_ANNOUNCE_LIST || "false");
+    ENV_TRACKER_ANNOUNCE_LIST = JSON.parse(process.env.VUE_APP_TRACKER_ANNOUNCE_LIST || "false");
   } catch (e) {
     ENV_TRACKER_ANNOUNCE_LIST = false;
   }
