@@ -65,13 +65,21 @@
                           <loading-progress
                             v-if="showDownloadProgress"
                             :progress="progress"
-                            :indeterminate="isProgressIndeterminate"
                             shape="line"
                             size="160"
                             width="160"
                             height="6"
                           />
-                          <div v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</div>
+                          <br />
+                          <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
+                          <span v-else-if="paused">
+                            Seeding paused
+                          </span>
+                          <span v-else>
+                            Seeding
+                          </span>
+                          <br />
+                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
                     </div>
@@ -221,7 +229,7 @@ export default {
     numberOfPeers() {
       const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
       if (!torrent || !torrent.progress) {
-        return "n/a";
+        return 0;
       }
       return torrent.progress.numPeers;
     },
@@ -242,6 +250,16 @@ export default {
     showResumeBtn() {
       const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
       return torrent && ["paused", "error"].includes(torrent.state);
+    },
+    paused() {
+      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+
+      return torrent && torrent.state === "paused";
+    },
+    seeding() {
+      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+
+      return torrent && torrent.downloaded;
     },
     // showPlayBtn() {
     //   const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
