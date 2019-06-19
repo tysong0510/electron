@@ -150,11 +150,11 @@
       </b-card>
       <b-row class="mb-4 mt-4">
         <b-col class="col-carousel">
-          <carousel v-if="game.images && (game.images.slides || game.images.images)" v-bind="carouselOptions">
-            <slide v-for="(image, index) in getImagePath(game, 'slides')" :key="'slide-' + index" class="pr-1 pl-1 carousel-slide">
-              <b-card :img-src="image" class="no-border" no-body />
-            </slide>
-          </carousel>
+          <!--          <carousel v-if="game.images && (game.images.slides || game.images.images)" v-bind="carouselOptions">-->
+          <!--            <slide v-for="(image, index) in getImagePath(game, 'slides')" :key="'slide-' + index" class="pr-1 pl-1 carousel-slide">-->
+          <!--              <b-card :img-src="image" class="no-border" no-body />-->
+          <!--            </slide>-->
+          <!--          </carousel>-->
         </b-col>
       </b-row>
       <b-row class="mt-4">
@@ -166,7 +166,7 @@
 
 <script>
 import { mapGetters, mapActions, mapState } from "vuex";
-import { Carousel, Slide } from "vue-carousel";
+// import { Carousel, Slide } from "vue-carousel";
 import currency from "../mixins/currency";
 
 import VoteBar from "../components/Progress/VoteBar.vue";
@@ -190,9 +190,9 @@ export default {
   name: "GameDetails",
 
   components: {
-    VoteBar,
-    Carousel,
-    Slide
+    VoteBar
+    // Carousel,
+    // Slide
   },
 
   mixins: [currency, user],

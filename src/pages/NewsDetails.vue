@@ -16,11 +16,11 @@
         </b-card-body>
       </b-card-header>
       <b-card-body class="text-white pl-0">
-        <carousel v-if="news.images && news.images.slides" v-bind="carouselOptions" class="mt-4 mb-2">
-          <slide v-for="(slide, index) in getImagePath(news, 'slides')" :key="'slide-' + index" class="pr-1 pl-1">
-            <b-card :img-src="slide" class="no-border" no-body />
-          </slide>
-        </carousel>
+        <!--        <carousel v-if="news.images && news.images.slides" v-bind="carouselOptions" class="mt-4 mb-2">-->
+        <!--          <slide v-for="(slide, index) in getImagePath(news, 'slides')" :key="'slide-' + index" class="pr-1 pl-1">-->
+        <!--            <b-card :img-src="slide" class="no-border" no-body />-->
+        <!--          </slide>-->
+        <!--        </carousel>-->
         <b-card-text class="mt-4 mb-2">
           <template v-if="news.blocks">
             <b-row v-for="(block, index) in news.blocks" :key="'block-' + index">
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { Carousel, Slide } from "vue-carousel";
+// import { Carousel, Slide } from "vue-carousel";
 import user from "../mixins/user";
 import news from "../mixins/news";
 import { mapActions, mapState } from "vuex";
@@ -62,8 +62,8 @@ const carouselOptions = {
 export default {
   name: "News",
   components: {
-    Carousel,
-    Slide
+    // Carousel,
+    // Slide
   },
   mixins: [user, news],
   // data() {
