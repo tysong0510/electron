@@ -9,6 +9,12 @@ const NewsDetails = () => import(/* webpackChunkName: 'newsDetails' */ "@/pages/
 const ProfileViewAll = () => import(/* webpackChunkName: 'profileViewAll' */ "@/pages/ProfileViewAll.vue");
 const ApiDemo = () => import(/* webpackChunkName: 'apiDemo' */ "@/pages/ApiDemo");
 const Logout = () => import(/* webpackChunkName: 'logout' */ "@/pages/Logout");
+const DeveloperPortal = () => import(/* webpackChunkName: 'developerPortal' */ "@/pages/DeveloperPortal");
+const ReportABug = () => import(/*webpackChunkName: 'reportABug' */ "@/pages/ReportABug");
+const UserDirectory = () => import(/*webpackChunkName: 'userDirectory' */ "@/pages/UserDirectory");
+const UserDirectoryProfile = () => import(/*webpackChunkName: 'userDirectoryProfile' */ "@/pages/UserDirectoryProfile");
+const NewsPortal = () => import(/*webpackChunkName: 'newsPortal' */ "@/pages/NewsPortal");
+const ShoppingCart = () => import(/*webpackChunkName: 'shoppingCart' */ "@/pages/ShoppingCart");
 
 const routes = [
   {
@@ -23,7 +29,7 @@ const routes = [
         name: "login",
         redirect: {
           name: "store-top",
-          query: { auth: "select" }
+          query: { auth: "select" } //relates to the modal
         }
       },
       {
@@ -108,6 +114,42 @@ const routes = [
         path: "api/demo",
         name: "api-demo",
         component: ApiDemo
+      },
+      {
+        path: "developerPortal",
+        name: "developerPortal",
+        /*
+        redirect: {
+          name: "profile",
+          query: { auth: "developerPortal" } //relates to the modal
+        }
+        */
+        component: DeveloperPortal
+      },
+      {
+        path: "mail",
+        name: "mail",
+        component: ReportABug
+      },
+      {
+        path: "userDirectory",
+        name: "userDirectory",
+        component: UserDirectory
+      },
+      {
+        path: "userDirectoryProfile",
+        name: "userDirectoryProfile",
+        component: UserDirectoryProfile
+      },
+      {
+        path: "newsPortal",
+        name: "newsPortal",
+        component: NewsPortal
+      },
+      {
+        path: "shoppingCart",
+        name: "shoppingCart",
+        component: ShoppingCart
       }
     ]
   },

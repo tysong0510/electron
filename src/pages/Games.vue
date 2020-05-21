@@ -30,8 +30,12 @@
                     {{ game.title }}
                   </b-card-title>
                   <b-card-text>
+                    <!--
                     <small class="text-muted">{{ game.releaseDate | dateFormat }}</small>
                     <small class="text-muted d-block">{{ game.sizeBytes | memorySize }}</small>
+                    -->
+                    <small class="text-muted">Developer: {{ game.developer }}</small>
+                    <small class="text-muted d-block">Publisher: {{ game.publisher }}</small>
                   </b-card-text>
                 </b-col>
               </b-row>
@@ -52,7 +56,18 @@
             <b-col cols="12" class="border-bottom" />
           </b-row>
         </b-col>
+
+        <!-- Adding button here to remove downloaded games from array in local storage for testing -->
       </template>
+
+      <!-- Adding button here to remove downloaded games from array in local storage for testing -->
+      <!--
+      <b-row>
+          <b-col>
+            <button class="btn btn-primary" @click="removeDownloadedGames()">Remove Downloaded Games</button>
+          </b-col>
+        </b-row>
+-->
     </b-row>
   </div>
 </template>
@@ -82,6 +97,9 @@ export default {
     },
     deleteGame: gameId => {
       alert(`Delete game with id ${gameId}`);
+    },
+    removeDownloadedGames() {
+      this.$store.dispatch("removeDownloadedGames");
     }
   }
 };

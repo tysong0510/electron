@@ -22,6 +22,8 @@ export const ACTION_REGISTER = "ACTION_REGISTER";
 export const ACTION_LOGOUT = "ACTION_LOGOUT";
 export const ACTION_USER = "ACTION_USER";
 export const ACTION_REFRESH = "ACTION_REFRESH";
+export const ACTION_RESTORE = "ACTION_RESTORE";
+export const ACTION_GAME = "ACTION_GAME";
 
 export const USER = "USER";
 export const IS_LOGGED_IN = "IS_LOGGED_IN";
@@ -41,6 +43,7 @@ export default {
     token: "",
     authorized: false,
     user: {},
+    game: {},
     refreshInterval: 30
   },
   mutations: {
@@ -53,9 +56,9 @@ export default {
       // state.token = token;
 
       if (ipcMain) {
-        ipcMain.emit(AUTHORIZED);
+        ipcMain.emit(AUTHORIZED, state.token);
       } else if (ipcRenderer) {
-        ipcRenderer.emit(AUTHORIZED);
+        ipcRenderer.emit(AUTHORIZED, state.token);
         // ipcRenderer.send(AUTHORIZED);
       }
     },
@@ -135,7 +138,10 @@ export default {
 
             const { username } = await dispatch(ACTION_USER);
             commit(MUTATION_AUTH_SUCCESS);
-            commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+            commit(
+              MUTATION_SET_REFRESH_INTERVAL,
+              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+            );
 
             const savedState = await State.loadUser(username);
             await restoreStoreFromSavedUserState(store, savedState);
@@ -190,7 +196,10 @@ export default {
             commit(MUTATION_AUTH_SUCCESS);
 
             if (ipcMain) {
-              commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
+              commit(
+                MUTATION_SET_REFRESH_INTERVAL,
+                setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+              );
             }
 
             resolve(resp);
@@ -223,6 +232,33 @@ export default {
           .catch(err => {
             // commit(MUTATION_AUTH_ERROR, err);
 
+            reject(err);
+          });
+      });
+    },
+    [ACTION_RESTORE](store, user) {
+      //const { commit, dispatch, getters } = store;
+      return new Promise((resolve, reject) => {
+        //commit(MUTATION_AUTH_REQUEST);
+        Axios({ url: "/auth/restore", params: user, method: "GET" })
+          .then(async resp => {
+            console.log(resp);
+            resolve(resp);
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
+    },
+    [ACTION_GAME](store, game) {
+      return new Promise((resolve, reject) => {
+        Axios({ url: "/games", data: game, method: "POST" })
+          .then(resp => {
+            console.log(resp);
+
+            resolve(resp);
+          })
+          .catch(err => {
             reject(err);
           });
       });

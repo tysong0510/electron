@@ -3,6 +3,17 @@
     <b-row v-if="error" class="error">
       <b-col>News with id "{{ id }}" not found {{ error }} {{ /* TODO print user friendly error message */ }}</b-col>
     </b-row>
+    <b-row class="mt-1 mb-4 pb-2">
+      <b-col>
+        <router-link :to="{ name: 'news' }" class="text-muted">
+          <div
+            class="d-inline-block"
+            style="border-left: 1px solid; border-bottom: 1px solid; border-radius: 1px; height: .6em; width: .6em; transform: matrix(1, 1, -1, 1, 0, 0);"
+          />
+          Back to all news
+        </router-link>
+      </b-col>
+    </b-row>
     <b-card v-if="!pending && news" no-body class="pb-3 mb-2 border-0">
       <b-card-header class="border-0 d-inline-flex p-0">
         <b-card-img :src="getImagePath(news)" class="rounded-lg card-image" />
@@ -16,11 +27,11 @@
         </b-card-body>
       </b-card-header>
       <b-card-body class="text-white pl-0">
-        <!--        <carousel v-if="news.images && news.images.slides" v-bind="carouselOptions" class="mt-4 mb-2">-->
-        <!--          <slide v-for="(slide, index) in getImagePath(news, 'slides')" :key="'slide-' + index" class="pr-1 pl-1">-->
-        <!--            <b-card :img-src="slide" class="no-border" no-body />-->
-        <!--          </slide>-->
-        <!--        </carousel>-->
+        <carousel v-if="news.images && news.images.slides" v-bind="carouselOptions" class="mt-4 mb-2">
+          <slide v-for="(slide, index) in getImagePath(news, 'slides')" :key="'slide-' + index" class="pr-1 pl-1">
+            <b-card :img-src="slide" class="no-border" no-body />
+          </slide>
+        </carousel>
         <b-card-text class="mt-4 mb-2">
           <template v-if="news.blocks">
             <b-row v-for="(block, index) in news.blocks" :key="'block-' + index">
@@ -43,7 +54,7 @@
 </template>
 
 <script>
-// import { Carousel, Slide } from "vue-carousel";
+import { Carousel, Slide } from "vue-carousel";
 import user from "../mixins/user";
 import news from "../mixins/news";
 import { mapActions, mapState } from "vuex";
@@ -62,8 +73,8 @@ const carouselOptions = {
 export default {
   name: "News",
   components: {
-    // Carousel,
-    // Slide
+    Carousel,
+    Slide
   },
   mixins: [user, news],
   // data() {

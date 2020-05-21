@@ -37,6 +37,7 @@
     </div>
 
     <auth-modal v-once />
+    <!--<shopping-cart v-once />-->
   </div>
 </template>
 
@@ -52,7 +53,7 @@ export default {
     // AuthModal,
     DashboardContent,
     // eslint-disable-next-line
-      Logo
+      Logo,
   },
   mixins: [user],
   data() {
@@ -63,6 +64,14 @@ export default {
           title: "VoxPop",
           component: Logo,
           visibleOnCollapse: true
+        },
+        {
+          title: "Cart " + "(" + this.$store.state.cart.length + ")",
+          icon: "icon icon-cart",
+          href: "/shoppingCart",
+          name: "shoppingCart",
+
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
         },
         {
           title: "Store",
@@ -96,21 +105,28 @@ export default {
           class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : "",
           child: [
             {
-              href: "/profile/top-games",
+              href: "/userDirectory",
+              title: "User Directory"
+              /*href: "/profile/top-games", //need to make a new href in routes with a different route
               title: "My top games"
+              */
             },
             {
-              href: "/profile/files",
-              title: "My files"
+              //href: "/profile/files", To be fixed at a later date
+              href: "",
+              title: "Files I'm Seeding"
             },
             {
-              href: "/profile/recommendation",
+              //href: "/profile/recommendation", To be fixed at a later date
+              href: "",
               title: "My recommendation"
-            },
+            }
+            /*,
             {
               href: "/profile/recently-played",
               title: "Recently played"
             }
+            */
           ]
           // badge: {
           //     text: 'new',
@@ -128,7 +144,31 @@ export default {
                 // class:''
             }
             */
+          /*child: [
+             {
+               href: "newsPortal",
+               title: "News Portal",
+               class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
+               //class: !this[USER].role == 'staff' ? "d-none" : ""
+               
+             }
+           ]*/
         },
+        {
+          href: "/developerPortal",
+          title: "Dev Portal",
+          //need an icon
+          icon: "icon icon-devPortal",
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
+        },
+
+        {
+          title: "Report A Bug",
+          icon: "icon icon-bug",
+          href: "/mail",
+          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
+        },
+
         {
           href: "/logout",
           title: "Logout",
@@ -306,6 +346,18 @@ export default {
       background-image: url("../assets/icons/login.svg");
     }
 
+    .icon.icon-devPortal:before {
+      background-image: url("../assets/icons/portal-svg-white.svg");
+    }
+
+    .icon.icon-bug:before {
+      background-image: url("../assets/icons/bug-svg-white.svg");
+    }
+
+    .icon.icon-cart:before {
+      background-image: url("../assets/icons/cartsvg.svg");
+    }
+
     .icon:before {
       content: "";
       height: 100%;
@@ -318,6 +370,11 @@ export default {
       background-position: center;
       background-repeat: no-repeat;
       opacity: 0.5;
+    }
+
+    .vsm-icon.icon.bug::before {
+      height: auto;
+      width: auto;
     }
 
     &.router-link-active {

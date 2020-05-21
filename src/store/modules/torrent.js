@@ -177,6 +177,7 @@ export default {
       if (torrent) {
         ({ torrentKey } = torrent);
         if (torrent.state === "downloading") {
+          console.log("inside torrent state downloading");
           // nothing to do
           return;
         }
@@ -206,6 +207,7 @@ export default {
       const torrentId = torrentFile || torrentURL;
 
       if (!ipcRenderer) {
+        console.log("ipdRenderer emit in torrent js");
         ipcMain.emit(
           "wt-start-torrenting",
           null,
@@ -217,6 +219,7 @@ export default {
         return;
       }
 
+      console.log("right above ipcRendere.send in torrent.js inside start download game action");
       ipcRenderer.send(
         "wt-start-torrenting",
         torrentKey, // key

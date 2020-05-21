@@ -115,13 +115,16 @@ export default {
       if (game.images) {
         switch (type) {
           case "main":
-            return game.images.main ? `${baseURL}/apps/${game.id}/${game.images.main}` : null;
+            //console.log("what is this: " + game.images.main);
+            //return game.images.main ? `${baseURL}/apps/${game.id}/${game.images.main}` : null;
+            return game.images.main;
           case "slides":
             if (game.images.slides || game.images.images) {
               const slides = [];
 
               for (const slide of game.images.slides || game.images.images) {
                 slides.push(`${baseURL}/apps/${game.id}/${slide}`);
+                //console.log("array: "+ game.images.slides.slide);
               }
 
               return slides;

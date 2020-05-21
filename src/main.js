@@ -1,7 +1,7 @@
 // import devtools from '@vue/devtools'
 import Vue from "vue";
 import VueRouter from "vue-router";
-import BootstrapVue from "bootstrap-vue";
+import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import Vs from "d3-vs";
 import Axios from "axios";
 import VueAxios from "vue-axios";
@@ -41,6 +41,13 @@ import {
 } from "./dispatch-types";
 
 // import { UNARCHIVE_GAME } from "./store/actions-types";
+/*
+const squirrelEvents = require("../installers/windows/squirrelEvents"); //path to squirrel events
+if (squirrelEvents.handleSquirrelEvent()) {
+  // squirrel event handled and app will exit in 1000ms, so don't do anything else
+  return;
+}
+*/
 
 const { ipcRenderer } = electron;
 
@@ -61,6 +68,7 @@ Vue.axios.defaults.baseURL = baseURL;
 
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
+Vue.use(BootstrapVueIcons);
 Vue.use(Dashboard);
 Vue.use(VueRouter);
 Vue.use(Vs);
@@ -234,6 +242,7 @@ function setupIpc() {
     if (torrent) {
       dispatch({
         type: UPDATE_TORRENT,
+        //type:STOP_TORRENTS,
         payload: {
           torrentKey,
           state: "downloading",
@@ -357,12 +366,14 @@ function setupIpc() {
   });
 
   ipcRenderer.on("wt-error", (e, torrentKey, message) => {
+    console.log("inside wt-error in main.js");
     console.error("wt-error", torrentKey, message);
     // const torrent = store.getters.findTorrentByKey(torrentKey);
     // const { state } = torrent;
     const { dispatch } = app.$store;
     dispatch({
       type: UPDATE_TORRENT,
+      //type:STOP_TORRENTS,
       payload: {
         torrentKey,
         state: "error",

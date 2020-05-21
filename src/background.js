@@ -32,6 +32,26 @@ const enableDebug = process.env.DEBUG === "true" || process.argv.includes("--deb
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let torrentWin;
+var userToken;
+//let deeplinkingUrl;
+
+/*const shouldQuit = app.makeSingleInstance(argv => {
+  if (process.platform == "win32") {
+    deeplinkingUrl = argv.slice(1);
+  }
+  logEverywhere("app.makeSingleInstance#" + deeplinkingUrl);
+
+  if(win) {
+    if(win.isMinimized()) {
+      win.restore();
+    }
+    win.focus();
+  }
+});
+
+if(shouldQuit) {
+  app.quit();
+}*/
 
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(["app"], { secure: true });
@@ -56,11 +76,18 @@ function createWindow({ debug }) {
   } else {
     createProtocol("app");
     // Load the index.html when not in development
-    win.loadURL("app://./index.html");
+    win.loadURL("app://./index.html"); // this loads the original page
     if (isDevelopment || enableDebug || debug) {
       win.webContents.openDevTools({ mode: "detach" });
     }
   }
+  /*
+
+  if (process.platform == "win32") {
+    deeplinkingUrl = process.argv.slice(1);
+    logEverywhere("app.makeSingleInstance#" + deeplinkingUrl);
+  }
+*/
 
   win.on("close", e => {
     if (process.platform !== "darwin") {
@@ -76,6 +103,44 @@ function createWindow({ debug }) {
   win.on("closed", () => {
     win = null;
   });
+}
+
+ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
+  //console.log(event);
+  console.log("amount price is: " + amount);
+  console.log("gameIds to be sent: ", gameIDs);
+  let win = new BrowserWindow({ width: 960, height: 540 });
+  //win.loadURL(`https://www.voxpopgames.com/payment/buyGameByIds`, {
+  win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
+    extraHeaders:
+      "Authorization: " + userToken + "\n" + "amount: " + amount + "\n" + "token: " + gameIDs + "\n" + "recommender: " + recommenderID
+  });
+  //win.webContents.openDevTools({ mode: "detach" });
+});
+
+var link = null;
+
+app.on("open-url", (event, data) => {
+  event.preventDefault();
+
+  link = data;
+  console.log("data from opening link: ", data);
+
+  console.log("app path: ", app.getAppPath());
+
+  console.log("link data: ", link);
+  logEverywhere("open-url# " + data);
+});
+
+app.setAsDefaultProtocolClient("voxpop");
+
+//module.exports.getLink = () => link;
+
+function logEverywhere(s) {
+  console.log(s);
+  if (win && win.webContents) {
+    win.executeJavaScript(`console.log("${s}")`);
+  }
 }
 
 function dummyDRM(mode = DRM_MODE_ENCRYPT) {
@@ -366,8 +431,9 @@ ipc.on(UNZIP_GAME, (e, msg) => {
   }
 });
 
-ipc.on(AUTHORIZED, () => {
+ipc.on(AUTHORIZED, token => {
   console.log("ipc: ", AUTHORIZED);
+  userToken = token;
   dummyDRM(DRM_MODE_DECRYPT);
 });
 

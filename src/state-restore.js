@@ -10,6 +10,8 @@ export async function restoreStoreFromSavedUserState(store, state) {
   const { rootState: storeState, dispatch, getters } = store;
   console.log("restoreStoreFromSavedUserState() main renderer state", state);
   console.log(`isAuthenticated ${getters.IS_LOGGED_IN}`);
+  console.log("torrents: ", torrents);
+
   // if (getters['IS_LOGGED_IN']) {
   // const user = getters[USER];
   // console.log(`user ${user}`);
@@ -45,6 +47,7 @@ export async function restoreStoreFromSavedUserState(store, state) {
       promises.push(dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId }));
     }
   });
+
   // }
   return Promise.all(promises);
 }

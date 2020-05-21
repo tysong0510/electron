@@ -113,6 +113,139 @@ button {
 //::-webkit-scrollbar-thumb {
 //  background: #ffffff40;
 //}
+
+/*
+#paymentModal .modal-header {
+  background-color: #10132B;
+  border-bottom: none;
+
+  .close {
+    color: white;
+    
+   
+    font-weight: normal;
+  }
+}
+
+
+#paymentModal .modal-body {
+  background-color: #10132B;
+  color: #696E80;
+  
+}
+*/
+
+#paymentModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#paymentConfirm .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#developerConfirm .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
 #auth-error {
   .modal-content {
     background-color: $primary-states;

@@ -8,3 +8,5 @@ export const INSTALL_GAME = "INSTALL_GAME";
 
 export const LOAD_NEWS = "LOAD_NEWS";
 export const LOAD_NEWS_ITEM = "LOAD_NEWS_ITEM";
+
+export const ADD_TO_CART = "ADD_TO_CART";

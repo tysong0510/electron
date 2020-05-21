@@ -30,20 +30,25 @@
                     <b-form-input id="password" v-model="password" name="password" required type="password" />
                   </b-form-group>
                   <b-row>
+                    <!-- Remember Me checkbox
                     <b-col cols="6">
                       <b-form-checkbox v-model="rememberMe" class="text-left" name="remember">
                         Remember me
                       </b-form-checkbox>
                     </b-col>
+                    -->
                     <b-col cols="6">
-                      <a href="#" class="float-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password?</a>
+                      <a href="#" class="text-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password?</a>
                     </b-col>
                   </b-row>
                   <b-form-invalid-feedback :state="loginValid">
                     Invalid username or password
                   </b-form-invalid-feedback>
+                  <b-form-invalid-feedback :state="emailValid">
+                    Email address is not verified
+                  </b-form-invalid-feedback>
                   <b-form-invalid-feedback :state="!otherError">
-                    Error connecting to server. Please try again
+                    Error connecting to server. Please try again.
                   </b-form-invalid-feedback>
                 </b-form>
               </b-col>
@@ -76,22 +81,42 @@
               <b-col class="text-center">
                 <b-form id="registration" @submit="register">
                   <b-form-group label="First Name" label-for="firstName" class="text-left">
-                    <b-form-input id="firstName" ref="registration" v-model="firstName" name="firstName" required type="text" />
+                    <b-form-input
+                      id="firstName"
+                      ref="registration"
+                      v-model="firstName"
+                      name="firstName"
+                      required
+                      type="text"
+                      placeholder="E.g. Leandro"
+                    />
                     <b-form-invalid-feedback :state="!validationErrors.firstName">
                       {{ validationErrors.firstName }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Last Name" label-for="lastName" class="text-left">
-                    <b-form-input id="lastName" v-model="lastName" name="lastName" required type="text" />
+                    <b-form-input id="lastName" v-model="lastName" name="lastName" required type="text" placeholder="E.g. Rodriguez" />
                     <b-form-invalid-feedback :state="!validationErrors.lastName">
                       {{ validationErrors.lastName }}
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Username" label-for="username" class="text-left">
-                    <b-form-input id="username" v-model="username" name="username" required type="text" />
+                    <b-form-input id="username" v-model="username" name="username" required type="text" placeholder="example123" />
                     <b-form-invalid-feedback :state="!validationErrors.username">
                       {{ validationErrors.username }}
                     </b-form-invalid-feedback>
+                  </b-form-group>
+                  <b-form-group>
+                    <div class=" text-left mt-2">
+                      Selected: <strong>{{ role }} </strong>
+                    </div>
+                    <b-form-select v-model="role" class="mb-3" required>
+                      <b-form-select-option :value="null">Pick your path</b-form-select-option>
+                      <b-form-select-option value="Developer">Developer</b-form-select-option>
+                      <b-form-select-option value="Streamer">Streamer</b-form-select-option>
+                      <b-form-select-option value="Content-Creator">Content Creator</b-form-select-option>
+                      <b-form-select-option value="Gamer">Gamer</b-form-select-option>
+                    </b-form-select>
                   </b-form-group>
                   <b-form-group label="Email" label-for="email" class="text-left">
                     <b-form-input id="email" v-model="email" name="email" required placeholder="example@example.com" type="email" />
@@ -135,7 +160,7 @@
             <b-row class="my-3 mb-3">
               <b-col class="text-center">
                 <h5>
-                  Please close this window or click continue to sign in with your new account.
+                  Please verify email address to sign in with your new account.
                 </h5>
               </b-col>
             </b-row>
@@ -152,18 +177,17 @@
           <b-col>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-form
-                  id="restore"
-                  @submit="
-                    e => {
-                      e.preventDefault();
-                    }
-                  "
-                >
+                <b-form id="restore" @submit="restore">
                   <b-form-group label="Email" label-for="email" class="text-left">
                     <b-form-input id="email" ref="restore" v-model="email" required name="email" type="email" />
                     <b-form-invalid-feedback :state="!validationErrors.email">
                       {{ validationErrors.email }}
+                    </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="emailValidation">
+                      That email address does not exist in our system. Please try again.
+                    </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="!otherError">
+                      Error connecting to server. Please try again.
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </b-form>
@@ -187,6 +211,24 @@
                     </b-col>
                   </b-row>
                 </b-col>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+        <b-row v-else-if="modalType === 'resetConfirm'">
+          <b-col>
+            <b-row class="my-3 mb-3">
+              <b-col class="text-center">
+                <h5>
+                  Please click the link sent to your email to reset your password.
+                </h5>
+              </b-col>
+            </b-row>
+            <b-row class="my-3">
+              <b-col class="text-center">
+                <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="goTo('sign-in')">
+                  Continue
+                </b-button>
               </b-col>
             </b-row>
           </b-col>
@@ -220,11 +262,11 @@
 
 <script>
 import { ipcRenderer } from "electron";
-import { ACTION_LOGIN, ACTION_REGISTER } from "../../store/modules/auth";
+import { ACTION_LOGIN, ACTION_REGISTER, ACTION_RESTORE } from "../../store/modules/auth";
 // import { UNAUTHORIZED } from '../../dispatch-types';
 import { AUTHORIZED } from "../../dispatch-types";
 
-const modalTypes = ["select", "sign-in", "confirm", "registration", "restore"];
+const modalTypes = ["select", "sign-in", "confirm", "registration", "restore", "resetConfirm"];
 
 const modals = {
   select: {
@@ -241,6 +283,9 @@ const modals = {
   },
   restore: {
     title: "Forgot password"
+  },
+  resetConfirm: {
+    title: "Password reset link sent"
   }
 };
 
@@ -254,12 +299,15 @@ export default {
       email: null,
       firstName: null,
       lastName: null,
+      role: null,
       rememberMe: false,
       loginValid: true,
+      emailValid: true,
       otherError: false,
       loading: false,
       usernameValidation: true,
       emailValidation: true,
+      msg: "",
       validationErrors: {}
     };
   },
@@ -306,6 +354,7 @@ export default {
       this.email = null;
       this.firstName = null;
       this.lastName = null;
+      this.role = null;
     },
     onHide() {
       this.$authModal.showModal = false;
@@ -378,6 +427,8 @@ export default {
 
           if (res && res.status === 404) {
             this.loginValid = false;
+          } else if (res && res.status == 401) {
+            this.emailValid = false;
           } else {
             this.otherError = true;
           }
@@ -393,11 +444,13 @@ export default {
 
       this.$store
         .dispatchPromise(ACTION_REGISTER, {
+          //probably an issue right in here/ this takes the values and sends them to auth.js
           // Vue-resource
           firstName: this.firstName,
           lastName: this.lastName,
           email: this.email,
           username: this.username,
+          role: this.role, //Submitting user role from the one they picked on sign in
           password: this.password
         })
         .then(() => {
@@ -428,6 +481,38 @@ export default {
           // }
           //
           // console.log(err.response);
+        });
+    },
+    restore(evt) {
+      evt.preventDefault();
+
+      this.otherError = false;
+
+      const that = this;
+      this.loading = true;
+
+      this.$store
+        .dispatchPromise(ACTION_RESTORE, {
+          email: this.email
+        })
+        .then(() => {
+          this.loading = false;
+          that.$authModal.showModal = false;
+
+          this.formReset();
+          console.log("Restored");
+          this.goTo("resetConfirm");
+        })
+        .catch(err => {
+          this.loading = false;
+          const res = err.response;
+
+          if (res && res.status === 404) {
+            this.emailValidation = false;
+          } else {
+            this.otherError = true;
+            //this.msg = res;
+          }
         });
     }
   }

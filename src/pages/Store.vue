@@ -37,6 +37,7 @@
           <b-row>
             <b-col>
               <h2>{{ storeTitle }}</h2>
+              <!-- This needs to be passed to game details to allow returning back to the proper store -->
             </b-col>
             <b-col v-if="filter" cols="4">
               <b-select v-model="filterSelected" :options="filter.options" class="filter-period text-white" />
@@ -116,7 +117,7 @@
                     <b-col cols="4">
                       <b-card-sub-title sub-title-tag="div" class="font-weight-normal mt-0" style="font-size: 14px;">
                         <b-row>
-                          <b-col class="text-white">
+                          <b-col v-if="game.price != 500 && game.price != 250" class="text-white">
                             {{ game.price | currency }}
                           </b-col>
                           <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
@@ -209,6 +210,7 @@ export default {
 
     if (this.currentStore === "store-featured") {
       this.getFeatured();
+      console.log("this.getFeatured(): ", this.getFeatured());
     } else if (this.currentStore === "store-top") {
       this.getTopGames();
     }
@@ -255,8 +257,10 @@ export default {
       }
 
       if (storeName === "store-featured") {
+        console.log("store name is featured...");
         if (!this.pending.featuredGames) {
           store.content = this.featuredGames || [];
+          console.log("featured games: ", this.featuredGames);
         }
       } else if (storeName === "store-top") {
         if (!this.pending.topGames) {

@@ -6,28 +6,59 @@
         <b-row no-gutters>
           <b-col class="col-auto mr-auto">
             <h2 class="card-title display-2 text-white" style="font-size: 2.25rem;">
-              {{ name }}
+              {{ USER.username }}
+              <span v-if="USER.role === 'admin'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Mod.png" alt="AdminLogo" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
+              <span v-if="USER.role === 'staff'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Staff.png" alt="StaffLogo" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
+              <span v-if="USER.role === 'Developer'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Dev2.png" alt="DeveloperLogo" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
+              <span v-if="USER.role === 'Streamer'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Streamer.png" alt="StreamerLogo" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
+              <span v-if="USER.role === 'Content-Creator'" class="voxLogoHolder">
+                <img src="../assets/icons/contentcreator_badge.png" alt="ContentCreatorBadge" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
+              <span v-if="USER.role === 'Gamer'" class="voxLogoHolder">
+                <img src="../assets/icons/gamer_badge.png" alt="GamerBadge" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
             </h2>
           </b-col>
           <b-col class="col-auto">
             <!--<b-button id="playButton" v-on:click="play(game.gameId)" variant="outline">-->
-            <img src="../assets/icons/settings.svg" alt="Settings" />
+            <!-- <img src="../assets/icons/settings.svg" alt="Settings" /> -->
+            <router-link :to="{ name: 'userDirectory' }">
+              <img height="25px" width="25px" src="../assets/icons/magnify.png" alt="magnifyingGlass" />
+            </router-link>
             <!--</b-button>-->
           </b-col>
         </b-row>
 
         <b-row>
           <b-col title="VoxCoins">
-            <img src="../assets/icons/voxcoin.svg" class="voxcoin d-inline-block m-auto" alt="VoxCoin" />
+            <img src="../assets/icons/VP_Coin_SVG.svg" class="voxcoin d-inline-block m-auto" alt="VoxCoin" />
             <p class="d-inline-block m-auto pl-2 text-white align-middle" style="font-size: 1.2em;">
               {{ tokens }}
             </p>
           </b-col>
         </b-row>
 
-        <p class="card-subtitle text-white pb-4 border-bottom">
+        <p v-if="condition" class="card-subtitle text-white pb-4">
           {{ USER.category }}
+          <br />
+          <!-- this is where the logo and user role was -->
+          {{ USER.role }}
         </p>
+        <p class="card-subtitle text-white pb-4 border-bottom">User ID: {{ USER.id }}</p>
       </b-card-body>
     </b-card>
 
@@ -54,16 +85,21 @@
         <b-row no-gutters>
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
-              :data="[{ key: 'test', value: 20 }, { key: 'test1', value: 50 }, { key: 'test2', value: 30 }]"
+              :data="[
+                { key: 'test', value: 20 },
+                { key: 'test1', value: 50 },
+                { key: 'test2', value: 30 }
+              ]"
               style="width: auto; height: 184.02px;"
             />
           </b-col>
           <b-col class="col-8 d-inline text-white">
-            <ul class="mt-5 pt-5">
+            <!-- <ul class="mt-5 pt-5">
               <li>Downloaded games</li>
               <li>Spent time</li>
               <li>Spent money</li>
-            </ul>
+            </ul> -->
+            <img src="../assets/icons/info_square2.png" alt="infoSquare" />
           </b-col>
         </b-row>
       </b-col>
@@ -71,7 +107,8 @@
         <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
           Friends
         </h4>
-        <span class="d-inline float-right">0</span>
+        <!-- <span class="d-inline float-right">0</span> -->
+        <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" />
       </b-col>
     </b-row>
 
@@ -254,7 +291,10 @@
       </b-col>
     </b-row>
 
-    <horizontal-view
+    <!--
+      Will be fixed once this page is operable
+      
+       <horizontal-view
       v-if="!pending.games && topGamesStore.content"
       v-once
       title="Your top games"
@@ -262,6 +302,15 @@
       title-class="font-weight-normal"
       title-tag="h4"
       :view-all-to="{ name: 'my-top-games' }"
+    > -->
+    <horizontal-view
+      v-if="!pending.games && topGamesStore.content"
+      v-once
+      title="Your top games"
+      class="text-white pb-5 mb-4 border-bottom"
+      title-class="font-weight-normal"
+      title-tag="h4"
+      :view-all-to="{ name: '' }"
     >
       <b-col
         v-for="(game, index) in topGamesStore.content.slice(0, maxElements)"
@@ -293,7 +342,10 @@
       </b-col>
     </horizontal-view>
 
-    <horizontal-view
+    <!--
+      Will be fixed once this page is operable
+
+       <horizontal-view
       v-if="!pending.games && yourFilesStore.content"
       v-once
       title="Your files"
@@ -301,6 +353,15 @@
       title-class="font-weight-normal"
       title-tag="h4"
       :view-all-to="{ name: 'my-files' }"
+    > -->
+    <horizontal-view
+      v-if="!pending.games && yourFilesStore.content"
+      v-once
+      title="Your files"
+      class="text-white pb-5 mb-4 border-bottom"
+      title-class="font-weight-normal"
+      title-tag="h4"
+      :view-all-to="{ name: '' }"
     >
       <b-col
         v-for="(game, index) in yourFilesStore.content.slice(0, maxElements)"
@@ -332,7 +393,10 @@
       </b-col>
     </horizontal-view>
 
-    <horizontal-view
+    <!-- 
+      Will be fixed once this page is operable
+
+      <horizontal-view
       v-if="!pending.games && yourRecommendationStore.content"
       v-once
       title="Your recommendation"
@@ -340,6 +404,16 @@
       title-class="font-weight-normal"
       title-tag="h4"
       :view-all-to="{ name: 'my-recommendation' }"
+    > -->
+
+    <horizontal-view
+      v-if="!pending.games && yourRecommendationStore.content"
+      v-once
+      title="Your recommendation"
+      class="text-white pb-5 mb-4 border-bottom"
+      title-class="font-weight-normal"
+      title-tag="h4"
+      :view-all-to="{ name: '' }"
     >
       <b-col
         v-for="(game, index) in yourRecommendationStore.content.slice(0, maxElements)"
@@ -371,7 +445,10 @@
       </b-col>
     </horizontal-view>
 
-    <horizontal-view
+    <!-- 
+      Will be fixed once this page is operable
+
+      <horizontal-view
       v-if="!pending.games && recentlyPlayedStore.content"
       v-once
       title="Recently played"
@@ -379,6 +456,16 @@
       title-class="font-weight-normal"
       title-tag="h4"
       :view-all-to="{ name: 'recently-played' }"
+    > -->
+
+    <horizontal-view
+      v-if="!pending.games && recentlyPlayedStore.content"
+      v-once
+      title="Recently played"
+      class="text-white pb-5 mb-4 border-bottom"
+      title-class="font-weight-normal"
+      title-tag="h4"
+      :view-all-to="{ name: '' }"
     >
       <b-col
         v-for="(game, index) in recentlyPlayedStore.content.slice(0, maxElements)"
@@ -420,7 +507,7 @@ import date from "../mixins/date";
 import currency from "../mixins/currency";
 import user from "../mixins/user";
 
-import { baseURL } from "../apiConfig";
+//import { baseURL } from "../apiConfig";
 import { USER } from "../store/modules/auth";
 
 export default {
@@ -525,9 +612,22 @@ export default {
     avatar: {
       get() {
         const userAvatar = this[USER] && this[USER].images && this[USER].images.main;
+        const userRole = this[USER].role;
+
+        /**
+         * "magnet:?xt=urn:btih:0484a3d1e897e56963f37f6aa6227e4208e4f107&dn=packedFortune-499AprilTwentyFourth.exe&ws=https%3A%2F%2Fvoxpop-image-bucket.s3.us-east-2.amazonaws.com%2FTesting-packed-Fortune-499-for-magnet-Link%2F&xs=https%3A%2F%2Fvoxpop-image-bucket.s3.us-east-2.amazonaws.com%2FTesting-packed-Fortune-499-for-magnet-Link%2F1587769871110_packedFortune-499AprilTwentyFourth.exe"
+         */
 
         if (userAvatar) {
-          return `${baseURL}/profile/${this[USER].id}/${userAvatar}`;
+          return userAvatar; //returning string directly from AWS
+        } else if (userRole == "Developer") {
+          return "https://voxpop-image-bucket.s3.us-east-2.amazonaws.com/userAvatars/Developer.jpg";
+        } else if (userRole == "Streamer") {
+          return "https://voxpop-image-bucket.s3.us-east-2.amazonaws.com/userAvatars/StreamerAvatar.jpg";
+        } else if (userRole == "Content-Creator") {
+          return "https://voxpop-image-bucket.s3.us-east-2.amazonaws.com/userAvatars/ContentCreator.jpg";
+        } else if (userRole == "Gamer") {
+          return "https://voxpop-image-bucket.s3.us-east-2.amazonaws.com/userAvatars/gamer.png";
         }
         /**
          * Return 1x1 transparent PNG pixel
@@ -539,6 +639,9 @@ export default {
       get() {
         return this[USER].numberOfTokens || 0;
       }
+    },
+    condition() {
+      return this[USER].role == "admin" || this[USER].role == "staff";
     },
     name: {
       get() {
@@ -733,7 +836,8 @@ export default {
 
 .img-profile,
 .card-img-left {
-  background: url("../assets/icons/no-avatar.png");
+  //background: url("../assets/icons/noAvatarPlaceholder.jpg");
+  //background: transparent;
   background-size: 100% 100%;
   height: 140px;
   width: 140px;
@@ -756,6 +860,19 @@ export default {
 .voxcoin {
   width: 20px;
   height: 20px;
+  position: relative;
+  top: -2px;
+}
+
+.voxlogo {
+  width: 30px;
+  height: 30px;
+  bottom: 3px;
+  position: relative;
+}
+
+.voxlogoHolder {
+  padding-bottom: 10px;
 }
 
 @keyframes pulse {

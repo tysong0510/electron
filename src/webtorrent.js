@@ -108,11 +108,14 @@ let client = (window.client = new WebTorrent({
       ]
     }
   },
-  dht: false
+  dht: false,
+  torrentPort: 8000
   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
 }));
 
 function setPeerId() {
+  console.log("outputting web torrent client below...");
+  console.log(client);
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
   console.log("newPeerId string", newPeerIdBuffer.toString("utf-8"));
 
@@ -132,9 +135,17 @@ let prevProgress = null;
 init();
 
 function init() {
+  console.log("inside function init...");
   listenToClientEvents();
-
+  //console.log("right above start torrenting in function init from webtorrent.js");
   ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
+    console.log("within ipc.on for start torrenting...");
+    console.log(e);
+    console.log(torrentKey);
+    console.log(torrentID);
+    console.log(path);
+    console.log(fileModtimes);
+    console.log(selections);
     // console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
     startTorrenting(torrentKey, torrentID, path, fileModtimes, selections);
   });
@@ -165,13 +176,15 @@ function init() {
 
 function listenToClientEvents() {
   console.log("listenToClientEvents");
+  console.log(client);
   client.on("warning", err => {
     console.warn(err.message);
     ipc.send("wt-warning", null, err.message);
   });
   client.on("error", err => {
+    console.log("inside client on for error in webtorrent.js");
     console.error(err.message);
-    ipc.send("wt-error", null, err.message);
+    ipc.send("wt-error", null, err);
   });
   client.on("seed", torrent => {
     console.log("seed", torrent);
@@ -183,17 +196,22 @@ function listenToClientEvents() {
 function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) {
   console.log("wt-start-torrenting");
   console.log("starting torrent %s: %s", torrentKey, torrentID);
+  console.log("insideStartTorrenting in webtorrent.js");
 
+  //downloading a torrent
   const torrent = client.add(torrentID, {
     path,
     fileModtimes
-    // announce: 'wss://tracker.webtorrent.io'
+    //announce: "wss://tracker.webtorrent.io"
   });
-  torrent.key = torrentKey;
 
+  console.log("web torrent created using torrentID, path and fileModTimes in startTorrenting below");
+  console.log(torrent);
+  torrent.key = torrentKey;
+  console.log("check1");
   // Listen for ready event, progress notifications, etc
   addTorrentEvents(torrent);
-
+  console.log("check2");
   // Only download the files the user wants, not necessarily all files
   torrent.once("ready", () => selectFiles(torrent, selections));
 }
@@ -228,9 +246,10 @@ function createTorrent(torrentKey, options = {}) {
   options.path = gameDownloadPath;
   console.log("START SEEDING");
 
+  //sharing a torrent to be downloaded
   const torrent = client.seed(files, options);
   torrent.key = torrentKey;
-  addTorrentEvents(torrent);
+  addTorrentEvents(torrent); //would it contact application in this method...
   ipc.send("wt-new-torrent");
 
   torrent.once("ready", function() {
@@ -252,9 +271,12 @@ function createTorrent(torrentKey, options = {}) {
 }
 
 function addTorrentEvents(torrent) {
+  console.log("inside addTorrentEvents...");
   let downloadedPieces = [];
-
+  console.log(torrent);
+  console.log("torrent key: " + torrent.key);
   let t = store.getters.findTorrentByKey(torrent.key);
+  console.log(t);
   let gameId = t && t.gameId;
   const userId = store.getters[USER].id;
 
@@ -288,6 +310,7 @@ function addTorrentEvents(torrent) {
   torrent.on("ready", torrentReady);
   torrent.on("done", () => {
     console.log("torrent done");
+    console.log("inside torrent done event...");
 
     if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length) {
       Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
@@ -342,8 +365,11 @@ function addTorrentEvents(torrent) {
 
     wire.on("close", () => {
       console.log("wire closed. Send stats to server");
+      console.log("downloaded pieces below");
+      console.log(downloadedPieces);
 
       if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length) {
+        console.log("above axios to send stats to server...");
         Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
           .then(res => {
             console.log("wire download add group done", res);
@@ -354,6 +380,7 @@ function addTorrentEvents(torrent) {
 
         downloadedPieces = [];
       }
+      console.log("did not make it into if case to send stats to server");
     });
 
     ipc.send("wt-wire-connect", torrent.key, addr);
@@ -428,6 +455,8 @@ function addTorrentEvents(torrent) {
   }
 
   function torrentReady() {
+    console.log("inside function torrentReady, outputting torrent below...");
+    console.log(torrent);
     const info = getTorrentInfo(torrent);
     console.log("torrentReady", info);
     ipc.send("wt-ready", torrent.key, info);
@@ -501,7 +530,11 @@ function saveTorrentFile(torrentKey) {
 }
 
 function updateTorrentProgress() {
+  //console.log("inside updateTorrent Progress");
   const progress = getTorrentProgress();
+  //console.log("outputting progress object below...");
+  //console.log(progress);
+  //console.log("gor progress from getTorrentProgress");
   // TODO: diff torrent-by-torrent, not once for the whole update
   if (prevProgress && deepEqual(progress, prevProgress, { strict: true })) {
     return; /* don't send heavy object if it hasn't changed */
@@ -557,10 +590,13 @@ function getTorrentProgress() {
 
 function selectFiles(torrentOrInfoHash, selections) {
   // Get the torrent object
+  console.log("inside selectFiles");
   let torrent;
   if (typeof torrentOrInfoHash === "string") {
+    console.log("torrent is of type string... in selected files");
     torrent = client.get(torrentOrInfoHash);
   } else {
+    console.log("torrent is not of type string in selected files...");
     torrent = torrentOrInfoHash;
   }
   if (!torrent) {
@@ -572,7 +608,9 @@ function selectFiles(torrentOrInfoHash, selections) {
   // selection with individual selections for each file, so we can
   // select/deselect files later on
   if (!selections) {
+    console.log("selections below...in selectFiles");
     selections = torrent.files.map(() => true);
+    console.log(selections);
   }
 
   // Selections specified incorrectly?
@@ -587,7 +625,7 @@ function selectFiles(torrentOrInfoHash, selections) {
   for (let i = 0; i < selections.length; i++) {
     const file = torrent.files[i];
     if (selections[i]) {
-      file.select();
+      file.select(); //selects an individual file if it is there
     } else {
       console.log(`deselecting file ${i} of torrent ${torrent.name}`);
       file.deselect();

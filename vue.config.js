@@ -31,6 +31,18 @@ module.exports = {
       fallbackLocale: "en",
       localeDir: "locales",
       enableInSFC: false
+    },
+    electronBuilder: {
+      builderOptions: {
+        appId: "voxpop.id",
+        mac: {
+          category: "voxpop.category"
+        },
+        protocols: {
+          name: "voxpop-protocol",
+          schemes: ["voxpop"]
+        }
+      }
     }
   },
   css: {
@@ -61,6 +73,7 @@ module.exports = {
       // chunks: ['chunk-vendors', 'chunk-common', 'webtorrent']
     }
   }
+
   /* devServer: {
     historyApiFallback: {
       rewrites: [

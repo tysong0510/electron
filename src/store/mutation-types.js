@@ -13,3 +13,5 @@ export const UNARCHIVE_START = "UNARCHIVE_START";
 export const UNARCHIVE_OK = "UNARCHIVE_OK";
 export const UNARCHIVE_FAIL = "UNARCHIVE_FAIL";
 export const UPDATE_GAME = "UPDATE_GAME";
+
+export const ADD_TO_CART = "ADD_TO_CART";

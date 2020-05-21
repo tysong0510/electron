@@ -71,6 +71,17 @@ li.icon-user:before {
 li.icon-news:before {
   background-image: url("../../assets/icons/news.svg");
 }
+li.icon-devPortal:before {
+  background-image: url("../../assets/icons/portal-svg-white.svg");
+}
+
+li.icon-bug:before {
+  background-image: url("../../assets/icons/bug-svg-white.svg");
+}
+
+li.icon-cart:before {
+  background-image: url("../../assets/icons/cartsvg.svg");
+}
 
 ul > li:before {
   content: "";

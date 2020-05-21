@@ -12,6 +12,7 @@ import {
   START_SEEDING,
   UNARCHIVE_GAME,
   UNINSTALL_GAME
+  //ADD_TO_CART
 } from "./actions-types";
 import {
   ADD_TORRENT,
@@ -56,6 +57,18 @@ Vue.use(Vuex);
  * @see https://github.com/TehShrike/deepmerge
  */
 const deepMerge = require("deepmerge");
+
+const storage = require("electron-json-storage");
+
+/*let savedCart;
+storage.get("cart", function(err, data) {
+  if (err) {
+    console.log("error with retrieving cart: ", err);
+  } else {
+    console.log("data gotten from cart: ", data);
+    savedCart = data;
+  }
+});*/
 
 const demoData = {
   state: {
@@ -447,7 +460,7 @@ const demoData = {
         },
         {
           name: "store-all",
-          title: "All games"
+          title: "All Games"
         },
         {
           name: "my-top-games",
@@ -536,7 +549,11 @@ const demoData = {
       }
     },
     nextTorrentKey: 1, // identify torrents for IPC between the main and webtorrent windows
-    torrents: []
+    torrents: [],
+    cart: [], //savedData ? savedCart : [], //if there are any items saved in savedCart variable set cart equal to them, else new array
+    tempInstallPath: null,
+    tempDownloadedGames: [],
+    absolutePath: null
   },
   mutations: {
     [ADD_TORRENT](state, { payload }) {
@@ -623,9 +640,134 @@ const demoData = {
         },
         "gameId"
       );
+    },
+
+    addToCart(state, data) {
+      state.cart.push(data);
+      state.cartLength++;
+      console.log("length of shopping cart: " + state.cart.length);
+      this.dispatch("saveCart");
+    },
+
+    removeFromCart(state, data) {
+      var index;
+
+      for (var i = 0; i < state.cart.length; i++) {
+        if (state.cart[i].id == data.id) {
+          index = i;
+        }
+      }
+
+      state.cart.splice(index, 1);
+      state.cartLength--;
+      this.dispatch("saveCart");
+    },
+    clearCart(state) {
+      state.cart.splice(0, state.cart.length);
+      this.dispatch("saveCart");
+    },
+    saveCart(state) {
+      //localStorage.setItem("cart", state.cart);
+      storage.set("cart", state.cart, function(err) {
+        if (err) {
+          console.log("Error with saving data: ", err);
+        }
+      });
+    },
+    savePath(state, path) {
+      state.tempInstallPath = path;
+      storage.set("path", state.tempInstallPath, function(err) {
+        if (err) {
+          console.log("error saving path: ", err);
+        }
+      });
+    },
+    retrievePath(state) {
+      //console.log("user path: ", storage.get("path"));
+      //return storage.get("path");
+      storage.get("path", function(err, data) {
+        if (err) {
+          console.log("error retrieving path: ", err);
+        } else {
+          console.log("user path from index.js: ", data);
+          state.tempInstallPath = data;
+          return data;
+        }
+      });
+    },
+    removePath() {
+      storage.remove("path", function(err) {
+        if (err) {
+          console.log("error removing path: ", err);
+        }
+      });
+    },
+    addDownloadedGame(state, savedContent) {
+      console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in mutation");
+      state.tempDownloadedGames[savedContent.game.id] = savedContent.path;
+      console.log("tempDownloadedGames array: ", state.tempDownloadedGames);
+      storage.set("downloadedGame", state.tempDownloadedGames, function(err) {
+        console.log("there was an error saving downloadedGames: ", err);
+      });
+    },
+    retrieveDownloadedGame(state) {
+      storage.get("downloadedGame", function(err, data) {
+        if (err) {
+          console.log("there was an error retrieving game: ", err);
+        } else {
+          state.tempDownloadedGames = data;
+        }
+      });
+    },
+    removeDownloadedGames() {
+      storage.remove("downloadedGame", function(err) {
+        if (err) {
+          console.log("there was an error removing downloadedGames: ", err);
+        }
+      });
+    },
+    tempDownloadPath(state, path) {
+      console.log("path from mutation: ", path);
+      state.absolutePath = path;
     }
   },
   actions: {
+    addToCart(context, game) {
+      //console.log(game);
+      context.commit("addToCart", game);
+    },
+
+    removeFromCart(context, game) {
+      console.log("from removeFromCart in index...");
+      context.commit("removeFromCart", game);
+    },
+
+    clearCart(context) {
+      context.commit("clearCart");
+    },
+    saveCart(context) {
+      context.commit("saveCart");
+    },
+    savePath(context, path) {
+      context.commit("savePath", path);
+    },
+    retrievePath(context) {
+      context.commit("retrievePath");
+    },
+    removePath(context) {
+      context.commit("removePath");
+    },
+    addDownloadedGame(context, savedContent) {
+      console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in action");
+      context.commit("addDownloadedGame", savedContent);
+    },
+    retrieveDownloadedGame(context) {
+      context.commit("retrieveDownloadedGame");
+    },
+    removeDownloadedGames(context) {
+      context.commit("removeDownloadedGames");
+    },
+
     async [START_GAME]({ state, getters }, { gameId }) {
       const { game } = state;
       if (!game) {
@@ -837,8 +979,11 @@ const demoData = {
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
+      console.log("inside index.js start download game");
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
+      console.log("this is torrent, gotten from findTorrentByGameId: ");
+      console.log(torrent);
       let magnetURI;
       if (!torrent) {
         const { game } = state;
@@ -860,7 +1005,6 @@ const demoData = {
       console.log(`user ${user.username}`);
       console.log("START_DOWNLOAD_GAME");
       let torrentKey;
-
       // const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
       // const gameDownloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
@@ -904,6 +1048,7 @@ const demoData = {
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
       if (!ipcRenderer) {
+        console.log("ipcRenderer is index js emit");
         ipcMain.emit(
           "wt-start-torrenting",
           null,
@@ -913,6 +1058,7 @@ const demoData = {
           null
         );
       } else {
+        console.log("else in ipcRenderer in index js");
         ipcRenderer.emit(
           "wt-start-torrenting",
           torrentKey, // key

@@ -15,12 +15,14 @@ export const GAME_INSTALL_PATH = "GAME_INSTALL_PATH";
 export const IS_GAME_INSTALLED = "IS_GAME_INSTALLED";
 export const CAN_GAME_INSTALL = "CAN_GAME_INSTALL";
 export const USER_CONFIG_PATH = "USER_CONFIG_PATH";
+export const TEMP_INSTALL_PATH = "TEMP_INSTALL_PATH";
 
 const USER_DATA_PATH = (app || remote.app).getPath("userData");
 const VOXPOP = "voxpop";
 const DOWNLOADS = "downloads";
 const APPS = "apps";
 const TORRENTS = "torrents";
+const TEMP = "TEMP";
 
 /**
  * The function recursively creates directories in the specified path if they do not exist
@@ -141,6 +143,37 @@ export default {
       }
 
       return userConfigPath;
+    },
+    [TEMP_INSTALL_PATH](state, getters) {
+      /**
+       * Returned string path where user and gameId is defined else return null
+       *
+       * @param {number} gameId
+       * @return {string | null}
+       */
+      return (gameId, createDir = true) => {
+        const user = getters[USER];
+
+        if (!user || !gameId) {
+          return null;
+        }
+
+        const { username } = user;
+
+        if (!username) {
+          return null;
+        }
+
+        const gameInstallPath = path.join(USER_DATA_PATH, VOXPOP, String(username), APPS, TEMP, String(gameId));
+
+        if (createDir && !fs.existsSync(gameInstallPath)) {
+          mkdirDeep(gameInstallPath);
+
+          console.log(`Directory '${gameInstallPath}' created`);
+        }
+
+        return gameInstallPath;
+      };
     },
     [GAME_INSTALL_PATH](state, getters) {
       /**

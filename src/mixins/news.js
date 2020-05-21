@@ -1,4 +1,4 @@
-import { baseURL } from "../apiConfig";
+//import { baseURL } from "../apiConfig";
 
 export default {
   methods: {
@@ -6,13 +6,15 @@ export default {
       if (news.images) {
         switch (type) {
           case "main":
-            return news.images.main ? `${baseURL}/news/${news.id}/${news.images.main}` : null;
+            //return news.images.main ? `${baseURL}/news/${news.id}/${news.images.main}` : null;
+            return news.images.main;
           case "slides":
             if (news.images.slides || news.images.images) {
               const slides = [];
 
               for (const slide of news.images.slides || news.images.images) {
-                slides.push(`${baseURL}/news/${news.id}/${slide}`);
+                //slides.push(`${baseURL}/news/${news.id}/${slide}`);
+                slides.push(slide);
               }
 
               return slides;
