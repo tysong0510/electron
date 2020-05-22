@@ -32,6 +32,8 @@ export const REFRESH_INTERVAL = "REFRESH_INTERVAL";
 
 let intervalId = null;
 
+const storage = require("electron-json-storage");
+
 /** Set axios baseUrl */
 Axios.defaults.baseURL = baseURL;
 
@@ -44,7 +46,8 @@ export default {
     authorized: false,
     user: {},
     game: {},
-    refreshInterval: 30
+    refreshInterval: 30,
+    isRemembered: null
   },
   mutations: {
     [MUTATION_AUTH_REQUEST](state) {
@@ -122,6 +125,40 @@ export default {
       console.log(MUTATION_LOGOUT, err);
 
       clearInterval(intervalId);
+    },
+    saveRememberMe(state, user) {
+      console.log("inside save rememberMe mutation...");
+      var currTime = new Date().getTime();
+
+      let userCredentials = {
+        username: user.username,
+        password: user.password,
+        createdDate: currTime,
+        expiryDate: currTime + 600000
+      };
+      storage.set("rememberMe", userCredentials, function(err) {
+        if (err) {
+          console.log("There was an issue saving User Credentials for Remember Me: ", err);
+        }
+      });
+    },
+    retrieveRememberMe(state) {
+      console.log("inside retrieve remember me mutation");
+      storage.get("rememberMe", function(err, data) {
+        if (err) {
+          console.log("There was an error retrieving User Credentials: ", err);
+        } else {
+          if (state.isRemembered == null) {
+            console.log("data retrieved from local storage for remember me: ", data);
+            //need to check expiryDate to make sure it is not expired, if it is return null
+            if (data.expiryDate > data.createdDate) {
+              //in here have to put functionality to remove or overwrite data using rememberMe key
+            }
+            state.isRemembered = data;
+          }
+          console.log("remember me outside of being null");
+        }
+      });
     }
   },
   actions: {
@@ -129,6 +166,26 @@ export default {
       const { commit, dispatch, getters } = store;
       return new Promise((resolve, reject) => {
         commit(MUTATION_AUTH_REQUEST);
+
+        console.log("rememberMe inside auth.js: " + user.rememberMe);
+        //commit(saveRememberMe,user);
+
+        /**
+             * could send to conditional: 
+             * const { username } = await dispatch(ACTION_USER); //to retriece data specific to user
+             * commit(MUTATION_AUTH_SUCCESS); //To make login offical across application
+             * commit(
+              MUTATION_SET_REFRESH_INTERVAL,
+              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
+            ); //to make sure  user is allowed to be logged in
+
+            const savedState = await State.loadUser(username);
+            await restoreStoreFromSavedUserState(store, savedState);
+             */
+
+        if (user.rememberMe) {
+          commit("saveRememberMe", user);
+        }
 
         Axios({ url: "/auth/login", params: user, method: "POST" })
           .then(async resp => {
@@ -157,6 +214,34 @@ export default {
           });
       });
     },
+    autoLogin() {
+      //can just access storage here, if there is something within storage just input that, else proceed as normal
+      //let's check if this can be called from main.js or background.js
+      //const { commit, dispatch, getters } = store;
+      return new Promise((resolve, reject) => {
+        storage.get("rememberMe", function(err, data) {
+          if (err) {
+            console.log("There was an error getting data from within autoLogin...", err);
+            reject(err);
+          } else {
+            console.log("data retrieved inside autoLogin: ", data);
+            if (data == null) {
+              resolve(null);
+            } else {
+              //need to check if it is passed expiryDate
+              var currTime = new Date().getTime();
+              if (data.expiryDate < currTime) {
+                console.log("expiry date has expired outputing null...");
+                resolve(null); //need to make new remember me
+              } else {
+                console.log("expiry date hasn't expired...");
+                resolve(true);
+              }
+            }
+          }
+        });
+      });
+    },
     [ACTION_USER]({ commit }) {
       return new Promise((resolve, reject) => {
         Axios({ url: "/auth/user", method: "GET" })
@@ -174,6 +259,10 @@ export default {
             reject(err);
           });
       });
+    },
+    retrieveRememberMe(context) {
+      console.log("inside retrieve remember me action");
+      context.commit("retrieveRememberMe");
     },
     [ACTION_REFRESH]({ commit, state, dispatch, getters }) {
       console.log("Refresh auth token");

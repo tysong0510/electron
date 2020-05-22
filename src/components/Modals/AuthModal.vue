@@ -30,13 +30,12 @@
                     <b-form-input id="password" v-model="password" name="password" required type="password" />
                   </b-form-group>
                   <b-row>
-                    <!-- Remember Me checkbox
                     <b-col cols="6">
                       <b-form-checkbox v-model="rememberMe" class="text-left" name="remember">
                         Remember me
                       </b-form-checkbox>
                     </b-col>
-                    -->
+
                     <b-col cols="6">
                       <a href="#" class="text-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password?</a>
                     </b-col>
@@ -244,7 +243,8 @@
             </b-row>
             <b-row class="my-3">
               <b-col class="text-center">
-                <b-button size="lg" variant="outline-secondary" class="btn-auth" @click="goTo('sign-in')">
+                <b-button size="lg" variant="outline-secondary" class="btn-auth" @click="signIn()">
+                  <!-- Can make a function here and if nothing is saved to press to go to sign-in modal -->
                   Sign in
                 </b-button>
               </b-col>
@@ -323,6 +323,8 @@ export default {
           return "select";
         }
 
+        //what i could do right here is call autologin like how login calls ACTION_LOGIN promise
+
         return this.$route.query.auth;
       }
     },
@@ -379,6 +381,12 @@ export default {
     //     this.$emit('auth:modal:change:state');
     //   // }
     // },
+    signIn() {
+      //check in here if there is a value saved if not, call goTo
+      console.log("inside sign method...");
+      this.goTo("sign-in");
+    },
+
     goTo(modal = "login") {
       if (typeof modal === "object") {
         return;
@@ -400,8 +408,10 @@ export default {
 
       this.$store
         .dispatchPromise(ACTION_LOGIN, {
+          //should include remember me in here to be checked in auth.js to register remember me
           username: this.username,
-          password: this.password
+          password: this.password,
+          rememberMe: this.rememberMe
         })
         .then(() => {
           this.loading = false;
