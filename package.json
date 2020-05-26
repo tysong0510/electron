@@ -3,7 +3,6 @@
   "productName": "VoxPop Games",
   "description": "P2P Application For Gaming",
   "version": "1.0.0",
-  "repository": "git@om.ktbyte.com:41222/voxpop-electron",
   "private": true,
   "scripts": {
     "build": "vue-cli-service electron:build",
