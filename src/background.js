@@ -21,6 +21,10 @@ import { ACTION_REFRESH } from "./store/modules/auth";
 import { INSTALL_PATH } from "./store/modules/path";
 import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
+
+require("update-electron-app")({
+  //repo: "master/git@om.ktbyte.com:41222/voxpop-electron"
+});
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];

@@ -335,6 +335,11 @@ export default {
       set(value) {
         this.$authModal.showModal = value;
       }
+    },
+
+    randFunc() {
+      console.log("random function....");
+      return "";
     }
   },
   mounted() {
