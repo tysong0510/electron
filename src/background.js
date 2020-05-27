@@ -23,8 +23,9 @@ import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
 
 require("update-electron-app")({
-  repo: "master/ssh://git@om.ktbyte.com:41222/voxpop-electron"
+  //repo: "master/ssh://git@om.ktbyte.com:41222/voxpop-electron"
   //ssh://git@om.ktbyte.com:41222/voxpop-electron
+  repo: "master/git@om.ktbyte.com:41222/voxpop-electron"
 });
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
@@ -116,7 +117,8 @@ ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
   console.log("gameIds to be sent: ", gameIDs);
   let win = new BrowserWindow({ width: 960, height: 540 });
   //win.loadURL(`https://www.voxpopgames.com/payment/buyGameByIds`, {
-  win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
+  //win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
+  win.loadURL(`http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/payment/buyGameByIds`, {
     extraHeaders:
       "Authorization: " + userToken + "\n" + "amount: " + amount + "\n" + "token: " + gameIDs + "\n" + "recommender: " + recommenderID
   });
