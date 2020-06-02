@@ -444,7 +444,7 @@ const demoData = {
           }
         ],
         "my-files": "*",
-        "my-recommendation": "*",
+        "my-recommendation": "recommendation",
         "recently-played": "*"
       },
       stores: [
@@ -553,6 +553,7 @@ const demoData = {
     cart: [], //savedData ? savedCart : [], //if there are any items saved in savedCart variable set cart equal to them, else new array
     tempInstallPath: null,
     tempDownloadedGames: [],
+    recommendedGames: [],
     absolutePath: null
   },
   mutations: {
@@ -729,6 +730,50 @@ const demoData = {
     tempDownloadPath(state, path) {
       console.log("path from mutation: ", path);
       state.absolutePath = path;
+    },
+    addToRecommendedGames(state, game) {
+      //state.recommendedGames[game.id] = game;
+      //state.recommendedGames.push(game);
+      let recommendedGames = Object.values(state.recommendedGames);
+      recommendedGames.push(game);
+      storage.set("recommendedGames", recommendedGames, function(err) {
+        if (err) {
+          console.log("There was an error saving recommended games: ", err);
+        }
+      });
+    },
+    retrieveRecommendedGames(state) {
+      storage.get("recommendedGames", function(err, data) {
+        if (err) {
+          console.log("error retrieving recommended games: ", err);
+        } else {
+          state.recommendedGames = data;
+        }
+      });
+    },
+    removeFromRecommendedGames(state, game) {
+      let recommendedGames = Object.values(state.recommendedGames);
+
+      var index;
+
+      for (var i = 0; i < recommendedGames.length; i++) {
+        if (recommendedGames[i].id == game.id) {
+          index = i;
+        }
+      }
+
+      recommendedGames.splice(index, 1);
+      //save recommendedGames
+      storage.set("recommendedGames", recommendedGames, function(err) {
+        if (err) {
+          console.log("There was an error saving recommendedGames after removal: ", err);
+        }
+      });
+    },
+    clearRecommendedGames() {
+      storage.remove("recommendedGames", function(err) {
+        console.log("error clearing recommended games: ", err);
+      });
     }
   },
   actions: {
@@ -766,6 +811,18 @@ const demoData = {
     },
     removeDownloadedGames(context) {
       context.commit("removeDownloadedGames");
+    },
+    addToRecommendedGames(context, game) {
+      context.commit("addToRecommendedGames", game);
+    },
+    retrieveRecommendedGames(context) {
+      context.commit("retrieveRecommendedGames");
+    },
+    removeFromRecommendedGames(context, game) {
+      context.commit("removeFromRecommendedGames", game);
+    },
+    clearRecommendedGames(context) {
+      context.commit("clearRecommendedGames");
     },
 
     async [START_GAME]({ state, getters }, { gameId }) {
@@ -1264,9 +1321,23 @@ const demoData = {
           switch (rating) {
             /**
              * Return all games
+             *
+             * Need to modify this soo it does not show all games for recommeneded, only shows list of games user recommends
              */
             case "*": {
-              rating = games.slice(0);
+              rating = games.slice(0); //returns a new object/array starting at 0
+              console.log("rating from index.js for ", name, ": ", rating);
+              break;
+            }
+
+            case "recommendation": {
+              console.log("state.recommendedGames: ", state.recommendedGames);
+              //rating = Object.values(state.recommendedGames);
+              if (state.recommendedGames != null) {
+                rating = Object.values(state.recommendedGames);
+              } else {
+                rating = [];
+              }
               break;
             }
           }

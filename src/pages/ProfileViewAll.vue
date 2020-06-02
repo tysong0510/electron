@@ -172,6 +172,8 @@ export default {
 
   methods: {
     getData(storeName) {
+      console.log("inside getData method in profile view all....");
+      console.log("recommendedGames from getData: ", this.$store.state.recommendedGames);
       const store = this.$store.getters.getRatingStoreByName(storeName) || {};
 
       this.storeTitle = store.title || "";

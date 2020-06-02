@@ -74,26 +74,109 @@
         <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" />
       </b-col>
     </b-row>
+    <!-- Developer button -->
+    <b-row v-if="loggedInUserRole == 'admin' && user.role != 'Developer'">
+      <b-button variant="primary" @click="showModal()">
+        Developer / Publisher
+      </b-button>
+    </b-row>
+    <b-modal id="roleModal" ref="roleModal" class="roleModal" centered hide-footer title="Developer/Publisher">
+      <b-row class="my-3 mb-3">
+        <b-col class="text-center">
+          <h5 class="font-weight-normal">
+            Set <span class="font-italic border-bottom text-primary">{{ user.username }}</span> to Developer / Publisher
+          </h5>
+        </b-col>
+      </b-row>
+      <b-row class="m-4">
+        <b-col>
+          <b-form-checkbox v-model="developer" name="developer">
+            Developer
+          </b-form-checkbox>
+        </b-col>
+        <b-col>
+          <b-form-checkbox v-model="publisher" name="publisher">
+            Publisher
+          </b-form-checkbox>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <label>Developer / Publisher Name: </label>
+          <b-form-input id="publisher" v-model="developerOrPublisherName" name="publisher" required type="text" />
+        </b-col>
+      </b-row>
+      <b-row class="my-3">
+        <b-col class="text-center">
+          <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="addDeveloper()">
+            Submit
+          </b-button>
+        </b-col>
+      </b-row>
+
+      <b-row v-if="submissionError">
+        <b-col>
+          {{ submissionErrorMessage }}
+        </b-col>
+      </b-row>
+    </b-modal>
   </div>
 </template>
 <script>
-const { ipcRenderer } = require("electron");
+import Axios from "axios";
 
 export default {
   name: "UserDirectoryProfile",
   data() {
-    return {};
+    return {
+      developer: null,
+      publisher: null,
+      developerOrPublisherName: null,
+      submissionError: false,
+      submissionErrorMessage: null
+    };
   },
   computed: {
     user() {
       return this.$route.params.user;
+    },
+    loggedInUserRole() {
+      return this.$store.state.auth.user.role;
     }
   },
+  created() {
+    console.log("user logged in now: ", this.$store.state.auth.user.role);
+  },
   methods: {
-    doSomething() {
-      ipcRenderer.on("openProfile", () => {
-        console.log("response from do something in userDirectoryProfile...");
-      });
+    addDeveloper() {
+      console.log("Turns this user into a developer");
+      console.log("this user is: ", this.user);
+      console.log("is developer pressed: ", this.developer);
+      console.log("is publisher pressed: ", this.publisher);
+
+      let developerParams = {
+        username: this.user.username,
+        developerName: this.developerOrPublisherName,
+        developerBox: this.developer,
+        publisherBox: this.publisher
+      };
+
+      Axios({ url: "/users/setDeveloper", params: developerParams, method: "POST" })
+        .then(async resp => {
+          console.log("successful response: ", resp);
+          this.hideModal();
+        })
+        .catch(err => {
+          console.log("error with processing request for setDeveloper: ", err);
+          this.submissionError = true;
+          this.submissionErrorMessage = err;
+        });
+    },
+    showModal() {
+      this.$refs["roleModal"].show();
+    },
+    hideModal() {
+      this.$refs["roleModal"].hide();
     }
   }
 };

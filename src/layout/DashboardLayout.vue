@@ -117,8 +117,8 @@ export default {
               title: "Files I'm Seeding"
             },
             {
-              //href: "/profile/recommendation", To be fixed at a later date
-              href: "",
+              href: "/profile/recommendation", //To be fixed at a later date
+              //href: "",
               title: "My recommendation"
             }
             /*,
@@ -145,14 +145,13 @@ export default {
             }
             */
           /*child: [
-             {
-               href: "newsPortal",
-               title: "News Portal",
-               class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
-               //class: !this[USER].role == 'staff' ? "d-none" : ""
-               
-             }
-           ]*/
+            {
+              href: "newsPortal",
+              title: "News Portal",
+              class: !this.$store.state.auth.user.role == "staff" ? "d-none" : ""
+              //class: !this[USER].role == 'staff' ? "d-none" : ""
+            }
+          ]*/
         },
         {
           href: "/developerPortal",

@@ -215,6 +215,23 @@
                       {{ percentage }}/100
                     </div>
                   </b-col>
+
+                  <b-col>
+                    <b-button
+                      v-if="!isRecommended()"
+                      :disabled="isGameRecommended"
+                      variant="outline-secondary"
+                      class="btn-voted ml-2"
+                      @click="addToRecommendedGames(game)"
+                    >
+                      Recommend
+                    </b-button>
+                    <b-button v-else variant="success" class="btn-voted ml-2" @click="removeFromRecommendedGames(game)">
+                      <span class="show"> Recommended </span>
+                      <span class="hoverShow">Un-Recommend</span>
+                    </b-button>
+                  </b-col>
+
                   <!--
                   <b-col>
                     <b-button
@@ -315,24 +332,9 @@ export default {
       carouselOptions: null,
       uninstalling: false,
       installing: false,
-      publishableKey: "pk_live_j4AKjYyU6ulYYq9SgVa2w0dS000V7qj9be",
-      name: "",
-      address: "",
-      zipcode: "",
-      city: "",
-      state: "",
-      cardElem: "",
-      expMonth: null,
-      expYear: null,
-      cvc: null,
-      token: null,
-      stripe: null,
-      cardError: false,
-      cardErrorMsg: "",
       apiResponse: "",
       apiResponseError: "",
       pathRequest: "",
-      stripeError: false,
       loading: false,
       percentage: 0.0,
       maxPercentage: 100,
@@ -424,6 +426,18 @@ export default {
       //return this.$store.state.cart.includes(this.game);
       console.log("is this game in cart: " + isGameInCart);
       return isGameInCart;
+    },
+    isGameRecommended() {
+      var isGameRecommended = false;
+      var recommendedGames = this.$store.state.recommendedGames;
+      for (var i = 0; i < recommendedGames.length; i++) {
+        if (recommendedGames[i].id == this.game.id) {
+          isGameRecommended = true;
+        }
+      }
+      //return this.$store.state.cart.includes(this.game);
+      console.log("is this game recommended: " + isGameRecommended);
+      return isGameRecommended;
     }
   },
 
@@ -436,6 +450,7 @@ export default {
     this.carouselOptions = carouselOptions;
     this.$store.dispatch("retrievePath");
     this.$store.dispatch("retrieveDownloadedGame");
+    this.$store.dispatch("retrieveRecommendedGames");
   },
   updated() {
     this.isGameInstalled;
@@ -581,6 +596,17 @@ export default {
       }
     },
 
+    addToRecommendedGames(game) {
+      //functionaality to connect to index.js
+      console.log("addToRecommendedGames");
+      this.$store.dispatch("addToRecommendedGames", game);
+    },
+
+    removeFromRecommendedGames(game) {
+      console.log("inside of removeFromRecommendedGames");
+      this.$store.dispatch("removeFromRecommendedGames", game);
+    },
+
     addProduct(game) {
       if (!this.$store.getters[IS_LOGGED_IN]) {
         this.$root.$emit("unauthorized", { noRedirect: true });
@@ -654,6 +680,11 @@ export default {
     isTempGameDownloaded() {
       console.log("value from temp game downloaded: ", this.$store.state.tempDownloadedGames);
       return this.$store.state.tempDownloadedGames[this.game.id];
+    },
+    isRecommended() {
+      console.log("Checking if this game has been recommended...");
+      console.log("recommendedGames: ", this.$store.state.recommendedGames);
+      return this.$store.state.recommendedGames[this.game.id];
     },
     async tempPlayGame() {
       console.log("inside temp play game");
@@ -926,6 +957,18 @@ button:hover .price {
 }
 
 button:hover .addToCart {
+  display: inline;
+}
+
+button .hoverShow {
+  display: none;
+}
+
+button:hover .show {
+  display: none;
+}
+
+button:hover .hoverShow {
   display: inline;
 }
 </style>

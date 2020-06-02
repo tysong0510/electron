@@ -50,6 +50,9 @@
               {{ tokens }}
             </p>
           </b-col>
+          <b-col>
+            <button @click="clearRecommendedGames()">Clear Recommended Games</button>
+          </b-col>
         </b-row>
 
         <p v-if="condition" class="card-subtitle text-white pb-4">
@@ -291,10 +294,7 @@
       </b-col>
     </b-row>
 
-    <!--
-      Will be fixed once this page is operable
-      
-       <horizontal-view
+    <!-- <horizontal-view
       v-if="!pending.games && topGamesStore.content"
       v-once
       title="Your top games"
@@ -342,10 +342,7 @@
       </b-col>
     </horizontal-view>
 
-    <!--
-      Will be fixed once this page is operable
-
-       <horizontal-view
+    <!-- <horizontal-view
       v-if="!pending.games && yourFilesStore.content"
       v-once
       title="Your files"
@@ -393,19 +390,6 @@
       </b-col>
     </horizontal-view>
 
-    <!-- 
-      Will be fixed once this page is operable
-
-      <horizontal-view
-      v-if="!pending.games && yourRecommendationStore.content"
-      v-once
-      title="Your recommendation"
-      class="text-white pb-5 mb-4 border-bottom"
-      title-class="font-weight-normal"
-      title-tag="h4"
-      :view-all-to="{ name: 'my-recommendation' }"
-    > -->
-
     <horizontal-view
       v-if="!pending.games && yourRecommendationStore.content"
       v-once
@@ -413,7 +397,7 @@
       class="text-white pb-5 mb-4 border-bottom"
       title-class="font-weight-normal"
       title-tag="h4"
-      :view-all-to="{ name: '' }"
+      :view-all-to="{ name: 'my-recommendation' }"
     >
       <b-col
         v-for="(game, index) in yourRecommendationStore.content.slice(0, maxElements)"
@@ -444,11 +428,8 @@
         </b-card>
       </b-col>
     </horizontal-view>
-
-    <!-- 
-      Will be fixed once this page is operable
-
-      <horizontal-view
+    <!--
+    <horizontal-view
       v-if="!pending.games && recentlyPlayedStore.content"
       v-once
       title="Recently played"
@@ -456,8 +437,10 @@
       title-class="font-weight-normal"
       title-tag="h4"
       :view-all-to="{ name: 'recently-played' }"
-    > -->
+    >
+    -->
 
+    <!-- Remove this when fixing -->
     <horizontal-view
       v-if="!pending.games && recentlyPlayedStore.content"
       v-once
@@ -753,6 +736,7 @@ export default {
     this.getGames();
     this.getUserFilesStatistic();
     this.fixAndGetStats();
+    this.$store.dispatch("retrieveRecommendedGames"); //to load state.recommendedGames with list of recommended games
   },
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
@@ -786,6 +770,9 @@ export default {
     },
     rowStatisticDetailsToggle(row) {
       this.$set(row, "_showDetails", !row._showDetails);
+    },
+    clearRecommendedGames() {
+      this.$store.dispatch("clearRecommendedGames");
     }
   }
 };

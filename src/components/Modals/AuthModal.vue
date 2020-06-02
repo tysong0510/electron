@@ -111,7 +111,7 @@
                     </div>
                     <b-form-select v-model="role" class="mb-3" required>
                       <b-form-select-option :value="null">Pick your path</b-form-select-option>
-                      <b-form-select-option value="Developer">Developer</b-form-select-option>
+                      <!-- <b-form-select-option value="Developer">Developer</b-form-select-option>-->
                       <b-form-select-option value="Streamer">Streamer</b-form-select-option>
                       <b-form-select-option value="Content-Creator">Content Creator</b-form-select-option>
                       <b-form-select-option value="Gamer">Gamer</b-form-select-option>
