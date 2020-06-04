@@ -733,10 +733,10 @@ const demoData = {
     },
     addToRecommendedGames(state, game) {
       //state.recommendedGames[game.id] = game;
-      //state.recommendedGames.push(game);
-      let recommendedGames = Object.values(state.recommendedGames);
-      recommendedGames.push(game);
-      storage.set("recommendedGames", recommendedGames, function(err) {
+      state.recommendedGames.push(game);
+      //let recommendedGames = Object.values(state.recommendedGames);
+      //recommendedGames.push(game);
+      storage.set("recommendedGames", state.recommendedGames, function(err) {
         if (err) {
           console.log("There was an error saving recommended games: ", err);
         }

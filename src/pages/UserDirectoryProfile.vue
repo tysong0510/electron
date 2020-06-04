@@ -80,43 +80,75 @@
         Developer / Publisher
       </b-button>
     </b-row>
-    <b-modal id="roleModal" ref="roleModal" class="roleModal" centered hide-footer title="Developer/Publisher">
+    <b-modal id="roleModal" ref="roleModal" class="roleModal" centered hide-footer title="Assign Developer / Publisher">
       <b-row class="my-3 mb-3">
         <b-col class="text-center">
           <h5 class="font-weight-normal">
-            Set <span class="font-italic border-bottom text-primary">{{ user.username }}</span> to Developer / Publisher
+            Set <span class="font-italic border-bottom text-primary">{{ user.username }}</span> to Developer / Publisher?
           </h5>
         </b-col>
       </b-row>
       <b-row class="m-4">
-        <b-col>
+        <!--<b-col>
           <b-form-checkbox v-model="developer" name="developer">
             Developer
-          </b-form-checkbox>
+          </b-form-checkbox> 
         </b-col>
         <b-col>
           <b-form-checkbox v-model="publisher" name="publisher">
             Publisher
           </b-form-checkbox>
+        </b-col> -->
+        <b-col>
+          <b-form-radio v-model="account" name="developer" value="developer">Developer</b-form-radio>
+        </b-col>
+        <b-col>
+          <b-form-radio v-model="account" name="publisher" value="publisher">Publisher</b-form-radio>
         </b-col>
       </b-row>
       <b-row>
         <b-col>
           <label>Developer / Publisher Name: </label>
-          <b-form-input id="publisher" v-model="developerOrPublisherName" name="publisher" required type="text" />
+          <b-form-input id="publisher" v-model="accountName" name="publisher" required type="text" />
         </b-col>
       </b-row>
       <b-row class="my-3">
         <b-col class="text-center">
-          <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="addDeveloper()">
-            Submit
+          <b-button :disabled="loading" size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="addDeveloper()">
+            <span v-if="!loading">Submit</span>
+            <b-spinner v-else></b-spinner>
           </b-button>
         </b-col>
       </b-row>
 
       <b-row v-if="submissionError">
         <b-col>
-          {{ submissionErrorMessage }}
+          <span style="color: red;">{{ submissionErrorMessage }}</span>
+        </b-col>
+      </b-row>
+    </b-modal>
+
+    <b-modal
+      id="successModal"
+      ref="successModal"
+      class="successModal"
+      centered
+      hide-footer
+      title="Developer / Publisher Assigning completed"
+    >
+      <b-row class="my-3 mb-3">
+        <b-col class="text-center">
+          <h5 class="font-weight-normal">
+            <span class="font-italic border-bottom text-primary">{{ user.username }}</span> has been assigned role Developer / Publisher
+          </h5>
+        </b-col>
+      </b-row>
+
+      <b-row class="my-3">
+        <b-col class="text-center">
+          <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="hideSuccessModal()">
+            Close
+          </b-button>
         </b-col>
       </b-row>
     </b-modal>
@@ -129,11 +161,14 @@ export default {
   name: "UserDirectoryProfile",
   data() {
     return {
-      developer: null,
-      publisher: null,
+      developer: false,
+      publisher: false,
+      account: null,
+      accountName: null,
       developerOrPublisherName: null,
       submissionError: false,
-      submissionErrorMessage: null
+      submissionErrorMessage: null,
+      loading: false
     };
   },
   computed: {
@@ -149,34 +184,50 @@ export default {
   },
   methods: {
     addDeveloper() {
+      this.loading = true;
       console.log("Turns this user into a developer");
       console.log("this user is: ", this.user);
-      console.log("is developer pressed: ", this.developer);
-      console.log("is publisher pressed: ", this.publisher);
+      // console.log("is developer pressed: ", this.developer);
+      // console.log("is publisher pressed: ", this.publisher);
+      console.log("account that was picked is: ", this.account);
+      console.log("account name: ", this.accountName);
 
-      let developerParams = {
-        username: this.user.username,
-        developerName: this.developerOrPublisherName,
-        developerBox: this.developer,
-        publisherBox: this.publisher
-      };
+      if (this.account == null) {
+        this.submissionError = true;
+        this.submissionErrorMessage = "Pick either Developer or Publisher";
+      } else {
+        let developerParams = {
+          username: this.user.username,
+          accountName: this.accountName,
+          account: this.account
+        };
 
-      Axios({ url: "/users/setDeveloper", params: developerParams, method: "POST" })
-        .then(async resp => {
-          console.log("successful response: ", resp);
-          this.hideModal();
-        })
-        .catch(err => {
-          console.log("error with processing request for setDeveloper: ", err);
-          this.submissionError = true;
-          this.submissionErrorMessage = err;
-        });
+        Axios({ url: "/users/setDeveloper", params: developerParams, method: "POST" })
+          .then(async resp => {
+            console.log("successful response: ", resp);
+            this.hideModal();
+            this.loading = false;
+            this.showSuccessModal();
+          })
+          .catch(err => {
+            console.log("error with processing request for setDeveloper: ", err);
+            this.submissionError = true;
+            this.submissionErrorMessage = err;
+            this.loading = false;
+          });
+      }
     },
     showModal() {
       this.$refs["roleModal"].show();
     },
     hideModal() {
       this.$refs["roleModal"].hide();
+    },
+    showSuccessModal() {
+      this.$refs["successModal"].show();
+    },
+    hideSuccessModal() {
+      this.$refs["successModal"].hide();
     }
   }
 };

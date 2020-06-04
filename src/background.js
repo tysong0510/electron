@@ -23,7 +23,7 @@ import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
 
 require("update-electron-app")({
-  repo: "voxpopgames/electron"
+  repo: "voxpopgames/electronUpdatingRepo"
 });
 //
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];

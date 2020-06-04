@@ -218,15 +218,20 @@
 
                   <b-col>
                     <b-button
-                      v-if="!isRecommended()"
-                      :disabled="isGameRecommended"
+                      v-if="!isGameRecommended"
+                      :disabled="hasItBeenRecommended"
                       variant="outline-secondary"
                       class="btn-voted ml-2"
                       @click="addToRecommendedGames(game)"
                     >
-                      Recommend
+                      <span>Recommend</span>
                     </b-button>
-                    <b-button v-else variant="success" class="btn-voted ml-2" @click="removeFromRecommendedGames(game)">
+                    <b-button
+                      v-else-if="isGameRecommended"
+                      variant="success"
+                      class="btn-voted ml-2"
+                      @click="removeFromRecommendedGames(game)"
+                    >
                       <span class="show"> Recommended </span>
                       <span class="hoverShow">Un-Recommend</span>
                     </b-button>
@@ -338,7 +343,9 @@ export default {
       loading: false,
       percentage: 0.0,
       maxPercentage: 100,
-      load: false
+      load: false,
+      recommended: false,
+      unRecommended: true
     };
   },
 
@@ -416,6 +423,7 @@ export default {
       return this.game && this.game.id && this.$store.getters[CAN_GAME_INSTALL](this.game.id);
     },
     isGameInCart() {
+      console.log("isGameInCart has been called...");
       var isGameInCart = false;
       var shoppingCart = this.$store.state.cart;
       for (var i = 0; i < shoppingCart.length; i++) {
@@ -438,6 +446,16 @@ export default {
       //return this.$store.state.cart.includes(this.game);
       console.log("is this game recommended: " + isGameRecommended);
       return isGameRecommended;
+    },
+    hasItBeenRecommended() {
+      //console.log("hasItBeenRecommended is called...");
+      var recommendedGames = this.$store.state.recommendedGames;
+      for (var i = 0; i < recommendedGames.length; i++) {
+        if (recommendedGames[i].id == this.game.id) {
+          return true;
+        }
+      }
+      return false;
     }
   },
 
@@ -598,13 +616,18 @@ export default {
 
     addToRecommendedGames(game) {
       //functionaality to connect to index.js
+
       console.log("addToRecommendedGames");
       this.$store.dispatch("addToRecommendedGames", game);
+      //can make it true here or re-load page
+      //this.recommendedLoading = false;
     },
 
     removeFromRecommendedGames(game) {
+      this.recommendedLoading = true;
       console.log("inside of removeFromRecommendedGames");
       this.$store.dispatch("removeFromRecommendedGames", game);
+      this.recommendedLoading = false;
     },
 
     addProduct(game) {

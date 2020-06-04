@@ -380,5 +380,6 @@ export default {
     [REFRESH_INTERVAL](state) {
       return state.interval ? state.interval * 1000 : 30000;
     }
+    //can put down here to check role of user for news portal
   }
 };

@@ -479,6 +479,11 @@
         </b-card>
       </b-col>
     </horizontal-view>
+    <div v-if="loggedInUserRole == 'Developer' || loggedInUserRole == 'Publisher'">
+      <h4 class="text-white font-weight-normal">Sales</h4>
+      <b-table hover :items="sales" per-page="5"></b-table>
+      <h4 class="text-white font-weight-normal">Total Profit: {{ totalDeveloperProfit }}</h4>
+    </div>
   </div>
 </template>
 
@@ -489,6 +494,7 @@ import store from "../mixins/store";
 import date from "../mixins/date";
 import currency from "../mixins/currency";
 import user from "../mixins/user";
+import Axios from "axios";
 
 //import { baseURL } from "../apiConfig";
 import { USER } from "../store/modules/auth";
@@ -582,7 +588,10 @@ export default {
         sort: false,
         content: []
       },
-      fixStatisticsPending: true
+      fixStatisticsPending: true,
+      sales: []
+      //fields: ["userId", "gameTitle", "developerProfit"]
+      //totalProfit: 0.0
     };
   },
   computed: {
@@ -723,6 +732,17 @@ export default {
 
         return this.userFilesStatistic;
       }
+    },
+    loggedInUserRole() {
+      return this.$store.state.auth.user.role;
+    },
+    totalDeveloperProfit() {
+      var totalProfit = 0.0;
+
+      for (var i = 0; i < this.sales.length; i++) {
+        totalProfit += this.sales[i].developerProfit;
+      }
+      return totalProfit;
     }
   },
   watch: {
@@ -737,6 +757,19 @@ export default {
     this.getUserFilesStatistic();
     this.fixAndGetStats();
     this.$store.dispatch("retrieveRecommendedGames"); //to load state.recommendedGames with list of recommended games
+    console.log("this user is: ", this.$store.state.auth.user);
+
+    let salesParam = {
+      username: this.$store.state.auth.user.username
+    };
+
+    Axios({ url: "/purchaseTracking/getPurchases", params: salesParam, method: "GET" })
+      .then(response => {
+        this.sales = response.data;
+      })
+      .catch(err => {
+        console.log("There was an error retrieving sales: ", err);
+      });
   },
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
