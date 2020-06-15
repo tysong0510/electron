@@ -19,7 +19,7 @@
     </b-row>
     <p class="text-white p-3">Please Include the Client Version Number (found below) for any issues you have encountered</p>
 
-    <p class="text-right pt-4">v 1.0.0</p>
+    <p class="text-right pt-4">Dev</p>
   </b-container>
 </template>
 

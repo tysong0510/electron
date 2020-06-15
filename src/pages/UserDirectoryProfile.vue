@@ -43,6 +43,10 @@
                 <img src="../assets/icons/gamer_badge.png" alt="GamerBadge" class="voxlogo d-inline-block m-auto" />
                 <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
               </span>
+              <span v-if="user.role === 'Publisher'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Pub.png" alt="PublisherBadge" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
             </h2>
           </b-col>
         </b-row>
@@ -75,11 +79,102 @@
       </b-col>
     </b-row>
     <!-- Developer button -->
-    <b-row v-if="loggedInUserRole == 'admin' && user.role != 'Developer'">
+    <b-row v-if="loggedInUserRole == 'admin' && (user.role != 'Developer' || user.role != 'Publisher')" class="m-3">
       <b-button variant="primary" @click="showModal()">
         Developer / Publisher
       </b-button>
     </b-row>
+
+    <div v-if="hasRecommendedGames" class="m-3">
+      <!-- <horizontal-view
+        v-once
+        title="Recommended Games"
+        class="text-white pb-5 mb-4 border-bottom"
+        title-class="font-weight-normal"
+        title-tag="h4"
+        :view-all-to="{ name: 'userRecommendationPage', params: { recoUser: user } }"
+      >
+      
+       <router-link :to="{ name: 'userRecommendationPage', params: { recoUser: user } }">
+         Test link button
+        </router-link>
+        <b-col
+          v-for="(game, index) in recommendedGames.slice(0, maxElements)"
+          :key="index"
+          class="pl-2 pr-2 item rounded-lg pb-2"
+          :style="{ 'max-width': 100 / maxElements + '%' }"
+          tag="a"
+          :href="getUrlByRoute({ name: 'my-game-details', params: { id: game.id } })"
+        >
+          <b-card class="border-0" no-body>
+            <b-card-body class="p-0">
+              <b-row class="game-image">
+                <b-col class="h-100 m-auto">
+                  <b-card-img :src="game.images.main" :alt="game.title" img-top class="rounded-lg" />
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col>
+                  <b-card-title title-tag="h4" class="mb-2" style="font-size: .85em;">
+                    {{ game.title }}
+                  </b-card-title>
+                  <b-card-text style="font-size: 0.7em;">
+                  {{ game.lastPlayed | distanceInWordsToNow({ addSuffix: true }) }}
+                </b-card-text>
+                </b-col>
+              </b-row>
+            </b-card-body>
+          </b-card>
+        </b-col>
+     </horizontal-view> -->
+      <b-row>
+        <b-col>
+          <h4 class="text-white font-weight-normal">Recommended Games</h4>
+        </b-col>
+        <b-col>
+          <router-link
+            class="float-right view-all text-muted"
+            :to="{ name: 'userRecommendationPage', params: { recoUser: user, recommendedGames: recommendedGames } }"
+          >
+            View All
+          </router-link>
+        </b-col>
+      </b-row>
+
+      <b-row class="border-bottom limited-height-row mt-3 pb-3">
+        <b-col
+          v-for="(game, index) in recommendedGames.slice(0, maxElements)"
+          :key="index"
+          class="p-2 rounded-lg game mt-1 mb-1 testing"
+          tag="a"
+        >
+          <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, userId: user.id } }">
+            <b-card class="border-0" no-body>
+              <b-card-body class="p-0">
+                <b-row class="game-image">
+                  <b-col class="h-100 m-auto">
+                    <b-card-img :src="game.images.main" :alt="game.title" img-top class="rounded-lg" />
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col>
+                    <b-card-title title-tag="h4" class="mb-2" style="font-size: .85em;">
+                      {{ game.title }}
+                    </b-card-title>
+                  </b-col>
+                </b-row>
+              </b-card-body>
+            </b-card>
+          </router-link>
+        </b-col>
+      </b-row>
+    </div>
+
+    <div v-else class="border-bottom">
+      <h4 class="text-white font-weight-normal">Recommended Games</h4>
+      <p>No Recommended Games...</p>
+    </div>
+
     <b-modal id="roleModal" ref="roleModal" class="roleModal" centered hide-footer title="Assign Developer / Publisher">
       <b-row class="my-3 mb-3">
         <b-col class="text-center">
@@ -89,16 +184,6 @@
         </b-col>
       </b-row>
       <b-row class="m-4">
-        <!--<b-col>
-          <b-form-checkbox v-model="developer" name="developer">
-            Developer
-          </b-form-checkbox> 
-        </b-col>
-        <b-col>
-          <b-form-checkbox v-model="publisher" name="publisher">
-            Publisher
-          </b-form-checkbox>
-        </b-col> -->
         <b-col>
           <b-form-radio v-model="account" name="developer" value="developer">Developer</b-form-radio>
         </b-col>
@@ -157,8 +242,11 @@
 <script>
 import Axios from "axios";
 
+import currency from "../mixins/currency";
+
 export default {
   name: "UserDirectoryProfile",
+  mixins: [currency],
   data() {
     return {
       developer: false,
@@ -168,7 +256,9 @@ export default {
       developerOrPublisherName: null,
       submissionError: false,
       submissionErrorMessage: null,
-      loading: false
+      loading: false,
+      recommendedGames: null,
+      maxElements: 5
     };
   },
   computed: {
@@ -177,10 +267,33 @@ export default {
     },
     loggedInUserRole() {
       return this.$store.state.auth.user.role;
+    },
+    hasRecommendedGames() {
+      console.log("recommendedGames", this.$store.state.recommendedGames);
+      if (this.recommendedGames != null && this.recommendedGames.length > 0) {
+        console.log("recommendedGames has a recommended game");
+        return true;
+      }
+      console.log("recommended games is null...");
+      return false;
     }
   },
   created() {
     console.log("user logged in now: ", this.$store.state.auth.user.role);
+    let recommendedParams = {
+      username: this.$route.params.user.username
+    };
+    Axios({ url: "/recommendedGames", params: recommendedParams, method: "GET" })
+      .then(async resp => {
+        console.log("data gotten from recommendedGames: ", resp.data);
+        this.recommendedGames = resp.data;
+        // this.maxElements = this.recommendedGames.length;
+        // console.log("value of maxElements: ", this.maxElements);
+      })
+      .catch(err => {
+        console.log("Error retrieving data from recommendedGames: ", err);
+        this.recommendedGames = [];
+      });
   },
   methods: {
     addDeveloper() {
@@ -228,6 +341,9 @@ export default {
     },
     hideSuccessModal() {
       this.$refs["successModal"].hide();
+    },
+    getUrlByRoute(route) {
+      return this.$router.resolve(route).href;
     }
   }
 };
@@ -267,6 +383,19 @@ export default {
         max-height: 140px;
       }
     }
+  }
+}
+
+.testing:hover {
+  background-color: $block-hover-background-color;
+}
+
+.testing .game-image {
+  max-height: 150px;
+  min-height: 150px;
+
+  img {
+    max-height: 140px;
   }
 }
 

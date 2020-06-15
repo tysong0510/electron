@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import path from "path";
 import fs from "fs";
-// import Axios from 'axios';
+//import Axios from 'axios';
 import { createSharedMutations } from "vuex-electron";
 import {
   INSTALL_GAME,
@@ -445,6 +445,7 @@ const demoData = {
         ],
         "my-files": "*",
         "my-recommendation": "recommendation",
+        "user-recommendation": "*",
         "recently-played": "*"
       },
       stores: [
@@ -477,6 +478,11 @@ const demoData = {
         {
           name: "my-recommendation",
           title: "Your recommendation",
+          sort: false
+        },
+        {
+          name: "user-recommendation",
+          title: "User Recommendation",
           sort: false
         },
         {
@@ -554,6 +560,7 @@ const demoData = {
     tempInstallPath: null,
     tempDownloadedGames: [],
     recommendedGames: [],
+    recommendedUserId: [],
     absolutePath: null
   },
   mutations: {
@@ -731,49 +738,88 @@ const demoData = {
       console.log("path from mutation: ", path);
       state.absolutePath = path;
     },
-    addToRecommendedGames(state, game) {
-      //state.recommendedGames[game.id] = game;
-      state.recommendedGames.push(game);
-      //let recommendedGames = Object.values(state.recommendedGames);
-      //recommendedGames.push(game);
-      storage.set("recommendedGames", state.recommendedGames, function(err) {
-        if (err) {
-          console.log("There was an error saving recommended games: ", err);
-        }
+    addToRecommendedGames(state, recoParams) {
+      state.recommendedGames.push(recoParams.game);
+
+      // storage.set(recoParams.username, state.recommendedGames, function(err) {
+      //   if (err) {
+      //     console.log("There was an error saving recommended games: ", err);
+      //   }
+      // });
+
+      return new Promise((resolve, reject) => {
+        storage.set(recoParams.username, state.recommendedGames, function(err) {
+          if (err) {
+            reject(err);
+          }
+        });
+        console.log("value of state.recommendedGames within promise: ", state.recommendedGames);
+        resolve(state.recommendedGames);
       });
     },
-    retrieveRecommendedGames(state) {
-      storage.get("recommendedGames", function(err, data) {
+    retrieveRecommendedGames(state, username) {
+      storage.get(username, function(err, data) {
         if (err) {
           console.log("error retrieving recommended games: ", err);
         } else {
-          state.recommendedGames = data;
+          // state.recommendedGames = data;
+
+          //Object.values(state.recommendedGames);
+          if (typeof data === "object") {
+            state.recommendedGames = Object.values(data);
+          } else {
+            state.recommendedGames = data;
+          }
         }
       });
     },
-    removeFromRecommendedGames(state, game) {
-      let recommendedGames = Object.values(state.recommendedGames);
+    removeFromRecommendedGames(state, recoParams) {
+      console.log("state.recommendedGames in removeFromRecommendedGames mutation: ", state.recommendedGames);
+      // let recommendedGames = Object.values(state.recommendedGames);
 
       var index;
 
-      for (var i = 0; i < recommendedGames.length; i++) {
-        if (recommendedGames[i].id == game.id) {
+      for (var i = 0; i < state.recommendedGames.length; i++) {
+        if (state.recommendedGames[i].id == recoParams.game.id) {
           index = i;
         }
       }
 
-      recommendedGames.splice(index, 1);
+      // recommendedGames.splice(index, 1);
       //save recommendedGames
-      storage.set("recommendedGames", recommendedGames, function(err) {
-        if (err) {
-          console.log("There was an error saving recommendedGames after removal: ", err);
-        }
+
+      state.recommendedGames.splice(index, 1);
+
+      return new Promise((resolve, reject) => {
+        storage.set(recoParams.username, state.recommendedGames, function(err) {
+          if (err) {
+            reject(err);
+          }
+        });
+        resolve(state.recommendedGames);
       });
+      // storage.set(recoParams.username, recommendedGames, function(err) {
+      //   if (err) {
+      //     console.log("There was an error saving recommendedGames after removal: ", err);
+      //   }
+      // });
     },
-    clearRecommendedGames() {
-      storage.remove("recommendedGames", function(err) {
+    clearRecommendedGames(state, recoParams) {
+      console.log("params for clearing recommended Games: ", recoParams);
+      storage.remove(recoParams.username, function(err) {
         console.log("error clearing recommended games: ", err);
       });
+    },
+    addUserRecommendedId(state, userParams) {
+      state.recommendedUserId[userParams.gameId] = userParams.userId;
+      //how should user id be added?
+    },
+    removeUserRecommendedId(state, userParams) {
+      state.recommendedUserId[userParams.gameId] = null;
+    },
+
+    clearUserRecommendedId(state) {
+      state.recommendedUserId = [];
     }
   },
   actions: {
@@ -812,17 +858,27 @@ const demoData = {
     removeDownloadedGames(context) {
       context.commit("removeDownloadedGames");
     },
-    addToRecommendedGames(context, game) {
-      context.commit("addToRecommendedGames", game);
+    addToRecommendedGames(context, recoParams) {
+      context.commit("addToRecommendedGames", recoParams);
     },
-    retrieveRecommendedGames(context) {
-      context.commit("retrieveRecommendedGames");
+    retrieveRecommendedGames(context, username) {
+      context.commit("retrieveRecommendedGames", username);
     },
-    removeFromRecommendedGames(context, game) {
-      context.commit("removeFromRecommendedGames", game);
+    removeFromRecommendedGames(context, recoParams) {
+      context.commit("removeFromRecommendedGames", recoParams);
     },
-    clearRecommendedGames(context) {
-      context.commit("clearRecommendedGames");
+    clearRecommendedGames(context, recoParams) {
+      console.log("recoParams in action: ", recoParams);
+      context.commit("clearRecommendedGames", recoParams);
+    },
+    addUserRecommendedId(context, userParams) {
+      context.commit("addUserRecommendedId", userParams);
+    },
+    removeUserRecommendedId(context, userParams) {
+      context.commit("removeUserRecommendedId", userParams);
+    },
+    clearUserRecommendedId(context) {
+      context.commit("clearUserRecommendedId");
     },
 
     async [START_GAME]({ state, getters }, { gameId }) {

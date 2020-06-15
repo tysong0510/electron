@@ -141,12 +141,25 @@ export default {
       this.$store.dispatch("removeFromCart", game);
       //this.totalPrice += game.price;
       this.totalPrice - game.price;
+
+      let userParams = {
+        gameId: game.id
+      };
+
+      this.$store.dispatch("removeUserRecommendedId", userParams);
+      console.log("list of recommended userId's after removal: ", this.$store.state.recommendedUserId);
     },
 
     checkout() {
       this.loading = true;
       console.log("made it to checkout function...");
       console.log("total price you are paying is: ", this.totalPrice);
+
+      // var recommenderIds = this.$store.state.recommendedUserId.filter(function(el) {
+      //   return el != null;
+      // });
+
+      // console.log("list of recommendedrIDs in checkout: ", recommenderIds);
 
       var shoppingCart = this.$store.state.cart;
       console.log("shoppingCart: ", shoppingCart);
@@ -161,8 +174,9 @@ export default {
       console.log("here are all the id's for checkout: ", gameIDs);
       try {
         //Need to pass an array/list of game objects to backend
-        ipcRenderer.send("open-new-window", gameIDs, this.totalPrice, this.recommenderID);
+        ipcRenderer.send("open-new-window", gameIDs, this.totalPrice, this.$store.state.recommendedUserId);
         this.$store.dispatch("clearCart");
+        this.$store.dispatch("clearUserRecommendedId");
         this.loading = false;
       } catch (err) {
         console.log(err);

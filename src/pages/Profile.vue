@@ -31,6 +31,10 @@
                 <img src="../assets/icons/gamer_badge.png" alt="GamerBadge" class="voxlogo d-inline-block m-auto" />
                 <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
               </span>
+              <span v-if="USER.role === 'Publisher'" class="voxLogoHolder">
+                <img src="../assets/icons/Emblem_Pub.png" alt="PublisherBadge" class="voxlogo d-inline-block m-auto" />
+                <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
+              </span>
             </h2>
           </b-col>
           <b-col class="col-auto">
@@ -756,7 +760,7 @@ export default {
     this.getGames();
     this.getUserFilesStatistic();
     this.fixAndGetStats();
-    this.$store.dispatch("retrieveRecommendedGames"); //to load state.recommendedGames with list of recommended games
+    this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username); //to load state.recommendedGames with list of recommended games
     console.log("this user is: ", this.$store.state.auth.user);
 
     let salesParam = {
@@ -805,7 +809,11 @@ export default {
       this.$set(row, "_showDetails", !row._showDetails);
     },
     clearRecommendedGames() {
-      this.$store.dispatch("clearRecommendedGames");
+      let params = {
+        username: this.$store.state.auth.user.username
+      };
+      console.log("username: ", params.username);
+      this.$store.dispatch("clearRecommendedGames", params);
     }
   }
 };

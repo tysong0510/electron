@@ -209,6 +209,27 @@ button {
   }
 }
 
+.horizontal-view {
+  .horizontal-view-items {
+    .item {
+      transition: ease-in-out 0.25s;
+
+      &:hover {
+        background-color: $block-hover-background-color;
+      }
+    }
+
+    .game-image {
+      max-height: 150px;
+      min-height: 150px;
+
+      img {
+        max-height: 140px;
+      }
+    }
+  }
+}
+
 #developerConfirm .modal-dialog {
   min-width: 650px;
 

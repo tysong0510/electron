@@ -296,7 +296,7 @@ import { CAN_GAME_INSTALL, IS_GAME_INSTALLED } from "../store/modules/path";
 import user from "../mixins/user";
 import { IS_LOGGED_IN } from "../store/modules/auth";
 const { ipcRenderer } = require("electron");
-//import axios from "axios";
+import axios from "axios";
 import request from "request";
 import fs from "fs";
 import child_process from "child_process";
@@ -438,6 +438,7 @@ export default {
     isGameRecommended() {
       var isGameRecommended = false;
       var recommendedGames = this.$store.state.recommendedGames;
+      console.log("recommendedGames before pressing recommend: ", recommendedGames);
       for (var i = 0; i < recommendedGames.length; i++) {
         if (recommendedGames[i].id == this.game.id) {
           isGameRecommended = true;
@@ -468,7 +469,7 @@ export default {
     this.carouselOptions = carouselOptions;
     this.$store.dispatch("retrievePath");
     this.$store.dispatch("retrieveDownloadedGame");
-    this.$store.dispatch("retrieveRecommendedGames");
+    this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username);
   },
   updated() {
     this.isGameInstalled;
@@ -615,26 +616,91 @@ export default {
     },
 
     addToRecommendedGames(game) {
-      //functionaality to connect to index.js
-
+      //functionality to connect to index.js
       console.log("addToRecommendedGames");
-      this.$store.dispatch("addToRecommendedGames", game);
-      //can make it true here or re-load page
-      //this.recommendedLoading = false;
+
+      let recoParams = {
+        username: this.$store.state.auth.user.username,
+        game: game
+      };
+      //this.$store.dispatch("addToRecommendedGames", recoParams);// need to make this sidpatch promise...
+
+      this.$store
+        .dispatchPromise("addToRecommendedGames", recoParams)
+        .then(data => {
+          console.log("data gotten from add to recommended games promise: ", data);
+          this.saveRecommendedGamesInAPI(this.$store.state.recommendedGames);
+        })
+        .catch(err => {
+          console.log("There was an error saving recommended games: ", err);
+        });
+      console.log("recommended games after recommendation has been pressed: ", this.$store.state.recommendedGames);
+      //this.saveRecommendedGamesInAPI();
     },
 
     removeFromRecommendedGames(game) {
       this.recommendedLoading = true;
       console.log("inside of removeFromRecommendedGames");
-      this.$store.dispatch("removeFromRecommendedGames", game);
-      this.recommendedLoading = false;
+
+      let recoParams = {
+        username: this.$store.state.auth.user.username,
+        game: game
+      };
+
+      //this.$store.dispatch("removeFromRecommendedGames", recoParams);
+      //this.saveRecommendedGamesInAPI();
+      //this.recommendedLoading = false;
+
+      this.$store
+        .dispatchPromise("removeFromRecommendedGames", recoParams)
+        .then(data => {
+          console.log("data from removing recommended games: ", data);
+          console.log("recommended games send to saveRecommendedGamesInAPI: ", this.$store.state.recommendedGames);
+          this.saveRecommendedGamesInAPI(this.$store.state.recommendedGames);
+        })
+        .catch(err => {
+          console.log("There was an error saving recommended games: ", err);
+        });
+    },
+
+    async saveRecommendedGamesInAPI(data) {
+      console.log("saveRecommendedGamesInAPI: ", data);
+      var gameArray = [];
+
+      for (var i = 0; i < data.length; i++) {
+        gameArray.push(data[i].id);
+      }
+
+      const formData = new FormData();
+      formData.append("username", this.$store.state.auth.user.username);
+      formData.append("recommendedGames", gameArray);
+
+      try {
+        await axios.post("/recommendedGames", formData);
+      } catch (err) {
+        const res = err && err.response;
+
+        console.log("there was an error with this axios request: ", res);
+      }
     },
 
     addProduct(game) {
+      console.log("Inside add product to cart");
       if (!this.$store.getters[IS_LOGGED_IN]) {
         this.$root.$emit("unauthorized", { noRedirect: true });
       } else {
         this.$store.dispatch("addToCart", game);
+        console.log("Value of route params: ", this.$route.params);
+        console.log("Is user id null: ", this.$route.params.userId == null);
+        if (this.$route.params.userId != null) {
+          let userParams = {
+            userId: this.$route.params.userId,
+            gameId: this.game.id
+          };
+
+          this.$store.dispatch("addUserRecommendedId", userParams);
+          console.log("list of recommended userId's after adding: ", this.$store.state.recommendedUserId);
+        }
       }
       //console.log("from test function...");
       //this.addToCart(game);
@@ -648,11 +714,11 @@ export default {
       });
     },
     resumeDownloading() {
-      console.log("in resume Downloading");
+      //console.log("in resume Downloading");
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
-      console.log("last sentence in resume downloading");
+      //console.log("last sentence in resume downloading");
     },
     formReset() {
       this.name = null;

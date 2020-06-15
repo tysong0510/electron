@@ -55,6 +55,7 @@ export default {
   computed: {
     viewAllUrl: {
       get() {
+        console.log("view all url from horizontal view: ", this.$router);
         return this.$router.resolve(this.viewAllTo).href;
       }
     }

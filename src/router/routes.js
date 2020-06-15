@@ -15,6 +15,7 @@ const UserDirectory = () => import(/*webpackChunkName: 'userDirectory' */ "@/pag
 const UserDirectoryProfile = () => import(/*webpackChunkName: 'userDirectoryProfile' */ "@/pages/UserDirectoryProfile");
 const NewsPortal = () => import(/*webpackChunkName: 'newsPortal' */ "@/pages/NewsPortal");
 const ShoppingCart = () => import(/*webpackChunkName: 'shoppingCart' */ "@/pages/ShoppingCart");
+const UserRecommendationPage = () => import(/*webpackChunkName: 'userRecommendationPage' */ "@/pages/UserRecommendationPage");
 
 const routes = [
   {
@@ -95,6 +96,11 @@ const routes = [
         // meta: { requireAuth }
       },
       {
+        path: "profile/userRecommendation",
+        name: "user-recommendation",
+        component: ProfileViewAll
+      },
+      {
         path: "profile/recently-played",
         name: "recently-played",
         component: ProfileViewAll
@@ -150,6 +156,11 @@ const routes = [
         path: "shoppingCart",
         name: "shoppingCart",
         component: ShoppingCart
+      },
+      {
+        path: "userRecommendationPage",
+        name: "userRecommendationPage",
+        component: UserRecommendationPage
       }
     ]
   },
