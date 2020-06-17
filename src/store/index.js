@@ -561,6 +561,7 @@ const demoData = {
     tempDownloadedGames: [],
     recommendedGames: [],
     recommendedUserId: [],
+    recommendedUserIdIndex: [],
     absolutePath: null
   },
   mutations: {
@@ -658,23 +659,39 @@ const demoData = {
     },
 
     removeFromCart(state, data) {
-      var index;
+      // this.dispatch("removeUserRecommendedIdIndex", index);
+      // state.cart.splice(index, 1);
+      // this.dispatch("saveCart");
 
-      for (var i = 0; i < state.cart.length; i++) {
-        if (state.cart[i].id == data.id) {
-          index = i;
+      return new Promise((resolve, reject) => {
+        //this.dispatch("removeUserRecommendedIdIndex", index);
+        console.log("remove From Cart mutation");
+
+        var index;
+
+        for (var i = 0; i < state.cart.length; i++) {
+          if (state.cart[i].id == data.id) {
+            index = i;
+            //send this index to removeRecommendedUserIdIndex
+          }
         }
-      }
 
-      state.cart.splice(index, 1);
-      state.cartLength--;
-      this.dispatch("saveCart");
+        if (index == null) {
+          reject(index);
+        }
+        state.cart.splice(index, 1);
+        this.dispatch("saveCart");
+        console.log("index about to be returned to shopping cart vue: ", index);
+
+        resolve(index);
+      });
     },
     clearCart(state) {
       state.cart.splice(0, state.cart.length);
       this.dispatch("saveCart");
     },
     saveCart(state) {
+      console.log("inside save cart");
       //localStorage.setItem("cart", state.cart);
       storage.set("cart", state.cart, function(err) {
         if (err) {
@@ -820,6 +837,36 @@ const demoData = {
 
     clearUserRecommendedId(state) {
       state.recommendedUserId = [];
+    },
+    addUserRecommendedIdIndex(state, isNull) {
+      console.log("inside addUserRecommendedIdIndex mutation");
+
+      if (isNull == true) {
+        state.recommendedUserIdIndex.push(-1);
+      } else {
+        state.recommendedUserIdIndex.push(state.cart.length - 1);
+      }
+      console.log("recommendedUserIdIndex after push: ", state.recommendedUserIdIndex);
+    },
+    removeUserRecommendedIdIndex(state, index) {
+      console.log("removeUserRecommendedIdIndex");
+
+      // var index = null;
+
+      // for (var i = 0; i < state.recommendedUserIdIndex.length; i++) {
+
+      //   if (state.recommendedUserIdIndex[i].id == data.id) {
+      //     index = i;
+      //     //send this index to removeRecommendedUserIdIndex
+      //   }
+
+      // }
+      // state.recommendedUserIdIndex.splice(index, 1);
+
+      console.log("index inside removeUserRecommendedIdIndex");
+
+      state.recommendedUserIdIndex.splice(index, 1); //This will just remove whatever is in recommendedUserIdIndex at the same index as the game that was removed
+      console.log("recommendedUserIdIndex after splice: ", state.recommendedUserIdIndex);
     }
   },
   actions: {
@@ -879,6 +926,12 @@ const demoData = {
     },
     clearUserRecommendedId(context) {
       context.commit("clearUserRecommendedId");
+    },
+    addUserRecommendedIdIndex(context, isNull) {
+      context.commit("addUserRecommendedIdIndex", isNull);
+    },
+    removeUserRecommendedIdIndex(context, index) {
+      context.commit("removeUserRecommendedIdIndex", index);
     },
 
     async [START_GAME]({ state, getters }, { gameId }) {

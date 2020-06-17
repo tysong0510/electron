@@ -700,6 +700,10 @@ export default {
 
           this.$store.dispatch("addUserRecommendedId", userParams);
           console.log("list of recommended userId's after adding: ", this.$store.state.recommendedUserId);
+          this.$store.dispatch("addUserRecommendedIdIndex", false);
+          console.log("list of user recommendedId indexes after adding to cart: " + this.$store.state.recommendedUserIdIndex);
+        } else {
+          this.$store.dispatch("addUserRecommendedIdIndex", true);
         }
       }
       //console.log("from test function...");

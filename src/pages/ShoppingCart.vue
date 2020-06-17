@@ -76,10 +76,10 @@
         </b-media>
       </ul> -->
 
-      <p class="text-white text-left">Enter ID of user who recommended game(s):</p>
+      <!-- <p class="text-white text-left">Enter ID of user who recommended game(s):</p>
       <b-col sm="2">
         <b-form-input id="recommenderID" v-model="recommenderID" name="recommenderID" type="text" size="sm" />
-      </b-col>
+      </b-col> -->
 
       <p class="text-white text-center">Estimated Total: {{ totalPrice | currency("USD") }}</p>
 
@@ -138,16 +138,29 @@ export default {
   methods: {
     removeFromCart(game) {
       console.log("remove from cart selected");
-      this.$store.dispatch("removeFromCart", game);
+      this.$store
+        .dispatchPromise("removeFromCart", game)
+        .then(data => {
+          console.log("data recieved from dispatch Promise removeUserRecommendedId: ", data);
+          this.$store.dispatch("removeUserRecommendedIdIndex", data);
+          console.log("shopping cart: ", this.$store.state.cart);
+        })
+        .catch(err => {
+          console.log("error with removing user recommended id index" + err);
+        });
       //this.totalPrice += game.price;
-      this.totalPrice - game.price;
+      // this.$store.dispatch("removeFromCart", game);
+      // this.totalPrice - game.price;
 
       let userParams = {
         gameId: game.id
       };
 
       this.$store.dispatch("removeUserRecommendedId", userParams);
+
       console.log("list of recommended userId's after removal: ", this.$store.state.recommendedUserId);
+      console.log("shopping cart: ", this.$store.state.cart);
+      //console.log("list of user recommendedId indexes after removing from cart: " + this.$store.state.recommendedUserIdIndex);
     },
 
     checkout() {
