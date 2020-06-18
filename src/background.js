@@ -28,9 +28,7 @@ import fsExtra from "fs-extra";
 
 const { autoUpdater } = require("electron-updater");
 autoUpdater.logger = require("electron-log");
-const { dialog } = require("electron");
-//autoUpdater.checkForUpdatesAndNotify();
-//
+//const { dialog } = require("electron");
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
 
@@ -154,40 +152,52 @@ function logEverywhere(s) {
   }
 }
 
-autoUpdater.on("error", error => {
-  dialog.showErrorBox("Error: ", error == null ? "unknown" : (error.stack || error).toString());
+app.on("ready", () => {
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
-autoUpdater.on("update-available", () => {
-  //autoUpdater.logger.transports.file.level = "info";
-  autoUpdater.logger.debug("inside update available");
-  dialog.showMessageBox(
-    {
-      type: "info",
-      title: "Update Found",
-      message: "Would you like to update now?",
-      buttons: ["Yes", "Later"]
-    },
-    buttonIndex => {
-      if (buttonIndex === 0) {
-        autoUpdater.downloadUpdate();
-      }
-    }
-  );
-});
+// autoUpdater.on("checking-for-update", () => {
+//   console.log("Checking for update event...");
+//   dialog.showMessageBox({
+//     title: "Updates",
+//     message: "Checking for updates..."
+//   });
+// });
 
-autoUpdater.on("update-downloaded", () => {
-  autoUpdater.logger.debug("inside update downloaded");
-  dialog.showMessageBox(
-    {
-      title: "Updates Downloaded",
-      message: "Updates have been downloaded, application will now quit to install"
-    },
-    () => {
-      setImmediate(() => autoUpdater.quitAndInstall());
-    }
-  );
-});
+// autoUpdater.on("error", error => {
+//   dialog.showErrorBox("Error: ", error == null ? "unknown" : (error.stack || error).toString());
+// });
+
+// autoUpdater.on("update-available", () => {
+//   //autoUpdater.logger.transports.file.level = "info";
+//   autoUpdater.logger.debug("inside update available");
+//   dialog.showMessageBox(
+//     {
+//       type: "info",
+//       title: "Update Found",
+//       message: "Would you like to update now?",
+//       buttons: ["Yes", "Later"]
+//     },
+//     buttonIndex => {
+//       if (buttonIndex === 0) {
+//         autoUpdater.downloadUpdate();
+//       }
+//     }
+//   );
+// });
+
+// autoUpdater.on("update-downloaded", () => {
+//   autoUpdater.logger.debug("inside update downloaded");
+//   dialog.showMessageBox(
+//     {
+//       title: "Updates Downloaded",
+//       message: "Updates have been downloaded, application will now quit to install"
+//     },
+//     () => {
+//       setImmediate(() => autoUpdater.quitAndInstall());
+//     }
+//   );
+// });
 
 function dummyDRM(mode = DRM_MODE_ENCRYPT) {
   const installPath = store.getters[INSTALL_PATH];
