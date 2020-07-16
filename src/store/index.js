@@ -658,33 +658,12 @@ const demoData = {
       this.dispatch("saveCart");
     },
 
-    removeFromCart(state, data) {
+    removeFromCart(state, index) {
       // this.dispatch("removeUserRecommendedIdIndex", index);
       // state.cart.splice(index, 1);
       // this.dispatch("saveCart");
 
-      return new Promise((resolve, reject) => {
-        //this.dispatch("removeUserRecommendedIdIndex", index);
-        console.log("remove From Cart mutation");
-
-        var index;
-
-        for (var i = 0; i < state.cart.length; i++) {
-          if (state.cart[i].id == data.id) {
-            index = i;
-            //send this index to removeRecommendedUserIdIndex
-          }
-        }
-
-        if (index == null) {
-          reject(index);
-        }
-        state.cart.splice(index, 1);
-        this.dispatch("saveCart");
-        console.log("index about to be returned to shopping cart vue: ", index);
-
-        resolve(index);
-      });
+      state.cart.splice(index, 1);
     },
     clearCart(state) {
       state.cart.splice(0, state.cart.length);
@@ -730,6 +709,7 @@ const demoData = {
     addDownloadedGame(state, savedContent) {
       console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in mutation");
       state.tempDownloadedGames[savedContent.game.id] = savedContent.path;
+      //state.tempDownloadedGames.push(savedContent.path);
       console.log("tempDownloadedGames array: ", state.tempDownloadedGames);
       storage.set("downloadedGame", state.tempDownloadedGames, function(err) {
         console.log("there was an error saving downloadedGames: ", err);
@@ -838,35 +818,30 @@ const demoData = {
     clearUserRecommendedId(state) {
       state.recommendedUserId = [];
     },
-    addUserRecommendedIdIndex(state, isNull) {
+    addUserRecommendedIdIndex(state, params) {
       console.log("inside addUserRecommendedIdIndex mutation");
 
-      if (isNull == true) {
-        state.recommendedUserIdIndex.push(-1);
+      // if (isNull == true) {
+      //   state.recommendedUserIdIndex.push(0);
+      // } else {
+      //   state.recommendedUserIdIndex.push(1);
+      // }
+
+      if (params == null) {
+        state.recommendedUserIdIndex.push(0);
       } else {
-        state.recommendedUserIdIndex.push(state.cart.length - 1);
+        state.recommendedUserIdIndex.push(params.userId);
       }
       console.log("recommendedUserIdIndex after push: ", state.recommendedUserIdIndex);
     },
     removeUserRecommendedIdIndex(state, index) {
-      console.log("removeUserRecommendedIdIndex");
-
-      // var index = null;
-
-      // for (var i = 0; i < state.recommendedUserIdIndex.length; i++) {
-
-      //   if (state.recommendedUserIdIndex[i].id == data.id) {
-      //     index = i;
-      //     //send this index to removeRecommendedUserIdIndex
-      //   }
-
-      // }
-      // state.recommendedUserIdIndex.splice(index, 1);
-
       console.log("index inside removeUserRecommendedIdIndex");
 
       state.recommendedUserIdIndex.splice(index, 1); //This will just remove whatever is in recommendedUserIdIndex at the same index as the game that was removed
       console.log("recommendedUserIdIndex after splice: ", state.recommendedUserIdIndex);
+    },
+    clearUserRecommendedIdIndex(state) {
+      state.recommendedUserIdIndex = [];
     }
   },
   actions: {
@@ -875,9 +850,9 @@ const demoData = {
       context.commit("addToCart", game);
     },
 
-    removeFromCart(context, game) {
+    removeFromCart(context, index) {
       console.log("from removeFromCart in index...");
-      context.commit("removeFromCart", game);
+      context.commit("removeFromCart", index);
     },
 
     clearCart(context) {
@@ -927,11 +902,14 @@ const demoData = {
     clearUserRecommendedId(context) {
       context.commit("clearUserRecommendedId");
     },
-    addUserRecommendedIdIndex(context, isNull) {
-      context.commit("addUserRecommendedIdIndex", isNull);
+    addUserRecommendedIdIndex(context, params) {
+      context.commit("addUserRecommendedIdIndex", params);
     },
     removeUserRecommendedIdIndex(context, index) {
       context.commit("removeUserRecommendedIdIndex", index);
+    },
+    clearUserRecommendedIdIndex(context, index) {
+      context.commit("clearUserRecommendedIdIndex", index);
     },
 
     async [START_GAME]({ state, getters }, { gameId }) {

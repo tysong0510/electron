@@ -200,7 +200,7 @@
                 </b-form-invalid-feedback>
               </b-form-group>
 
-              <b-form-group label="Packed Game File" label-for="magnetURI" class="text-left">
+              <b-form-group label="Packed Exe File" label-for="magnetURI" class="text-left">
                 <b-form-file
                   v-model="magnetURI"
                   accept=".exe, .dmg"
@@ -209,6 +209,19 @@
                 ></b-form-file>
                 <div class="mt-3">Selected file: {{ magnetURI ? magnetURI.name : "" }}</div>
                 <b-form-invalid-feedback :state="!magnetURIValidation">
+                  {{ gameFileMsg }}
+                </b-form-invalid-feedback>
+              </b-form-group>
+
+              <b-form-group label="Packed Data File" label-for="dataFile" class="text-left">
+                <b-form-file
+                  v-model="dataFile"
+                  accept=".data"
+                  placeholder="Choose data file..."
+                  drop-placeholder="Drop file here..."
+                ></b-form-file>
+                <div class="mt-3">Selected file: {{ dataFile ? dataFile.name : "" }}</div>
+                <b-form-invalid-feedback :state="!dataFileValidation">
                   {{ gameFileMsg }}
                 </b-form-invalid-feedback>
               </b-form-group>
@@ -339,6 +352,8 @@ export default {
       priceValidation: false,
       magnetURI: [],
       magnetURIValidation: false,
+      dataFile: null,
+      dataFileValidation: false,
       profitSharing: null,
       profitSharingValidation: false,
       gameFileMsg: "",
@@ -406,6 +421,7 @@ export default {
       this.magnetURI = null;
       this.price = null;
       this.logoPhoto = null;
+      this.dataFile = null;
       this.editor.clearContent(true);
     },
     showModal() {
@@ -670,15 +686,29 @@ export default {
         console.log("title: ", this.title);
         console.log("logo photo: ", this.logoPhoto);
         console.log("logoPhoto name: ", this.logoPhoto.name);
+        console.log("magnetURI: ", this.magnetURI);
+        console.log("dataFile: ", this.dataFile);
         var logoPhotoFileURL = await this.uploadSingleFileToS3(this.title, this.logoPhoto, this.logoPhoto.name);
         var gamePlayFileURLS = await this.uploadMultipleFilesToS3(this.title, this.images);
         // var torrentFile = await this.createTorrentFile(this.magnetURI);
         // console.log("torrentFile output from dev portal below...");
         // console.log(torrentFile);
+
+        /**
+         * Here is where i should check if data file is null, if it is then proceed as normal, else make into a zip
+         */
+
         var gameFileURL = await this.uploadSingleFileToS3(this.title, this.magnetURI, this.magnetURI.name);
+        var dataFileURL = null;
+
+        if (this.dataFile != null) {
+          dataFileURL = await this.uploadSingleFileToS3(this.title, this.dataFile, this.dataFile.name);
+        }
+
         console.log("logo photo url: ", logoPhotoFileURL);
         console.log("gamePlayFileURLs: ", gamePlayFileURLS);
         console.log("gameFileURL: ", gameFileURL);
+        console.log("dataFileURL: ", dataFileURL);
 
         //var gameFileURL = await this.uploadSingleFileToS3(this.title, torrentFile, this.magnetURI.name);
         /* gameFileURL = gameFileURL.replace(/:/g, "%3A");
@@ -715,6 +745,8 @@ export default {
         formData.append("gameFile", gameFileURL);
         //console.log("This is what magnetURI: " + this.magnetURI);
 
+        formData.append("dataFile", dataFileURL);
+
         formData.append("logoPhoto", logoPhotoFileURL);
 
         for (var k = 0; k < gamePlayFileURLS.length; k++) {
@@ -731,7 +763,7 @@ export default {
 
           if (res && res.status == 404) {
             this.magnetURIValidation = true;
-            this.gameFileMsg = "The time limit to submit this packed game has passed, please try again with a newly packed version";
+            this.gameFileMsg = "The game slot does not exist";
           } else {
             this.otherError = true;
             this.msg = err.message;

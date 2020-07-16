@@ -154,6 +154,8 @@
 import store from "../mixins/store";
 import currency from "../mixins/currency";
 import user from "../mixins/user";
+import axios from "axios";
+const { ipcRenderer } = require("electron");
 
 let colCounter = 0;
 
@@ -168,7 +170,8 @@ export default {
       filterSelected: "day",
       storeTitle: "",
       store: null,
-      filter: null
+      filter: null,
+      firstTime: true
     };
   },
 
@@ -214,6 +217,30 @@ export default {
     } else if (this.currentStore === "store-top") {
       this.getTopGames();
     }
+
+    ipcRenderer.on("info", (event, data) => {
+      console.log("event: ", event);
+      console.log("data: ", data);
+      // this.$router.push({ name: "userDirectory" });
+
+      //if (this.firstTime) {
+      axios
+        .get("/auth/external/link/users")
+        .then(response => {
+          console.log("inside axios then...");
+          var users = response.data;
+          for (var i = 0; i < users.length; i++) {
+            if (users[i].username == data) {
+              this.$router.push({ name: "userDirectoryProfile", params: { user: users[i] } });
+            }
+          }
+        })
+        .catch(e => {
+          console.log("error retrieving users: ", e);
+        });
+      //this.firstTime = false;
+      //}
+    });
   },
   beforeDestroy() {},
   methods: {

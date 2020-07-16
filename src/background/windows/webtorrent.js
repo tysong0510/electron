@@ -19,7 +19,10 @@ export function getInstance({ debug } = {}) {
     skipTaskbar: true,
     title: "webtorrent-hidden-window",
     useContentSize: true,
-    width: 150
+    width: 150,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

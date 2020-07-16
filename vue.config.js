@@ -41,6 +41,9 @@ module.exports = {
         protocols: {
           name: "voxpop-protocol",
           schemes: ["voxpop"]
+        },
+        win: {
+          publisherName: "VoxPop Games Inc"
         }
       }
     }
@@ -72,6 +75,15 @@ module.exports = {
       // extracted common chunks and vendor chunks.
       // chunks: ['chunk-vendors', 'chunk-common', 'webtorrent']
     }
+    // ,
+    // externalLink: {
+    //   //entry for the page
+    //   entry: "src/externalMain.js",
+    //   //the source template
+    //   template: "public/externalLink.html",
+    //   //output as dist/index.html
+    //   filename: "externalLink.html"
+    // }
   }
 
   /* devServer: {

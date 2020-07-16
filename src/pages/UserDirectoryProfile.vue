@@ -72,10 +72,8 @@
         </b-row>
       </b-col>
       <b-col class="col-4 d-inline text-white border-left">
-        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
-          Friends
-        </h4>
-        <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" />
+        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">Friends: {{ numOfFriends }}</h4>
+        <!-- <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" /> -->
       </b-col>
     </b-row>
     <!-- Developer button -->
@@ -241,6 +239,8 @@
 </template>
 <script>
 import Axios from "axios";
+import axios from "axios";
+const { ipcRenderer } = require("electron");
 
 import currency from "../mixins/currency";
 
@@ -258,7 +258,8 @@ export default {
       submissionErrorMessage: null,
       loading: false,
       recommendedGames: null,
-      maxElements: 5
+      maxElements: 5,
+      numOfFriends: 0
     };
   },
   computed: {
@@ -294,6 +295,32 @@ export default {
         console.log("Error retrieving data from recommendedGames: ", err);
         this.recommendedGames = [];
       });
+
+    ipcRenderer.on("info", (event, data) => {
+      console.log("event: ", event);
+      console.log("data: ", data);
+      // this.$router.push({ name: "userDirectory" });
+
+      if (this.firstTime) {
+        axios
+          .get("/auth/external/link/users")
+          .then(response => {
+            console.log("inside axios then...");
+            var users = response.data;
+            for (var i = 0; i < users.length; i++) {
+              if (users[i].username == data) {
+                console.log("found user: ", users[i].username);
+                this.$router.push({ name: "userDirectoryProfile", params: { user: users[i] } });
+              }
+            }
+          })
+          .catch(e => {
+            console.log("error retrieving users: ", e);
+          });
+        this.firstTime = false;
+        console.log("router: ", this.$router);
+      }
+    });
   },
   methods: {
     addDeveloper() {

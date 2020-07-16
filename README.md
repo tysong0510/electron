@@ -63,6 +63,12 @@ yarn build:all
 yarn build:staging
 ```
 
+### Build and publish to github releases
+
+```
+yarn build --mac --win -p always
+```
+
 ### Run your tests
 
 ```

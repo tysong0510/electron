@@ -37,7 +37,7 @@
                     </b-col>
 
                     <b-col cols="6">
-                      <a href="#" class="text-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password?</a>
+                      <a href="#" class="text-right" style="color: #696E80;" @click.prevent="goTo('restore')">Forgot password</a>
                     </b-col>
                   </b-row>
                   <b-form-invalid-feedback :state="loginValid">
@@ -179,6 +179,9 @@
                 <b-form id="restore" @submit="restore">
                   <b-form-group label="Email" label-for="email" class="text-left">
                     <b-form-input id="email" ref="restore" v-model="email" required name="email" type="email" />
+                    <b-row>
+                      <b-button variant="link" style="color: #696E80;" @click.prevent="goTo('restoreUser')"> Forgot Username? </b-button>
+                    </b-row>
                     <b-form-invalid-feedback :state="!validationErrors.email">
                       {{ validationErrors.email }}
                     </b-form-invalid-feedback>
@@ -214,12 +217,72 @@
             </b-row>
           </b-col>
         </b-row>
+        <b-row v-else-if="modalType === 'restoreUser'">
+          <b-col>
+            <b-row class="my-3">
+              <b-col class="text-center">
+                <b-form id="restore" @submit="restoreUser">
+                  <b-form-group label="Email" label-for="email" class="text-left">
+                    <b-form-input id="email" ref="restore" v-model="email" required name="email" type="email" />
+                    <b-form-invalid-feedback :state="!validationErrors.email">
+                      {{ validationErrors.email }}
+                    </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="emailValidation">
+                      That email address does not exist in our system. Please try again.
+                    </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="!otherError">
+                      Error connecting to server. Please try again.
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </b-form>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-row class="my-3">
+                  <b-col class="text-center">
+                    <b-button size="lg" variant="primary" class="btn-auth" style="min-width: 180px;" type="submit" form="restore">
+                      Send Username
+                    </b-button>
+                  </b-col>
+                </b-row>
+                <b-col>
+                  <b-row class="my-3">
+                    <b-col class="text-center">
+                      <b-button size="lg" variant="light" class="btn-auth" style="min-width: 180px;" @click="goBack">
+                        Back
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </b-col>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
         <b-row v-else-if="modalType === 'resetConfirm'">
           <b-col>
             <b-row class="my-3 mb-3">
               <b-col class="text-center">
                 <h5>
                   Please click the link sent to your email to reset your password.
+                </h5>
+              </b-col>
+            </b-row>
+            <b-row class="my-3">
+              <b-col class="text-center">
+                <b-button size="lg" variant="primary" class="btn-auth" style="max-width: 250px;" @click="goTo('sign-in')">
+                  Continue
+                </b-button>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+        <b-row v-else-if="modalType === 'userConfirm'">
+          <b-col>
+            <b-row class="my-3 mb-3">
+              <b-col class="text-center">
+                <h5>
+                  Please check your email for your username.
                 </h5>
               </b-col>
             </b-row>
@@ -262,11 +325,11 @@
 
 <script>
 import { ipcRenderer } from "electron";
-import { ACTION_LOGIN, ACTION_REGISTER, ACTION_RESTORE } from "../../store/modules/auth";
+import { ACTION_LOGIN, ACTION_REGISTER, ACTION_RESTORE, ACTION_RESTORE_USER } from "../../store/modules/auth";
 // import { UNAUTHORIZED } from '../../dispatch-types';
 import { AUTHORIZED } from "../../dispatch-types";
 
-const modalTypes = ["select", "sign-in", "confirm", "registration", "restore", "resetConfirm"];
+const modalTypes = ["select", "sign-in", "confirm", "registration", "restore", "resetConfirm", "restoreUser", "userConfirm"];
 
 const modals = {
   select: {
@@ -282,10 +345,16 @@ const modals = {
     title: "Sign in"
   },
   restore: {
-    title: "Forgot password"
+    title: "Forgot Password"
+  },
+  restoreUser: {
+    title: "Forgot Username"
   },
   resetConfirm: {
     title: "Password reset link sent"
+  },
+  userConfirm: {
+    title: "Username has been sent"
   }
 };
 
@@ -546,6 +615,38 @@ export default {
 
       this.$store
         .dispatchPromise(ACTION_RESTORE, {
+          email: this.email
+        })
+        .then(() => {
+          this.loading = false;
+          that.$authModal.showModal = false;
+
+          this.formReset();
+          console.log("Restored");
+          this.goTo("resetConfirm");
+        })
+        .catch(err => {
+          this.loading = false;
+          const res = err.response;
+
+          if (res && res.status === 404) {
+            this.emailValidation = false;
+          } else {
+            this.otherError = true;
+            //this.msg = res;
+          }
+        });
+    },
+    restoreUser(evt) {
+      evt.preventDefault();
+
+      this.otherError = false;
+
+      const that = this;
+      this.loading = true;
+
+      this.$store
+        .dispatchPromise(ACTION_RESTORE_USER, {
           email: this.email
         })
         .then(() => {

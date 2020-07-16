@@ -30,6 +30,7 @@
         <router-link :to="{ name: 'userDirectoryProfile', params: { user: user } }">
           <h5 class="display-4 mt-0 mb-1 text-white" style="font-size: 1.5rem;">
             {{ user.username }}
+            ID: {{ user.id }}
           </h5>
         </router-link>
       </b-media>

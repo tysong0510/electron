@@ -64,9 +64,8 @@
                       </b-button>
                     </div>
                     <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
-                      <!-- Need to remove instances of load once seeding/torrenting is finished -->
                       <b-button
-                        v-if="!isTempGameDownloaded()"
+                        v-if="!isGameDownloaded"
                         :disabled="load"
                         variant="primary"
                         size="lg"
@@ -76,7 +75,7 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
                         Play
                       </b-button>
 
@@ -85,25 +84,33 @@
                         {{ percentage }}/100
                       </div>
                     </div>
-                    <div v-else>
+                    <!-- <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
+                      <b-button variant="primary" class="border-0" @click="startDownloadingForSeeding()">
+                      <span v-if="!installing">Download</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                      </b-button>
+                      </div> -->
+
+                    <!-- Seeding information below... -->
+                    <!-- <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
-                      </b-button>
-                      <!--                      <b-button-->
-                      <!--                        v-if="showPlayBtn"-->
-                      <!--                        variant="primary"-->
-                      <!--                        size="lg"-->
-                      <!--                        class="btn-buy"-->
-                      <!--                        :disabled="!isGameInstalled"-->
-                      <!--                        @click="playGame()"-->
-                      <!--                      >-->
-                      <!--                        Play-->
-                      <!--                      </b-button>-->
+                      </b-button> -->
+                    <!--                      <b-button-->
+                    <!--                        v-if="showPlayBtn"-->
+                    <!--                        variant="primary"-->
+                    <!--                        size="lg"-->
+                    <!--                        class="btn-buy"-->
+                    <!--                        :disabled="!isGameInstalled"-->
+                    <!--                        @click="playGame()"-->
+                    <!--                      >-->
+                    <!--                        Play-->
+                    <!--                      </b-button>-->
 
-                      <transition>
+                    <!-- <transition>
                         <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                           <loading-progress
                             v-if="showDownloadProgress"
@@ -125,7 +132,7 @@
                           <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
-                    </div>
+                    </div> -->
                   </div>
                   <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
@@ -167,18 +174,25 @@
               </template>
 
               <!--
-  This will be used for when torrenting is back in action...
+  This will be used for when torrenting is back in action...-->
 
-              <template v-else-if="currentRouteIs('my-game-details')">
+              <!-- <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
                     <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
                       Play
                     </b-button>
-                    <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
+
+                     <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
                       <span v-if="!installing">Install</span>
                       <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                     </b-button>
+
+                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
+                      <span v-if="!installing">Download</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                      </b-button>
+                    
                     <b-button
                       v-if="isGameInstalled"
                       variant="light"
@@ -190,14 +204,34 @@
                       <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                     </b-button>
                   </b-col>
+                  <b-col>
+                    <b-button
+                      v-if="!isGameRecommended"
+                      :disabled="hasItBeenRecommended"
+                      variant="outline-secondary"
+                      class="btn-voted ml-2"
+                      @click="addToRecommendedGames(game)"
+                    >
+                      <span>Recommend</span>
+                    </b-button>
+                    <b-button
+                      v-else-if="isGameRecommended"
+                      variant="success"
+                      class="btn-voted ml-2"
+                      @click="removeFromRecommendedGames(game)"
+                    >
+                      <span class="show"> Recommended </span>
+                      <span class="hoverShow">Un-Recommend</span>
+                    </b-button>
+                  </b-col>
                 </b-row>
-              </template>
--->
+              </template> -->
+
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
                     <b-button
-                      v-if="!isTempGameDownloaded()"
+                      v-if="!isGameDownloaded"
                       :disabled="load"
                       variant="primary"
                       size="lg"
@@ -207,7 +241,7 @@
                       <span v-if="!load">Download</span>
                       <b-spinner v-if="load"></b-spinner>
                     </b-button>
-                    <b-button v-else variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                    <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
                       Play
                     </b-button>
                     <div v-if="load" class="p-3">
@@ -237,8 +271,7 @@
                     </b-button>
                   </b-col>
 
-                  <!--
-                  <b-col>
+                  <!-- <b-col>
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
                       variant="outline-secondary"
@@ -247,9 +280,7 @@
                     >
                       Change Directory
                     </b-button>
-                  </b-col>
-               
--->
+                  </b-col> -->
                 </b-row>
               </template>
             </b-card-body>
@@ -457,6 +488,15 @@ export default {
         }
       }
       return false;
+    },
+    isGameDownloaded() {
+      var isGameDownloaded = false;
+
+      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+        isGameDownloaded = true;
+      }
+      console.log("is game downloaded: ", isGameDownloaded);
+      return isGameDownloaded;
     }
   },
 
@@ -495,6 +535,12 @@ export default {
       }
       return "";
     },
+    startDownloadingForSeeding() {
+      this[START_DOWNLOAD_GAME]({
+        gameId: this.game.id
+      });
+      console.log("under where start download game should have started...");
+    },
     startDownloading() {
       console.log("gonna start downloading game...");
       this.load = true;
@@ -523,54 +569,182 @@ export default {
       }
       */
 
+      // if (this.game.magnetURI != null && this.game.dataFile != null) {
+      //   if (filePath) {
+      //     console.log("this game contains exe and data file");
+      //     var recievedBytes = 0;
+      //     var totalBytes = 0;
+
+      //     var req = request({
+      //       method: "GET",
+      //       uri: this.game.magnetURI
+      //     });
+      //     //need to do something with file path, need to create a file...
+      //     console.log(req);
+
+      //     //here is where i need to remove space in game title
+      //     var noSpaceTitle = this.game.title;
+      //     noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
+      //     var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+      //     req.pipe(out);
+
+      //     req.on("response", function(data) {
+      //       totalBytes = parseInt(data.headers["content-length"]);
+      //     });
+
+      //     req.on("data", chunk => {
+      //       recievedBytes += chunk.length;
+      //       this.percentage = parseInt((recievedBytes * 100) / totalBytes);
+      //     });
+
+      //     req.on("end", () => {
+      //       alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
+      //       //this.load = false;
+      //       //here is where i would put something to indicate that this game is downloaded
+      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
+
+      //       this.downloadDataFile(filePath);
+      //       //this.$forceUpdate();
+      //     });
+      //   } else {
+      //     this.load = false;
+      //     console.log("user cancelled...");
+      //   }
+      // } else if (this.game.magnetURI) {
+      //   if (filePath) {
+      //     var recievedBytesM = 0;
+      //     var totalBytesM = 0;
+
+      //     var reqM = request({
+      //       method: "GET",
+      //       uri: this.game.magnetURI
+      //     });
+      //     //need to do something with file path, need to create a file...
+      //     console.log(reqM);
+
+      //     //here is where i need to remove space in game title
+      //     var noSpaceTitleM = this.game.title;
+      //     noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
+      //     var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+      //     req.pipe(outM);
+
+      //     reqM.on("response", function(data) {
+      //       totalBytesM = parseInt(data.headers["content-length"]);
+      //     });
+
+      //     reqM.on("data", chunk => {
+      //       recievedBytesM += chunk.length;
+      //       this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
+      //     });
+
+      //     reqM.on("end", () => {
+      //       alert(this.game.title + " has been successfully downloaded!");
+      //       this.load = false;
+      //       //here is where i would put something to indicate that this game is downloaded
+      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
+
+      //       let savedContent = {
+      //         game: this.game,
+      //         path: filePath
+      //       };
+      //       //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
+      //       this.$store.dispatch("addDownloadedGame", savedContent);
+      //       this.$forceUpdate();
+      //     });
+      //   } else {
+      //     this.load = false;
+      //     console.log("user cancelled...");
+      //   }
+      // } else {
+      //   alert("There is no file available for this game");
+      // }
+
       if (this.game.magnetURI) {
         if (filePath) {
-          var recievedBytes = 0;
-          var totalBytes = 0;
+          var recievedBytesM = 0;
+          var totalBytesM = 0;
 
-          var req = request({
+          var reqM = request({
             method: "GET",
             uri: this.game.magnetURI
           });
           //need to do something with file path, need to create a file...
-          console.log(req);
+          console.log(reqM);
 
           //here is where i need to remove space in game title
-          var noSpaceTitle = this.game.title;
-          noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
-          var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-          req.pipe(out);
+          var noSpaceTitleM = this.game.title;
+          noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
+          var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          reqM.pipe(outM);
 
-          req.on("response", function(data) {
-            totalBytes = parseInt(data.headers["content-length"]);
+          reqM.on("response", function(data) {
+            totalBytesM = parseInt(data.headers["content-length"]);
           });
 
-          req.on("data", chunk => {
-            recievedBytes += chunk.length;
-            this.percentage = parseInt((recievedBytes * 100) / totalBytes);
+          reqM.on("data", chunk => {
+            recievedBytesM += chunk.length;
+            this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
           });
 
-          req.on("end", () => {
-            alert(this.game.title + " has been successfully downloaded...");
-            this.load = false;
-            //here is where i would put something to indicate that this game is downloaded
-            console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
-
+          reqM.on("end", () => {
             let savedContent = {
               game: this.game,
               path: filePath
             };
             //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
+
+            console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
             this.$store.dispatch("addDownloadedGame", savedContent);
-            this.$forceUpdate();
+
+            if (this.game.dataFile) {
+              alert(this.game.title + " has been successfully downloaded,  will now start downloading data files...");
+              this.downloadDataFile(filePath);
+            } else {
+              alert(this.game.title + " has been successfully downloaded!");
+              this.load = false;
+            }
           });
         } else {
           this.load = false;
           console.log("user cancelled...");
         }
       } else {
-        alert("There is no file available for this game");
+        alert("There is no game file available...");
       }
+    },
+
+    downloadDataFile(filePath) {
+      console.log("downloading data file now...");
+
+      var recievedBytesD = 0;
+      var totalBytesD = 0;
+
+      var reqD = request({
+        method: "GET",
+        uri: this.game.dataFile
+      });
+      //need to do something with file path, need to create a file...
+      console.log(reqD);
+
+      //here is where i need to remove space in game title
+      var noSpaceTitleD = this.game.title;
+      noSpaceTitleD = noSpaceTitleD.replace(/ /g, "-");
+      var outD = fs.createWriteStream(filePath + "/" + noSpaceTitleD + ".exe.data", { mode: 0o777 }); //should allow read,write,execute permissions
+      reqD.pipe(outD);
+
+      reqD.on("response", function(data) {
+        totalBytesD = parseInt(data.headers["content-length"]);
+      });
+
+      reqD.on("data", chunk => {
+        recievedBytesD += chunk.length;
+        this.percentage = parseInt((recievedBytesD * 100) / totalBytesD);
+      });
+
+      reqD.on("end", () => {
+        alert(this.game.title + " data files has been successfully downloaded...");
+        this.load = false;
+      });
     },
     /** 
     * 
@@ -593,12 +767,15 @@ export default {
      */
     createDirectory() {
       //create that directory in here...
+      console.log("inside createDirectory");
       var concatTitle = this.game.title;
       concatTitle = concatTitle.replace(/ /g, "-");
       const absolutePath = path.join(USER_DATA_PATH, VOXPOP, this[USER].username, APPS, TEMP, concatTitle);
       if (!fs.existsSync(absolutePath)) {
+        console.log("this directory does not exist, going to make it...");
         this.mkdirDeep(absolutePath);
       }
+      console.log("This directory exists...");
       return absolutePath;
     },
 
@@ -609,6 +786,7 @@ export default {
      * @param {object | number} options - The same as [here](https://nodejs.org/api/fs.html#fs_fs_mkdirsync_path_options)
      */
     mkdirDeep(dirPath, options = undefined) {
+      console.log("inside mkdirDeep");
       if (!fs.existsSync(dirPath)) {
         this.mkdirDeep(path.join(dirPath, ".."), options);
         fs.mkdirSync(dirPath, options);
@@ -700,10 +878,10 @@ export default {
 
           this.$store.dispatch("addUserRecommendedId", userParams);
           console.log("list of recommended userId's after adding: ", this.$store.state.recommendedUserId);
-          this.$store.dispatch("addUserRecommendedIdIndex", false);
+          this.$store.dispatch("addUserRecommendedIdIndex", userParams);
           console.log("list of user recommendedId indexes after adding to cart: " + this.$store.state.recommendedUserIdIndex);
         } else {
-          this.$store.dispatch("addUserRecommendedIdIndex", true);
+          this.$store.dispatch("addUserRecommendedIdIndex", null);
         }
       }
       //console.log("from test function...");

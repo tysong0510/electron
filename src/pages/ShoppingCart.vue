@@ -138,25 +138,22 @@ export default {
   methods: {
     removeFromCart(game) {
       console.log("remove from cart selected");
-      this.$store
-        .dispatchPromise("removeFromCart", game)
-        .then(data => {
-          console.log("data recieved from dispatch Promise removeUserRecommendedId: ", data);
-          this.$store.dispatch("removeUserRecommendedIdIndex", data);
-          console.log("shopping cart: ", this.$store.state.cart);
-        })
-        .catch(err => {
-          console.log("error with removing user recommended id index" + err);
-        });
-      //this.totalPrice += game.price;
-      // this.$store.dispatch("removeFromCart", game);
-      // this.totalPrice - game.price;
 
-      let userParams = {
-        gameId: game.id
-      };
+      var shoppingCart = this.$store.state.cart;
+      var index = 0;
 
-      this.$store.dispatch("removeUserRecommendedId", userParams);
+      for (var i = 0; i < shoppingCart.length; i++) {
+        if (shoppingCart[i].id == game.id) {
+          index = i;
+          //send this index to removeRecommendedUserIdIndex
+        }
+      }
+
+      console.log("index of: ", game.title, " to be removed is: ", index);
+
+      this.$store.dispatch("removeFromCart", index);
+
+      this.$store.dispatch("removeUserRecommendedIdIndex", index);
 
       console.log("list of recommended userId's after removal: ", this.$store.state.recommendedUserId);
       console.log("shopping cart: ", this.$store.state.cart);
@@ -182,14 +179,42 @@ export default {
         gameIDs.push(shoppingCart[j].id);
       }
 
+      var userRecommendedIDs = this.$store.state.recommendedUserIdIndex;
+      // var hasRecommendations = 0;
+
+      // for (var i = 0; i < userRecommendedIDs.length; i++) {
+      //   if (userRecommendedIDs[i] > 0) {
+      //     hasRecommendations++;
+      //   }
+      // }
+      // console.log("value of hasRecommendations: ", hasRecommendations);
+
+      // if (hasRecommendations == 0) {
+      //   console.log("there are no recos...");
+      //   userRecommendedIDs = null;
+      // }
+
+      // console.log("userRecommendedIDs before: ", userRecommendedIDs);
+
+      // if (userRecommendedIDs != null) {
+      //   for (var k = 0; k < userRecommendedIDs.length; k++) {
+      //     if (userRecommendedIDs[k] == null) {
+      //       userRecommendedIDs[k] = 0;
+      //     }
+      //   }
+      // }
+
+      console.log("userRecommendedIDs after: ", userRecommendedIDs);
+
       //this.$store.dispatch("clearCart");
 
       console.log("here are all the id's for checkout: ", gameIDs);
       try {
         //Need to pass an array/list of game objects to backend
-        ipcRenderer.send("open-new-window", gameIDs, this.totalPrice, this.$store.state.recommendedUserId);
+        ipcRenderer.send("open-new-window", gameIDs, this.totalPrice, userRecommendedIDs);
         this.$store.dispatch("clearCart");
         this.$store.dispatch("clearUserRecommendedId");
+        this.$store.dispatch("clearUserRecommendedIdIndex");
         this.loading = false;
       } catch (err) {
         console.log(err);

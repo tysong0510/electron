@@ -22,13 +22,9 @@ import { INSTALL_PATH } from "./store/modules/path";
 import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
 
-// require("update-electron-app")({
-//   repo: "voxpopgames/electronUpdatingRepo"
-// });
-
 const { autoUpdater } = require("electron-updater");
 autoUpdater.logger = require("electron-log");
-//const { dialog } = require("electron");
+const { dialog } = require("electron");
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
 
@@ -40,7 +36,7 @@ const enableDebug = process.env.DEBUG === "true" || process.argv.includes("--deb
 let win;
 let torrentWin;
 var userToken;
-//let deeplinkingUrl;
+let deeplinkingUrl = null;
 
 /*const shouldQuit = app.makeSingleInstance(argv => {
   if (process.platform == "win32") {
@@ -61,7 +57,13 @@ if(shouldQuit) {
 }*/
 
 // Standard scheme must be registered before the app is ready
-protocol.registerStandardSchemes(["app"], { secure: true });
+//protocol.registerStandardSchemes(["app"], { secure: true });
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: { standard: true, secure: true, supportFetchAPI: true }
+  }
+]);
 
 function createWindow({ debug }) {
   // Create the browser window.
@@ -88,13 +90,42 @@ function createWindow({ debug }) {
       win.webContents.openDevTools({ mode: "detach" });
     }
   }
-  /*
 
   if (process.platform == "win32") {
+    //dialog.showErrorBox("Title", "inside where i should be");
     deeplinkingUrl = process.argv.slice(1);
-    logEverywhere("app.makeSingleInstance#" + deeplinkingUrl);
+    //dialog.showErrorBox("deepLinkingURL", deeplinkingUrl);
+    if (deeplinkingUrl != null) {
+      //if app is openend by URL
+      //dialog.showErrorBox("URL", "app was opened by external link")
+      var str = deeplinkingUrl[0];
+
+      var index = 9;
+      if (index + 1 > str.length) {
+        dialog.showErrorBox("Error", "There was no username present...");
+      } else {
+        var username = "";
+
+        for (var i = index; i < str.length; i++) {
+          username += str.charAt(i);
+        }
+
+        //need to check if there is a back slash at end of username, if so then remove it
+        if (username.charAt(username.length - 1) == "/") {
+          username = username.substring(0, username.length - 1);
+        }
+
+        // dialog.showErrorBox("Username", "Value of username is: " + username);
+
+        if (win) {
+          setTimeout(() => {
+            //dialog.showErrorBox("Delay", "Delay has just finished...");
+            win.webContents.send("info", username);
+          }, 12000);
+        }
+      }
+    }
   }
-*/
 
   win.on("close", e => {
     if (process.platform !== "darwin") {
@@ -112,6 +143,45 @@ function createWindow({ debug }) {
   });
 }
 
+//Attempting to open a second window for windows
+app.requestSingleInstanceLock();
+app.on("second-instance", (event, argv, cwd) => {
+  /* ... */
+  //dialog.showErrorBox("Second", "second instance here");
+  console.log(cwd);
+  if (process.platform == "win32") {
+    // Keep only command line / deep linked arguments
+    deeplinkingUrl = argv; //could make deeplinkingURL = argv
+
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+    }
+
+    if (deeplinkingUrl.length > 0) {
+      var str = deeplinkingUrl[9];
+
+      var index = 9;
+      if (index + 1 > str.length) {
+        dialog.showErrorBox("Error", "There was no username present...");
+      } else {
+        var username = "";
+        for (var i = index; i < str.length; i++) {
+          username += str.charAt(i);
+        }
+
+        if (username.charAt(username.length - 1) == "/") {
+          username = username.substring(0, username.length - 1);
+        }
+
+        if (win) {
+          win.webContents.send("info", username);
+        }
+      }
+    }
+  }
+});
+
 ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
   //console.log(event);
   console.log("amount price is: " + amount);
@@ -120,7 +190,7 @@ ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
   //win.loadURL(`https://www.voxpopgames.com/payment/buyGameByIds`, {
   //win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
   win.loadURL(`http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/payment/buyGameByIds`, {
-    //win.loadURL(`http://voxpopgames.site`, {
+    //win.loadURL(`https://www.voxpopgames.site/payment/buyGameByIds`, {
     extraHeaders:
       "Authorization: " + userToken + "\n" + "amount: " + amount + "\n" + "token: " + gameIDs + "\n" + "recommender: " + recommenderID
   });
@@ -128,20 +198,68 @@ ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
 });
 
 var link = null;
+//var result = null;
+
+app.setAsDefaultProtocolClient("voxpop");
 
 app.on("open-url", (event, data) => {
   event.preventDefault();
 
+  var index = 9;
+
   link = data;
   console.log("data from opening link: ", data);
 
-  console.log("app path: ", app.getAppPath());
+  dialog.showErrorBox("open-url", "the data variable is: " + data);
+  dialog.showErrorBox("open-url", "The link variable: " + link);
+
+  if (index + 1 > link.length) {
+    //output error message
+    dialog.showErrorBox("open-url", "There is no username attatched to this protocol, please try again");
+  } else {
+    var username = "";
+    for (var i = index; i < link.length; i++) {
+      username += link.charAt(i);
+    }
+    dialog.showErrorBox("open-url", "The username retrieved was: " + username);
+
+    if (win) {
+      win.webContents.send("info", username);
+    }
+
+    //export default  username;
+    //result = username;
+
+    //dialog.showErrorBox("open-url", "You arrived in open url and there is not an available window");
+    // app.on("ready", () => {
+    //   let window = new BrowserWindow({
+    //     width: 960,
+    //     height: 540,
+    //     webPreferences: {
+    //       nodeIntegration: true
+    //     }
+    //   });
+    //   createProtocol("voxpop");
+    //   window.loadURL("voxpop://./externalLink.html");
+    //   window.webContents.openDevTools({ mode: "detach" });
+    //   window.webContents.send("info", { msg: "hello from main" });
+    //   // window.webContents.once("dom-ready", () => {
+    //   //   win.webContents.send("info", "testing");
+    //   // });
+    //   //module.testing = username;
+    //   //window.loadURL("app://./externalLink.html");
+    //   //window.loadURL("voxpop://./externalLink.html");
+    // });
+  }
+
+  // console.log("app path: ", app.getAppPath());
 
   console.log("link data: ", link);
   logEverywhere("open-url# " + data);
-});
 
-app.setAsDefaultProtocolClient("voxpop");
+  //createProtocol("app");
+});
+//export default result;
 
 //module.exports.getLink = () => link;
 
@@ -152,52 +270,162 @@ function logEverywhere(s) {
   }
 }
 
+/**
+ * To check for an update once an application turns on, then the interval below should check again in its respected time
+ *
+ * Untested, may mess up application
+ *
+ * TODO: Test this...
+ */
 app.on("ready", () => {
-  autoUpdater.checkForUpdatesAndNotify();
+  if (!isDevelopment) {
+    autoUpdater.checkForUpdates();
+  }
+});
+//   autoUpdater.checkForUpdates();
+
+//   autoUpdater.on("checking-for-update", () => {
+//     console.log("Checking for update event...");
+//     dialog.showMessageBox({
+//       title: "Updates",
+//       message: "Checking for updates..."
+//     });
+//   });
+
+//   autoUpdater.on("error", error => {
+//     dialog.showErrorBox("Error: ", error == null ? "unknown" : (error.stack || error).toString());
+//   });
+
+//   autoUpdater.on("update-available", () => {
+//     //autoUpdater.logger.transports.file.level = "info";
+//     autoUpdater.logger.debug("inside update available");
+//     dialog.showMessageBox(
+//       {
+//         type: "info",
+//         title: "Update Found!",
+//         message: "An update was found, would you like to download it and restart your application?",
+//         buttons: ["Yes", "Later"]
+//       },
+//       buttonIndex => {
+//         if (buttonIndex === 0) {
+//           autoUpdater.downloadUpdate();
+//         }
+//       }
+//     );
+//   });
+
+//   autoUpdater.on("update-downloaded", () => {
+//     //Application kind of restarts with just autoUpdater.quitAndInstall(), but had developer tools open, see if it will close out developer tools with this...
+//     // if (win) {
+//     //   win.close();
+//     //   //win.destroy();
+//     //   var windows = BrowserWindow.getAllWindows();
+
+//     //   if (windows != null) {
+//     //     for (var i = 0; i < windows.length; i++) {
+//     //       windows[i].close();
+//     //     }
+//     //   }
+//     // }
+//     // dialog.showMessageBox(
+//     //   {
+//     //     type: "info",
+//     //     title: "Update has been downloaded",
+//     //     message: "Update has been down loaded, application will not quit to install",
+//     //     buttons: ["Ok"]
+//     //   },
+//     //   buttonIndex => {
+//     //     if (buttonIndex === 0) {
+//     //       autoUpdater.quitAndInstall();
+//     //     }
+//     //   }
+//     // );
+//     autoUpdater.quitAndInstall();
+
+//     // //autoUpdater.logger.debug("inside update downloaded");
+//     // dialog.showMessageBox(
+//     //   {
+//     //     title: "Update has been downloaded!",
+//     //     message: "Update has been downloaded, application will now quit to install"
+//     //   },
+//     //   () => {
+//     //     //setImmediate(() => autoUpdater.quitAndInstall());
+//     //     //autoUpdater.quitAndInstall();
+//     //     // setImmediate(() => {
+//     //     //   app.removeAllListeners("window-all-closed");
+
+//     //     //   if (win) {
+//     //     //     win.close();
+//     //     //     //win.destroy();
+//     //     //     // var windows = BrowserWindow.getAllWindows();
+
+//     //     //     // if (windows != null) {
+//     //     //     //   for (var i = 0; i < windows.length; i++) {
+//     //     //     //     windows[i].close();
+//     //     //     //   }
+//     //     //     // }
+//     //     //   }
+
+//     //     //   //autoUpdater.quitAndInstall();
+//     //     //   app.relaunch();
+//     //     //   app.exit();
+//     //     // });
+//     //     dialog.showMessageBox({ title: "test dialog", message: "test message" });
+//     //     autoUpdater.quitAndInstall();
+
+//     //   }
+//     // );
+//   });
+
+//   // autoUpdater.on("before-quit-for-update", () => {
+//   //   //app.quit();
+//   //   app.relaunch();
+//   //   app.exit(); //If these don't work, i can try to put them in place of autoUpdater.quitAndInstall();
+//   // });
+// });
+
+/**
+ * Here is where the code for updating app starts
+ */
+
+let download = false;
+
+if (!isDevelopment) {
+  setInterval(() => {
+    autoUpdater.checkForUpdates();
+  }, 120000);
+}
+
+autoUpdater.on("update-available", () => {
+  let opts = {
+    type: "info",
+    title: "Update Found!",
+    message: "An update was found, would you like to download it and restart your application?", //do an automatic count down for 5 sec unless later is pressed
+    buttons: ["Yes", "Later"]
+  };
+
+  dialog.showMessageBox(opts).then(returnValue => {
+    if (returnValue.response === 0) {
+      download = true;
+      autoUpdater.downloadUpdate();
+    }
+  });
 });
 
-// autoUpdater.on("checking-for-update", () => {
-//   console.log("Checking for update event...");
-//   dialog.showMessageBox({
-//     title: "Updates",
-//     message: "Checking for updates..."
-//   });
-// });
+autoUpdater.on("update-downloaded", () => {
+  if (download) {
+    if (process.platform == "win32") {
+      autoUpdater.quitAndInstall();
+    } else {
+      app.relaunch();
+      app.exit();
+    }
+  }
+});
 
-// autoUpdater.on("error", error => {
-//   dialog.showErrorBox("Error: ", error == null ? "unknown" : (error.stack || error).toString());
-// });
-
-// autoUpdater.on("update-available", () => {
-//   //autoUpdater.logger.transports.file.level = "info";
-//   autoUpdater.logger.debug("inside update available");
-//   dialog.showMessageBox(
-//     {
-//       type: "info",
-//       title: "Update Found",
-//       message: "Would you like to update now?",
-//       buttons: ["Yes", "Later"]
-//     },
-//     buttonIndex => {
-//       if (buttonIndex === 0) {
-//         autoUpdater.downloadUpdate();
-//       }
-//     }
-//   );
-// });
-
-// autoUpdater.on("update-downloaded", () => {
-//   autoUpdater.logger.debug("inside update downloaded");
-//   dialog.showMessageBox(
-//     {
-//       title: "Updates Downloaded",
-//       message: "Updates have been downloaded, application will now quit to install"
-//     },
-//     () => {
-//       setImmediate(() => autoUpdater.quitAndInstall());
-//     }
-//   );
-// });
+autoUpdater.on("error", error => {
+  dialog.showErrorBox("Error: ", error == null ? "unknown" : (error.stack || error).toString());
+});
 
 function dummyDRM(mode = DRM_MODE_ENCRYPT) {
   const installPath = store.getters[INSTALL_PATH];

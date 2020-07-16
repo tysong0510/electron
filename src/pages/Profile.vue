@@ -65,7 +65,17 @@
           <!-- this is where the logo and user role was -->
           {{ USER.role }}
         </p>
-        <p class="card-subtitle text-white pb-4 border-bottom">User ID: {{ USER.id }}</p>
+
+        <p class="card-subtitle text-white pb-4">User ID: {{ USER.id }}</p>
+
+        <b-dropdown variant="outline-secondary">
+          <template v-slot:button-content><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL </template>
+          <b-dropdown-text
+            >http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/invite/{{ USER.username }}</b-dropdown-text
+          >
+        </b-dropdown>
+        <br />
+        <p class="border-bottom"></p>
       </b-card-body>
     </b-card>
 
@@ -111,11 +121,15 @@
         </b-row>
       </b-col>
       <b-col class="col-4 d-inline text-white border-left">
-        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
-          Friends
-        </h4>
+        <h4 class="display-4 d-inline" style="font-size: 1.5rem;">Friends: {{ numOfFriends }}</h4>
         <!-- <span class="d-inline float-right">0</span> -->
-        <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" />
+        <!-- <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" /> -->
+        <div v-if="numOfFriends < 1">
+          <p>Go and make some friends!</p>
+        </div>
+        <div v-else>
+          <!-- Put friends here -->
+        </div>
       </b-col>
     </b-row>
 
@@ -499,7 +513,6 @@ import date from "../mixins/date";
 import currency from "../mixins/currency";
 import user from "../mixins/user";
 import Axios from "axios";
-
 //import { baseURL } from "../apiConfig";
 import { USER } from "../store/modules/auth";
 
@@ -593,7 +606,8 @@ export default {
         content: []
       },
       fixStatisticsPending: true,
-      sales: []
+      sales: [],
+      numOfFriends: 0
       //fields: ["userId", "gameTitle", "developerProfit"]
       //totalProfit: 0.0
     };

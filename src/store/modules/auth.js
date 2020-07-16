@@ -23,6 +23,7 @@ export const ACTION_LOGOUT = "ACTION_LOGOUT";
 export const ACTION_USER = "ACTION_USER";
 export const ACTION_REFRESH = "ACTION_REFRESH";
 export const ACTION_RESTORE = "ACTION_RESTORE";
+export const ACTION_RESTORE_USER = "ACTION_RESTORE_USER";
 export const ACTION_GAME = "ACTION_GAME";
 
 export const USER = "USER";
@@ -320,6 +321,20 @@ export default {
       });
     },
     [ACTION_RESTORE](store, user) {
+      //const { commit, dispatch, getters } = store;
+      return new Promise((resolve, reject) => {
+        //commit(MUTATION_AUTH_REQUEST);
+        Axios({ url: "/auth/restore", params: user, method: "GET" })
+          .then(async resp => {
+            console.log(resp);
+            resolve(resp);
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
+    },
+    [ACTION_RESTORE_USER](store, user) {
       //const { commit, dispatch, getters } = store;
       return new Promise((resolve, reject) => {
         //commit(MUTATION_AUTH_REQUEST);

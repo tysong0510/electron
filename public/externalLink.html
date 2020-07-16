@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>voxpop</title>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    </head>
+    <body>
+        <noscript>
+            <strong>We're sorry but voxpop doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+          </noscript>
+
+        <div id="app-2" class="wrapper">
+        </div>
+        <script type="module">
+            
+             const { ipcRenderer } = require("electron");
+             //const user = require("./../src/background.js").result;
+             
+            //console.log("user: ", user);
+            //  import result from "./../src/background.js";
+            //  console.log("result: ", result);
+            
+            // ipcRenderer.send("testReady", "Testing message from external html")    
+            // console.log("attempting to send data from renderer to main: ",ipcRenderer.send("testReady", "Testing message from external html"));
+
+            //console.log("regular user object: ", user);
+            //console.log("user.user: ",user.user);
+            
+            // console.log("other option is: ", user);
+            
+            var app2 = new Vue({
+                el: '#app-2',
+                data: {
+                    product: "Test Message"
+                },
+                
+            })
+            
+        </script>
+    
+    </body>
+</html>

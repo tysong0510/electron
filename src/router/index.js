@@ -19,6 +19,11 @@ const router = new VueRouter({
 
 // It seems like this code prevents navigating to game page if auth got 401 error
 router.beforeEach((to, from, next) => {
+  console.log("to: ", to);
+  console.log("from: ", from);
+  console.log("next: ", next);
+  console.log("is user logged in: ", router.app.$store.getters[IS_LOGGED_IN]);
+  console.log("to.query.auth: ", to.query.auth);
   if (to.name === "login") {
     let name = null;
 
@@ -36,10 +41,12 @@ router.beforeEach((to, from, next) => {
   }
 
   if (!router.app.$store.getters[IS_LOGGED_IN] && to.query.auth) {
+    console.log("user is not allowed");
     router.app.$authModal.showModal = true;
   }
 
   if (to.matched.some(record => record.meta.auth)) {
+    console.log("not sure what goes here...");
     if (store.getters[IS_LOGGED_IN]) {
       next();
       return;
