@@ -31,7 +31,7 @@
     "aws-sdk": "^2.656.0",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.0-rc.13",
+    "bootstrap-vue": "^2.5.0",
     "create-torrent": "^3.33.0",
     "d3-vs": "^0.8.0",
     "date-fns": "^1.30.1",
