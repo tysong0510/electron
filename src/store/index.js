@@ -707,12 +707,17 @@ const demoData = {
       });
     },
     addDownloadedGame(state, savedContent) {
+      debugger;
       console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in mutation");
       state.tempDownloadedGames[savedContent.game.id] = savedContent.path;
       //state.tempDownloadedGames.push(savedContent.path);
       console.log("tempDownloadedGames array: ", state.tempDownloadedGames);
       storage.set("downloadedGame", state.tempDownloadedGames, function(err) {
-        console.log("there was an error saving downloadedGames: ", err);
+        if (err) {
+          console.log("there was an error saving downloadedGames: ", err);
+        } else {
+          console.log("saving downloadedGames succeed!");
+        }
       });
     },
     retrieveDownloadedGame(state) {

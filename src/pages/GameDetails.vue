@@ -84,33 +84,32 @@
                         {{ percentage }}/100
                       </div>
                     </div>
-                    <!-- <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
+                    <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                        <span v-if="!installing">Download</span>
+                        <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                       </b-button>
-                      </div> -->
+                    </div>
 
                     <!-- Seeding information below... -->
-                    <!-- <div v-else>
+                    <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
-                      </b-button> -->
-                    <!--                      <b-button-->
-                    <!--                        v-if="showPlayBtn"-->
-                    <!--                        variant="primary"-->
-                    <!--                        size="lg"-->
-                    <!--                        class="btn-buy"-->
-                    <!--                        :disabled="!isGameInstalled"-->
-                    <!--                        @click="playGame()"-->
-                    <!--                      >-->
-                    <!--                        Play-->
-                    <!--                      </b-button>-->
-
-                    <!-- <transition>
+                      </b-button>
+                      <b-button
+                        v-if="showPlayBtn"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        :disabled="!isGameInstalled"
+                        @click="playGame()"
+                      >
+                        Play
+                      </b-button>
+                      <transition>
                         <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                           <loading-progress
                             v-if="showDownloadProgress"
@@ -132,7 +131,7 @@
                           <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
-                    </div> -->
+                    </div>
                   </div>
                   <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
@@ -159,8 +158,8 @@
                     <b-button variant="outline-secondary" class="btn-voted">
                       Voted
                     </b-button>
-                    <!--
-                      Removing assigning torrents until P2P is back up
+
+                    <!-- Removing assigning torrents until P2P is back up -->
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
                       variant="outline-secondary"
@@ -168,7 +167,7 @@
                       @click="assignTorrent"
                     >
                       Assign torrent
-                    </b-button-->
+                    </b-button>
                   </b-col>
                 </b-row>
               </template>
@@ -176,23 +175,23 @@
               <!--
   This will be used for when torrenting is back in action...-->
 
-              <!-- <template v-else-if="currentRouteIs('my-game-details')">
+              <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
                     <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
                       Play
                     </b-button>
 
-                     <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
+                    <!-- <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
                       <span v-if="!installing">Install</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                    </b-button> -->
+
+                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
+                      <span v-if="!installing">Download for Seed</span>
                       <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                     </b-button>
 
-                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                      </b-button>
-                    
                     <b-button
                       v-if="isGameInstalled"
                       variant="light"
@@ -225,7 +224,7 @@
                     </b-button>
                   </b-col>
                 </b-row>
-              </template> -->
+              </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>

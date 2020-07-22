@@ -24,6 +24,8 @@ const APPS = "apps";
 const TORRENTS = "torrents";
 const TEMP = "TEMP";
 
+console.log("=================== USER_DATA_PATH =====================", USER_DATA_PATH);
+
 /**
  * The function recursively creates directories in the specified path if they do not exist
  *
