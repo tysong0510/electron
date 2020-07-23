@@ -707,7 +707,6 @@ const demoData = {
       });
     },
     addDownloadedGame(state, savedContent) {
-      debugger;
       console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in mutation");
       state.tempDownloadedGames[savedContent.game.id] = savedContent.path;
       //state.tempDownloadedGames.push(savedContent.path);
@@ -730,10 +729,12 @@ const demoData = {
       });
     },
     removeDownloadedGames() {
+      console.log("removing downloadedGames...");
       storage.remove("downloadedGame", function(err) {
         if (err) {
           console.log("there was an error removing downloadedGames: ", err);
         }
+        console.log("removed downloadedGames!");
       });
     },
     tempDownloadPath(state, path) {
@@ -1128,7 +1129,6 @@ const demoData = {
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
-      debugger;
       console.log("inside index.js start download game");
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
@@ -1149,8 +1149,6 @@ const demoData = {
         console.error(`START_DOWNLOAD_GAME: no magnetURI for game id=${gameId}`);
         return;
       }
-
-      debugger;
 
       const user = getters[USER];
       if (!user.username) console.log("TRY AGAIN");
@@ -1193,8 +1191,6 @@ const demoData = {
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }
-
-      debugger;
 
       const { torrentFileName, torrentURL } = torrent;
       const torrentId = torrentFileName || torrentURL;

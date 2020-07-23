@@ -149,7 +149,6 @@ export default {
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
-      debugger;
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
       let magnetURI;
@@ -168,8 +167,6 @@ export default {
         return;
       }
       let torrentKey;
-
-      debugger;
       const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
       const gameDownloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
@@ -205,8 +202,6 @@ export default {
         torrent = findTorrentByGameId(gameId);
       }
 
-      debugger;
-
       const { torrentFile, torrentURL } = torrent;
       const torrentId = torrentFile || torrentURL;
 
@@ -223,7 +218,6 @@ export default {
         return;
       }
 
-      debugger;
       console.log("right above ipcRendere.send in torrent.js inside start download game action");
       ipcRenderer.send(
         "wt-start-torrenting",

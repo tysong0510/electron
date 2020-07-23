@@ -17,14 +17,17 @@ import i18n from "./i18n";
 import Dashboard from "./plugins/dashboard";
 import { baseURL } from "./apiConfig";
 import {
+  ADD_TORRENT,
   STOP_TORRENTS,
   TORRENT_DOWNLOADED,
   UNARCHIVE_FAIL,
   UNARCHIVE_OK,
+  NEXT_TORRENT_KEY_USED,
   UPDATE_TORRENT,
   UPDATE_TORRENT_INFOHASH,
   UPDATE_TORRENT_PROGRESS
 } from "./store/mutation-types";
+import { USER } from "./store/modules/auth";
 import "./registerServiceWorker";
 
 import "./assets/scss/main.scss";
@@ -40,7 +43,7 @@ import {
   UNZIP_GAME_OK
 } from "./dispatch-types";
 
-// import { UNARCHIVE_GAME } from "./store/actions-types";
+import { START_DOWNLOAD_GAME } from "./store/actions-types";
 /*
 const squirrelEvents = require("../installers/windows/squirrelEvents"); //path to squirrel events
 if (squirrelEvents.handleSquirrelEvent()) {
@@ -412,8 +415,8 @@ function startSeeding() {
 
 ipcRenderer.once(AUTHORIZED, startSeeding);
 
-/* ipcRenderer.once('wt-reset-ok', () => {
-  State.load().then((s) => {
+ipcRenderer.once("wt-reset-ok", () => {
+  State.load().then(s => {
     state = s;
     // Improve Dev Exp: Restore last page you worked in
     // if (IS_DEV && state.vue && state.vue.route) {
@@ -421,42 +424,42 @@ ipcRenderer.once(AUTHORIZED, startSeeding);
     // }
     const { torrents = [] } = state;
     const { state: storeState, dispatch, getters } = app.$store;
-    console.log('main renderer state', s);
-    console.log('wt-reset-ok');
-    console.log(`isAuthenticated ${getters['IS_LOGGED_IN']}`);
-    // if (getters['IS_LOGGED_IN']) {
-    // const user = getters[USER];
-    // console.log(`user ${user}`);
-    torrents.forEach((t) => {
-      if (!t || !t.infoHash) {
-        console.warn('Badly saved torrent', t);
-        return;
-      }
-      const torrentKey = storeState.nextTorrentKey;
-      dispatch(NEXT_TORRENT_KEY_USED);
-      const originalState = t.state;
-      const torrent = {
-        ...t,
-        torrentKey,
-        // Force pause
-        state: 'paused',
-      };
-      console.log('restoring torrent state', torrent, {
-        dwnld: t.downloaded,
-        notpaused: originalState !== 'paused',
-        start: t.downloaded || originalState !== 'paused',
+    console.log("main renderer state", s);
+    console.log("wt-reset-ok");
+    console.log(`isAuthenticated ${getters["IS_LOGGED_IN"]}`);
+    if (getters["IS_LOGGED_IN"]) {
+      const user = getters[USER];
+      console.log(`user ${user}`);
+      torrents.forEach(t => {
+        if (!t || !t.infoHash) {
+          console.warn("Badly saved torrent", t);
+          return;
+        }
+        const torrentKey = storeState.nextTorrentKey;
+        dispatch(NEXT_TORRENT_KEY_USED);
+        const originalState = t.state;
+        const torrent = {
+          ...t,
+          torrentKey,
+          // Force pause
+          state: "paused"
+        };
+        console.log("restoring torrent state", torrent, {
+          dwnld: t.downloaded,
+          notpaused: originalState !== "paused",
+          start: t.downloaded || originalState !== "paused"
+        });
+        dispatch({
+          type: ADD_TORRENT,
+          payload: torrent
+        });
+        if (t.downloaded || originalState !== "paused") {
+          console.log("dispatching start download", torrent.gameId);
+          // seed downloaded or download not paused
+          dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
+        }
       });
-      dispatch({
-        type: ADD_TORRENT,
-        payload: torrent,
-      });
-      if (t.downloaded || originalState !== 'paused') {
-        console.log('dispatching start download', torrent.gameId);
-        // seed downloaded or download not paused
-        dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
-      }
-    });
-    // }
+    }
     // setInterval(() => { State.saveImmediate(getSavedState()) }, 5000);
   });
-}); */
+});

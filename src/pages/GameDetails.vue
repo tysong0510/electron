@@ -624,7 +624,7 @@ export default {
           let noSpaceTitleM = this.game.title;
           noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
           let outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-          req.pipe(outM);
+          reqM.pipe(outM);
 
           reqM.on("response", function(data) {
             totalBytesM = parseInt(data.headers["content-length"]);
