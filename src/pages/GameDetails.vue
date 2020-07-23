@@ -84,32 +84,33 @@
                         {{ percentage }}/100
                       </div>
                     </div>
-                    <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
+                    <!-- <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                        <span v-if="!installing">Download</span>
-                        <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                      <span v-if="!installing">Download</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                       </b-button>
-                    </div>
+                      </div> -->
 
                     <!-- Seeding information below... -->
-                    <div v-else>
+                    <!-- <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
-                      </b-button>
-                      <b-button
-                        v-if="showPlayBtn"
-                        variant="primary"
-                        size="lg"
-                        class="btn-buy"
-                        :disabled="!isGameInstalled"
-                        @click="playGame()"
-                      >
-                        Play
-                      </b-button>
-                      <transition>
+                      </b-button> -->
+                    <!--                      <b-button-->
+                    <!--                        v-if="showPlayBtn"-->
+                    <!--                        variant="primary"-->
+                    <!--                        size="lg"-->
+                    <!--                        class="btn-buy"-->
+                    <!--                        :disabled="!isGameInstalled"-->
+                    <!--                        @click="playGame()"-->
+                    <!--                      >-->
+                    <!--                        Play-->
+                    <!--                      </b-button>-->
+
+                    <!-- <transition>
                         <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                           <loading-progress
                             v-if="showDownloadProgress"
@@ -131,7 +132,7 @@
                           <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
-                    </div>
+                    </div> -->
                   </div>
                   <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
@@ -158,8 +159,8 @@
                     <b-button variant="outline-secondary" class="btn-voted">
                       Voted
                     </b-button>
-
-                    <!-- Removing assigning torrents until P2P is back up -->
+                    <!--
+                      Removing assigning torrents until P2P is back up
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
                       variant="outline-secondary"
@@ -167,7 +168,7 @@
                       @click="assignTorrent"
                     >
                       Assign torrent
-                    </b-button>
+                    </b-button-->
                   </b-col>
                 </b-row>
               </template>
@@ -175,23 +176,23 @@
               <!--
   This will be used for when torrenting is back in action...-->
 
-              <template v-else-if="currentRouteIs('my-game-details')">
+              <!-- <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
                   <b-col class="game-buttons">
                     <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
                       Play
                     </b-button>
 
-                    <!-- <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
+                     <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
                       <span v-if="!installing">Install</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                    </b-button> -->
-
-                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download for Seed</span>
                       <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
                     </b-button>
 
+                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
+                      <span v-if="!installing">Download</span>
+                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
+                      </b-button>
+                    
                     <b-button
                       v-if="isGameInstalled"
                       variant="light"
@@ -224,7 +225,7 @@
                     </b-button>
                   </b-col>
                 </b-row>
-              </template>
+              </template> -->
 
               <template v-else-if="currentRouteIs('my-game-details')">
                 <b-row>
@@ -332,8 +333,8 @@ import fs from "fs";
 import child_process from "child_process";
 import { remote } from "electron";
 import path from "path";
-//const dialog = remote.dialog;
-//const win = remote.getCurrentWindow();
+const dialog = remote.dialog;
+const win = remote.getCurrentWindow();
 
 //import path from "path";
 const USER_DATA_PATH = remote.app.getPath("userData");
@@ -543,21 +544,20 @@ export default {
     startDownloading() {
       console.log("gonna start downloading game...");
       this.load = true;
-      /*
+
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
       console.log("under where start download game should have started...");
-      */
 
       //create file path hidden inside voxpop directory
       var filePath = this.createDirectory();
       console.log("directory created: ", filePath);
 
       /**
-       * this option is reserved to let user pick their own directory to save game 
-       *  
-      if (!filePath) { 
+       * this option is reserved to let user pick their own directory to save game
+       *  */
+      if (!filePath) {
         let options = {
           title: "Choose Directory to save " + this.game.title,
           buttonLabel: "Select Directory",
@@ -566,102 +566,52 @@ export default {
         filePath = dialog.showOpenDialog(win, options);
         this.$store.dispatch("savePath", filePath);
       }
-      */
 
-      // if (this.game.magnetURI != null && this.game.dataFile != null) {
-      //   if (filePath) {
-      //     console.log("this game contains exe and data file");
-      //     var recievedBytes = 0;
-      //     var totalBytes = 0;
-
-      //     var req = request({
-      //       method: "GET",
-      //       uri: this.game.magnetURI
-      //     });
-      //     //need to do something with file path, need to create a file...
-      //     console.log(req);
-
-      //     //here is where i need to remove space in game title
-      //     var noSpaceTitle = this.game.title;
-      //     noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
-      //     var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-      //     req.pipe(out);
-
-      //     req.on("response", function(data) {
-      //       totalBytes = parseInt(data.headers["content-length"]);
-      //     });
-
-      //     req.on("data", chunk => {
-      //       recievedBytes += chunk.length;
-      //       this.percentage = parseInt((recievedBytes * 100) / totalBytes);
-      //     });
-
-      //     req.on("end", () => {
-      //       alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
-      //       //this.load = false;
-      //       //here is where i would put something to indicate that this game is downloaded
-      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
-
-      //       this.downloadDataFile(filePath);
-      //       //this.$forceUpdate();
-      //     });
-      //   } else {
-      //     this.load = false;
-      //     console.log("user cancelled...");
-      //   }
-      // } else if (this.game.magnetURI) {
-      //   if (filePath) {
-      //     var recievedBytesM = 0;
-      //     var totalBytesM = 0;
-
-      //     var reqM = request({
-      //       method: "GET",
-      //       uri: this.game.magnetURI
-      //     });
-      //     //need to do something with file path, need to create a file...
-      //     console.log(reqM);
-
-      //     //here is where i need to remove space in game title
-      //     var noSpaceTitleM = this.game.title;
-      //     noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
-      //     var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-      //     req.pipe(outM);
-
-      //     reqM.on("response", function(data) {
-      //       totalBytesM = parseInt(data.headers["content-length"]);
-      //     });
-
-      //     reqM.on("data", chunk => {
-      //       recievedBytesM += chunk.length;
-      //       this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
-      //     });
-
-      //     reqM.on("end", () => {
-      //       alert(this.game.title + " has been successfully downloaded!");
-      //       this.load = false;
-      //       //here is where i would put something to indicate that this game is downloaded
-      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
-
-      //       let savedContent = {
-      //         game: this.game,
-      //         path: filePath
-      //       };
-      //       //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
-      //       this.$store.dispatch("addDownloadedGame", savedContent);
-      //       this.$forceUpdate();
-      //     });
-      //   } else {
-      //     this.load = false;
-      //     console.log("user cancelled...");
-      //   }
-      // } else {
-      //   alert("There is no file available for this game");
-      // }
-
-      if (this.game.magnetURI) {
+      if (this.game.magnetURI != null && this.game.dataFile != null) {
         if (filePath) {
-          var recievedBytesM = 0;
-          var totalBytesM = 0;
+          console.log("this game contains exe and data file");
+          var recievedBytes = 0;
+          var totalBytes = 0;
+
+          var req = request({
+            method: "GET",
+            uri: this.game.magnetURI
+          });
+          //need to do something with file path, need to create a file...
+          console.log(req);
+
+          //here is where i need to remove space in game title
+          var noSpaceTitle = this.game.title;
+          noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
+          var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          req.pipe(out);
+
+          req.on("response", function(data) {
+            totalBytes = parseInt(data.headers["content-length"]);
+          });
+
+          req.on("data", chunk => {
+            recievedBytes += chunk.length;
+            this.percentage = parseInt((recievedBytes * 100) / totalBytes);
+          });
+
+          req.on("end", () => {
+            alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
+            //this.load = false;
+            //here is where i would put something to indicate that this game is downloaded
+            console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
+
+            this.downloadDataFile(filePath);
+            //this.$forceUpdate();
+          });
+        } else {
+          this.load = false;
+          console.log("user cancelled...");
+        }
+      } else if (this.game.magnetURI) {
+        if (filePath) {
+          let recievedBytesM = 0;
+          let totalBytesM = 0;
 
           var reqM = request({
             method: "GET",
@@ -671,9 +621,58 @@ export default {
           console.log(reqM);
 
           //here is where i need to remove space in game title
-          var noSpaceTitleM = this.game.title;
+          let noSpaceTitleM = this.game.title;
           noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
-          var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          let outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          req.pipe(outM);
+
+          reqM.on("response", function(data) {
+            totalBytesM = parseInt(data.headers["content-length"]);
+          });
+
+          reqM.on("data", chunk => {
+            recievedBytesM += chunk.length;
+            this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
+          });
+
+          reqM.on("end", () => {
+            alert(this.game.title + " has been successfully downloaded!");
+            this.load = false;
+            //here is where i would put something to indicate that this game is downloaded
+            console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
+
+            let savedContent = {
+              game: this.game,
+              path: filePath
+            };
+            //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
+            this.$store.dispatch("addDownloadedGame", savedContent);
+            this.$forceUpdate();
+          });
+        } else {
+          this.load = false;
+          console.log("user cancelled...");
+        }
+      } else {
+        alert("There is no file available for this game");
+      }
+
+      if (this.game.magnetURI) {
+        if (filePath) {
+          let recievedBytesM = 0;
+          let totalBytesM = 0;
+
+          let reqM = request({
+            method: "GET",
+            uri: this.game.magnetURI
+          });
+          //need to do something with file path, need to create a file...
+          console.log(reqM);
+
+          //here is where i need to remove space in game title
+          let noSpaceTitleM = this.game.title;
+          noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
+          let outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
           reqM.pipe(outM);
 
           reqM.on("response", function(data) {

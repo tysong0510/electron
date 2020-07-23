@@ -1128,6 +1128,7 @@ const demoData = {
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
+      debugger;
       console.log("inside index.js start download game");
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
@@ -1148,6 +1149,8 @@ const demoData = {
         console.error(`START_DOWNLOAD_GAME: no magnetURI for game id=${gameId}`);
         return;
       }
+
+      debugger;
 
       const user = getters[USER];
       if (!user.username) console.log("TRY AGAIN");
@@ -1190,6 +1193,8 @@ const demoData = {
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }
+
+      debugger;
 
       const { torrentFileName, torrentURL } = torrent;
       const torrentId = torrentFileName || torrentURL;
