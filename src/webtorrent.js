@@ -24,7 +24,8 @@ const WebTorrent = require("webtorrent");
 
 const config = require("./config");
 
-const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST; // require('create-torrent').announceList
+// const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST; // require('create-torrent').announceList
+const defaultAnnounceList = require("create-torrent").announceList;
 const pieceLength = config.PIECE_LENGTH;
 
 class TorrentError extends ExtendableError {}
