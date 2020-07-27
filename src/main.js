@@ -393,7 +393,6 @@ setupIpc();
 
 // Remove all torrents to reset webtorrent state (fixes hot-reload issues because of desynchronization)
 // FIXME: sometimes it finishes after load state
-console.log("SHOULD (DONE) wt-reset");
 ipcRenderer.send("wt-reset");
 
 // ipcRenderer.once(AUTHORIZED, () => {
@@ -424,15 +423,11 @@ ipcRenderer.once("wt-reset-ok", () => {
     // }
     const { torrents = [] } = state;
     const { state: storeState, dispatch, getters } = app.$store;
-    console.log("main renderer state", s);
-    console.log("wt-reset-ok");
-    console.log(`isAuthenticated ${getters["IS_LOGGED_IN"]}`);
     if (getters["IS_LOGGED_IN"]) {
       const user = getters[USER];
       console.log(`user ${user}`);
       torrents.forEach(t => {
         if (!t || !t.infoHash) {
-          console.warn("Badly saved torrent", t);
           return;
         }
         const torrentKey = storeState.nextTorrentKey;

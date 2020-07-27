@@ -114,10 +114,7 @@ let client = (window.client = new WebTorrent({
 }));
 
 function setPeerId() {
-  console.log("outputting web torrent client below...");
-  console.log(client);
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
-  console.log("newPeerId string", newPeerIdBuffer.toString("utf-8"));
 
   client.peerIdBuffer = newPeerIdBuffer;
   client.peerId = newPeerIdBuffer.toString("hex");
@@ -135,17 +132,9 @@ let prevProgress = null;
 init();
 
 function init() {
-  console.log("inside function init...");
   listenToClientEvents();
   //console.log("right above start torrenting in function init from webtorrent.js");
   ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
-    console.log("within ipc.on for start torrenting...");
-    console.log(e);
-    console.log(torrentKey);
-    console.log(torrentID);
-    console.log(path);
-    console.log(fileModtimes);
-    console.log(selections);
     // console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
     startTorrenting(torrentKey, torrentID, path, fileModtimes, selections);
   });
@@ -157,7 +146,6 @@ function init() {
 
   ipc.on("wt-reset", () => reset());
 
-  console.log("ipcReadyWebTorrent");
   ipc.send("ipcReadyWebTorrent");
 
   window.addEventListener(
@@ -175,8 +163,6 @@ function init() {
 }
 
 function listenToClientEvents() {
-  console.log("listenToClientEvents");
-  console.log(client);
   client.on("warning", err => {
     console.warn(err.message);
     ipc.send("wt-warning", null, err.message);
@@ -194,37 +180,26 @@ function listenToClientEvents() {
 // Starts a given TorrentID, which can be an infohash, magnet URI, etc.
 // Returns a WebTorrent object. See https://git.io/vik9M
 function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) {
-  console.log("wt-start-torrenting");
-  console.log("starting torrent %s: %s", torrentKey, torrentID);
-  console.log("insideStartTorrenting in webtorrent.js");
-
   //downloading a torrent
   const torrent = client.add(torrentID, {
     path,
     fileModtimes
     //announce: "wss://tracker.webtorrent.io"
   });
-
-  console.log("web torrent created using torrentID, path and fileModTimes in startTorrenting below");
-  console.log(torrent);
   torrent.key = torrentKey;
-  console.log("check1");
   // Listen for ready event, progress notifications, etc
   addTorrentEvents(torrent);
-  console.log("check2");
   // Only download the files the user wants, not necessarily all files
   torrent.once("ready", () => selectFiles(torrent, selections));
 }
 
 function stopTorrenting(infoHash) {
-  console.log("--- STOP TORRENTING: ", infoHash);
   const torrent = client.get(infoHash);
   if (torrent) torrent.destroy();
 }
 
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
-  console.log("creating torrent", torrentKey, options);
   const fsExtra = require("fs-extra");
   const gameDownloadPath = store.getters[GAME_DOWNLOAD_PATH](options.gameId);
 
@@ -271,7 +246,6 @@ function createTorrent(torrentKey, options = {}) {
 }
 
 function addTorrentEvents(torrent) {
-  console.log("inside addTorrentEvents...");
   let downloadedPieces = [];
   console.log(torrent);
   console.log("torrent key: " + torrent.key);
@@ -663,7 +637,6 @@ window.testOfflineMode = function() {
 window.wtClient = client;
 
 function reset() {
-  console.log("reset");
   if (!client || !client.torrents.length) {
     ipc.send("wt-reset-ok");
     return;

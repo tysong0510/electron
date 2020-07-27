@@ -69,7 +69,9 @@
         <p class="card-subtitle text-white pb-4">User ID: {{ USER.id }}</p>
 
         <b-dropdown variant="outline-secondary">
-          <template v-slot:button-content><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL </template>
+          <template v-slot:button-content
+            ><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL
+          </template>
           <b-dropdown-text
             >http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/invite/{{ USER.username }}</b-dropdown-text
           >
@@ -102,11 +104,7 @@
         <b-row no-gutters>
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
-              :data="[
-                { key: 'test', value: 20 },
-                { key: 'test1', value: 50 },
-                { key: 'test2', value: 30 }
-              ]"
+              :data="[{ key: 'test', value: 20 }, { key: 'test1', value: 50 }, { key: 'test2', value: 30 }]"
               style="width: auto; height: 184.02px;"
             />
           </b-col>
@@ -775,7 +773,6 @@ export default {
     this.getUserFilesStatistic();
     this.fixAndGetStats();
     this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username); //to load state.recommendedGames with list of recommended games
-    console.log("this user is: ", this.$store.state.auth.user);
 
     let salesParam = {
       username: this.$store.state.auth.user.username
@@ -792,14 +789,12 @@ export default {
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
     fixAndGetStats() {
-      console.log("Fix and get stats");
       this.fixStatisticsPending = true;
 
       // this.$store.dispatchPromise("fixStatistics").then((res) => {
       //   console.log(res);
-      this.$store.dispatchPromise("getGamesStatistics").then(res => {
+      this.$store.dispatchPromise("getGamesStatistics").then(() => {
         this.fixStatisticsPending = false;
-        console.log("getGamesStatistics", res);
       });
       // });
     },
