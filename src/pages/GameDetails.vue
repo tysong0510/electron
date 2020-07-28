@@ -536,6 +536,7 @@ export default {
       });
     },
     startDownloading() {
+      console.log("startDownloading");
       this.load = true;
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
@@ -592,6 +593,7 @@ export default {
       }
 
       if (this.game.magnetURI && this.game.dataFile === null) {
+        console.log(filePath);
         if (filePath) {
           let recievedBytesM = 0;
           let totalBytesM = 0;

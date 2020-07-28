@@ -1100,6 +1100,8 @@ const demoData = {
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
+      console.log("=============== START_DOWNLOAD_GAME ================ ");
+      console.log(torrent);
       let magnetURI;
       if (!torrent) {
         const { game } = state;
@@ -1159,6 +1161,9 @@ const demoData = {
       const torrentId = torrentFileName || torrentURL;
 
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+
+      console.log("==================== Start Torrenting =============");
+      console.log(downloadPath);
 
       if (!ipcRenderer) {
         ipcMain.emit(
