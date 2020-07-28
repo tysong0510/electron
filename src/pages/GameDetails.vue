@@ -70,7 +70,7 @@
                         variant="primary"
                         size="lg"
                         class="btn-buy"
-                        @click="startDownload()"
+                        @click="startDownloadingForSeeding()"
                       >
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
@@ -92,25 +92,25 @@
                       </div> -->
 
                     <!-- Seeding information below... -->
-                    <!-- <div v-else>
+                    <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume
-                      </b-button> -->
-                    <!--                      <b-button-->
-                    <!--                        v-if="showPlayBtn"-->
-                    <!--                        variant="primary"-->
-                    <!--                        size="lg"-->
-                    <!--                        class="btn-buy"-->
-                    <!--                        :disabled="!isGameInstalled"-->
-                    <!--                        @click="playGame()"-->
-                    <!--                      >-->
-                    <!--                        Play-->
-                    <!--                      </b-button>-->
+                      </b-button>
+                      <b-button
+                        v-if="showPlayBtn"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        :disabled="!isGameInstalled"
+                        @click="playGame()"
+                      >
+                        Play
+                      </b-button>
 
-                    <!-- <transition>
+                      <transition>
                         <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
                           <loading-progress
                             v-if="showDownloadProgress"
@@ -132,7 +132,7 @@
                           <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
-                    </div> -->
+                    </div>
                   </div>
                   <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
@@ -236,7 +236,7 @@
                       variant="primary"
                       size="lg"
                       class="btn-buy"
-                      @click="startDownload()"
+                      @click="startDownloadingForSeeding()"
                     >
                       <span v-if="!load">Download</span>
                       <b-spinner v-if="load"></b-spinner>
@@ -270,7 +270,6 @@
                       <span class="hoverShow">Un-Recommend</span>
                     </b-button>
                   </b-col>
-
                   <!-- <b-col>
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
@@ -282,6 +281,30 @@
                     </b-button>
                   </b-col> -->
                 </b-row>
+                <div>
+                  <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
+                    Pause
+                  </b-button>
+                  <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
+                    Resume
+                  </b-button>
+
+                  <transition>
+                    <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                      <loading-progress v-if="showDownloadProgress" :progress="progress" shape="line" size="160" width="160" height="6" />
+                      <br />
+                      <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
+                      <span v-else-if="paused">
+                        Seeding paused
+                      </span>
+                      <span v-else>
+                        Seeding
+                      </span>
+                      <br />
+                      <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
+                    </div>
+                  </transition>
+                </div>
               </template>
             </b-card-body>
           </b-col>
@@ -436,10 +459,10 @@ export default {
 
       return torrent && torrent.downloaded;
     },
-    // showPlayBtn() {
-    //   const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-    //   return torrent && torrent.downloaded;
-    // },
+    showPlayBtn() {
+      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+      return torrent && torrent.downloaded;
+    },
     showDownloadProgress() {
       return this.$store.getters.findTorrentByGameId(this.game.id);
     },
@@ -487,7 +510,7 @@ export default {
     isGameDownloaded() {
       var isGameDownloaded = false;
 
-      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
         isGameDownloaded = true;
       }
 

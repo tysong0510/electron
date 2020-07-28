@@ -128,6 +128,8 @@ function getSavedGlobalState() {
 function getSavedUserState() {
   // Hack to avoid reactivity. Otherwise undefined is saved
   const vueTorrents = JSON.parse(JSON.stringify(app.$store.state.torrents));
+  console.log("================== vueTorrents =================");
+  console.log(vueTorrents);
   const result = {
     ...state,
     vue: {
