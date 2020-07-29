@@ -71,7 +71,7 @@
                   </b-card-title>
                   <b-card-sub-title title-tag="h6" class="font-weight-normal">
                     <b-row>
-                      <b-col class="text-white" cols="5">
+                      <b-col v-if="game.price != 500 && game.price != 250" class="text-white">
                         {{ game.price | currency }}
                       </b-col>
                       <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
@@ -174,7 +174,6 @@ export default {
       firstTime: true
     };
   },
-
   computed: {
     content: {
       get() {
@@ -212,15 +211,26 @@ export default {
     this.getGames();
 
     if (this.currentStore === "store-featured") {
+      console.log("store-featured: ", this.currentStore);
       this.getFeatured();
       console.log("this.getFeatured(): ", this.getFeatured());
     } else if (this.currentStore === "store-top") {
       this.getTopGames();
+    } else if (this.currentStore === "store-coming-soon") {
+      console.log("this store is coming soon store...");
+      console.log("store: ", this.currentStore);
+      this.getComingSoon();
     }
 
     ipcRenderer.on("info", (event, data) => {
       console.log("event: ", event);
       console.log("data: ", data);
+      var i = 0;
+
+      if (this.$route.name !== "store-top") {
+        console.log("heading to store top");
+        this.$router.push({ name: "store-top" });
+      }
       // this.$router.push({ name: "userDirectory" });
 
       //if (this.firstTime) {
@@ -229,15 +239,35 @@ export default {
         .then(response => {
           console.log("inside axios then...");
           var users = response.data;
-          for (var i = 0; i < users.length; i++) {
+
+          var selectedUser = null;
+          while (i < users.length) {
             if (users[i].username == data) {
-              this.$router.push({ name: "userDirectoryProfile", params: { user: users[i] } });
+              console.log("FOUND USER: ", users[i]);
+              console.log("this.$router.push: ", this.$router.push({ name: "userDirectoryProfile", params: { user: users[i] } }));
+              console.log("route1: ", this.$route);
+              selectedUser = users[i];
+              console.log("selectedUser variable: ", selectedUser);
+              this.$router.push({ name: "userDirectoryProfile", params: { user: selectedUser } }).catch(err => {
+                //this.$router.go(-1);
+                //this.$forceUpdate();
+                console.log("error pushing to route: ", err);
+              });
+
+              console.log("route2: ", this.$route);
+
+              i = users.length;
+            } else {
+              //console.log("not selected user: ", users[i].username);
+              i++;
             }
           }
         })
         .catch(e => {
           console.log("error retrieving users: ", e);
         });
+      console.log("router: ", this.$router);
+
       //this.firstTime = false;
       //}
     });
@@ -273,7 +303,9 @@ export default {
 
       this.storeTitle = store.title;
 
-      if (!["store-featured", "store-top"].includes(storeName)) {
+      console.log("store title: ", this.storeTitle);
+
+      if (!["store-featured", "store-top", "store-coming-soon"].includes(storeName)) {
         const filter = this.$store.getters.getFilterByName(storeName);
         if (filter) {
           this.filter = filter;
@@ -293,6 +325,9 @@ export default {
         if (!this.pending.topGames) {
           store.content = this.topGames || [];
         }
+      } else if (storeName == "store-coming-soon") {
+        this.storeTitle = "Coming Soon";
+        store.content = this.comingSoon || [];
       }
 
       this.store = store;

@@ -394,6 +394,13 @@ export default {
     },
     [REFRESH_INTERVAL](state) {
       return state.interval ? state.interval * 1000 : 30000;
+    },
+    ["isAuthorized"](state) {
+      console.log("what is state.user: ", state.user);
+      if (state.user.role == "admin" || state.user.role == "staff") {
+        return true;
+      }
+      return false;
     }
     //can put down here to check role of user for news portal
   }

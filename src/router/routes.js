@@ -66,6 +66,11 @@ const routes = [
         component: Store
       },
       {
+        path: "store/comingSoon",
+        name: "store-coming-soon",
+        component: Store
+      },
+      {
         path: "games",
         name: "games",
         component: Games,
