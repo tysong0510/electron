@@ -89,7 +89,7 @@ const app = new Vue({
     const that = this;
 
     ipcRenderer.on(UNAUTHORIZED, message => {
-      console.log(UNAUTHORIZED, message);
+      // console.log(UNAUTHORIZED, message);
 
       if (message && message.reason) {
         that.$bvModal.msgBoxOk(message.reason, {
@@ -128,8 +128,6 @@ function getSavedGlobalState() {
 function getSavedUserState() {
   // Hack to avoid reactivity. Otherwise undefined is saved
   const vueTorrents = JSON.parse(JSON.stringify(app.$store.state.torrents));
-  console.log("================== vueTorrents =================");
-  console.log(vueTorrents);
   const result = {
     ...state,
     vue: {
@@ -441,11 +439,11 @@ ipcRenderer.once("wt-reset-ok", () => {
           // Force pause
           state: "paused"
         };
-        console.log("restoring torrent state", torrent, {
-          dwnld: t.downloaded,
-          notpaused: originalState !== "paused",
-          start: t.downloaded || originalState !== "paused"
-        });
+        // console.log("restoring torrent state", torrent, {
+        //   dwnld: t.downloaded,
+        //   notpaused: originalState !== "paused",
+        //   start: t.downloaded || originalState !== "paused"
+        // });
         dispatch({
           type: ADD_TORRENT,
           payload: torrent

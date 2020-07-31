@@ -232,9 +232,6 @@ function createTorrent(torrentKey, options = {}) {
 
   torrent.once("ready", function() {
     // saveTorrentFile(torrentKey);
-    console.log("============================================");
-    console.log(torrent);
-
     store.dispatch({
       type: ADD_TORRENT_SEED,
       payload: {

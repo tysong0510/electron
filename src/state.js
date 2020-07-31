@@ -112,7 +112,7 @@ State.load = async function load() {
   }
   if (!isNewState) {
     result = await applyLoadedAppState(result);
-    console.warn("loaded app state", result);
+    // console.warn("loaded app state", result);
   }
 
   return result;
@@ -158,7 +158,7 @@ State.loadUser = async function loadUser(userId) {
   }
   if (!isNewState) {
     result = await applyLoadedUserState(userId, result);
-    console.warn("loaded user state", userId, result);
+    // console.warn("loaded user state", userId, result);
   }
 
   return result;

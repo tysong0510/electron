@@ -21,7 +21,7 @@ export default {
 
         switch (err.response.status) {
           case 401:
-            console.log(err.request);
+            // console.log(err.request);
             this.$root.$emit("unauthorized");
             ipcRenderer.send(UNAUTHORIZED);
             return err;

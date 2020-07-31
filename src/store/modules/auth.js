@@ -77,7 +77,7 @@ export default {
       state.token = "";
       state.user = {};
 
-      console.log(MUTATION_AUTH_ERROR, err);
+      // console.log(MUTATION_AUTH_ERROR, err);
 
       if (ipcMain) {
         ipcMain.emit(UNAUTHORIZED);
@@ -254,7 +254,7 @@ export default {
       });
     },
     [ACTION_REFRESH]({ commit, state, dispatch, getters }) {
-      console.log("Refresh auth token");
+      // console.log("Refresh auth token");
 
       return new Promise((resolve, reject) => {
         Axios({
@@ -280,7 +280,7 @@ export default {
             resolve(resp);
           })
           .catch(err => {
-            console.log("Error request", err);
+            // console.log("Error request", err);
 
             if (err && err.response) {
               commit(MUTATION_AUTH_ERROR, err);

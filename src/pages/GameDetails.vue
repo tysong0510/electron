@@ -329,6 +329,7 @@
       </b-card>
 
       <b-row class="mt-4">
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <b-col cols="9" v-html="description(game.description)" />
       </b-row>
 

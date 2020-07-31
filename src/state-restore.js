@@ -7,10 +7,10 @@ export async function restoreStoreFromSavedUserState(store, state) {
   //   app.$router.push(state.vue.route);
   // }
   const { torrents = [] } = state;
-  const { rootState: storeState, dispatch, getters } = store;
-  console.log("restoreStoreFromSavedUserState() main renderer state", state);
-  console.log(`isAuthenticated ${getters.IS_LOGGED_IN}`);
-  console.log("torrents: ", torrents);
+  const { rootState: storeState, dispatch } = store;
+  // console.log("restoreStoreFromSavedUserState() main renderer state", state);
+  // console.log(`isAuthenticated ${getters.IS_LOGGED_IN}`);
+  // console.log("torrents: ", torrents);
 
   // if (getters['IS_LOGGED_IN']) {
   // const user = getters[USER];
@@ -30,11 +30,11 @@ export async function restoreStoreFromSavedUserState(store, state) {
       // Force pause
       state: "paused"
     };
-    console.log("restoring torrent state", torrent, {
-      dwnld: t.downloaded,
-      notpaused: originalState !== "paused",
-      start: t.downloaded || originalState !== "paused"
-    });
+    // console.log("restoring torrent state", torrent, {
+    //   dwnld: t.downloaded,
+    //   notpaused: originalState !== "paused",
+    //   start: t.downloaded || originalState !== "paused"
+    // });
     promises.push(
       dispatch({
         type: ADD_TORRENT,
