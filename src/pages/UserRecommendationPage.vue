@@ -24,7 +24,7 @@
 
     <b-row>
       <b-col v-for="(game, index) in recommendedGames.slice(0, 3)" :key="index" class="p-2 rounded-lg game mb-4 mt-2" tag="a">
-        <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, userId: user.id } }">
+        <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, user: user } }">
           <b-card class="border-0" no-body>
             <b-row>
               <b-col class="col-img" cols="12">
@@ -79,7 +79,7 @@
 
     <b-row v-for="(game, index) in recommendedGames.slice(3)" :key="index" class="border-bottom limited-height-row mt-3 pb-3">
       <b-col :key="index" class="p-2 rounded-lg game mt-1 mb-1" tag="a">
-        <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, userId: user.id } }">
+        <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, user: user } }">
           <b-card class="border-0" no-body>
             <b-row>
               <b-col class="m-auto text-center" cols="2">

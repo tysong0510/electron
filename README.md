@@ -69,6 +69,12 @@ yarn build:staging
 yarn build --mac --win -p always
 ```
 
+### Build and publish to github releases for Mac and 32/64 bit Windows
+
+```
+yarn build --mac --win --x64 --ia32 -p always
+```
+
 ### Run your tests
 
 ```

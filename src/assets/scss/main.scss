@@ -304,6 +304,191 @@ button {
   }
 }
 
+#settingsModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#personalInfoModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#submissionModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#ratingModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
+#ratingSubmissionModal .modal-dialog {
+  min-width: 650px;
+
+  .modal-content {
+    .btn-auth {
+      border-radius: 30px;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+      font-size: 1.5em;
+      min-height: 2em;
+    }
+
+    .modal-header {
+      border: 0;
+      color: white;
+
+      .close {
+        color: white;
+        font-weight: normal;
+      }
+    }
+
+    .modal-footer {
+      border: 0;
+    }
+
+    /*.modal-body {*/
+    /*  padding-bottom: 50px;*/
+    /*  padding-top: 50px;*/
+    /*}*/
+
+    min-height: 300px;
+    background-color: #10132B;
+  }
+}
+
 #auth-error {
   .modal-content {
     background-color: $primary-states;

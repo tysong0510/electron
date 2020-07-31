@@ -42,4 +42,9 @@ export default new Vapi({
     property: "topGames",
     path: "/games/filter/top"
   })
+  .get({
+    action: "getComingSoon",
+    property: "comingSoon",
+    path: "/games/filter/comingSoon"
+  })
   .getStore();

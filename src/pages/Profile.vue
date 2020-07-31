@@ -36,56 +36,123 @@
                 <!-- Put the voxpop logo svg here for now then we can ask Marc later wha image he'd like -->
               </span>
             </h2>
-          </b-col>
-          <b-col class="col-auto">
-            <!--<b-button id="playButton" v-on:click="play(game.gameId)" variant="outline">-->
-            <!-- <img src="../assets/icons/settings.svg" alt="Settings" /> -->
-            <router-link :to="{ name: 'userDirectory' }">
-              <img height="25px" width="25px" src="../assets/icons/magnify.png" alt="magnifyingGlass" />
-            </router-link>
-            <!--</b-button>-->
-          </b-col>
-        </b-row>
 
-        <b-row>
-          <b-col title="VoxCoins">
-            <img src="../assets/icons/VP_Coin_SVG.svg" class="voxcoin d-inline-block m-auto" alt="VoxCoin" />
-            <p class="d-inline-block m-auto pl-2 text-white align-middle" style="font-size: 1.2em;">
-              {{ tokens }}
+            <b-row>
+              <b-col title="VoxCoins">
+                <img
+                  v-b-popover.hover="'Popover!'"
+                  src="../assets/icons/VP_Coin_SVG.svg"
+                  class="voxcoin d-inline-block m-auto"
+                  alt="VoxCoin"
+                />
+                <p class="d-inline-block m-auto pl-2 text-white align-middle" style="font-size: 1.2em;">
+                  <!-- {{ tokens | currency("USD") }} -->
+                  {{ voxcoins }}
+                </p>
+              </b-col>
+            </b-row>
+
+            <p v-if="condition" class="card-subtitle text-white pb-4">
+              {{ USER.category }}
+              <br />
+              <!-- this is where the logo and user role was -->
+              {{ USER.role }}
+            </p>
+
+            <p class="card-subtitle text-white pb-4">User ID: {{ USER.id }}</p>
+          </b-col>
+          <b-col class="ml-5 text-white">
+            <h2 class="display-2 " style="font-size: 1.40rem;">About Me:</h2>
+            <p v-if="USER.bio">
+              <span v-html="description(USER.bio)"></span>
             </p>
           </b-col>
-          <b-col>
-            <button @click="clearRecommendedGames()">Clear Recommended Games</button>
+          <b-col class="col-auto">
+            <b-row>
+              <b-button id="playButton" variant="outline" @click="showModal()">
+                <img src="../assets/icons/settings.svg" alt="Settings" />
+              </b-button>
+            </b-row>
+
+            <b-row class="p-2">
+              <router-link :to="{ name: 'userDirectory' }">
+                <img height="25px" width="25px" src="../assets/icons/magnify.png" alt="magnifyingGlass" />
+              </router-link>
+            </b-row>
           </b-col>
         </b-row>
-
-        <p v-if="condition" class="card-subtitle text-white pb-4">
-          {{ USER.category }}
-          <br />
-          <!-- this is where the logo and user role was -->
-          {{ USER.role }}
-        </p>
-
-        <p class="card-subtitle text-white pb-4">User ID: {{ USER.id }}</p>
 
         <b-dropdown variant="outline-secondary">
           <template v-slot:button-content
             ><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL
           </template>
-          <b-dropdown-text
-            >http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/invite/{{ USER.username }}</b-dropdown-text
-          >
+          <b-dropdown-text>{{ url }}invite/{{ USER.username }}</b-dropdown-text>
         </b-dropdown>
         <br />
         <p class="border-bottom"></p>
       </b-card-body>
     </b-card>
 
+    <!-- <b-row class="pb-5 mb-5"> 
+      <b-col class="text-white">
+         <p v-if="USER.bio" >
+         
+          <h4> Bio: </h4>
+         
+         <span v-html="description(USER.bio)"></span>
+        
+        </p>
+      </b-col>
+    </b-row> -->
+
+    <div v-if="yourRecommendationStore.content" class="m-3">
+      <b-row>
+        <b-col>
+          <h4 class="text-white font-weight-normal">Recommended Games</h4>
+        </b-col>
+        <b-col>
+          <router-link class="float-right view-all text-muted" :to="{ name: 'my-recommendation' }">
+            View All
+          </router-link>
+        </b-col>
+      </b-row>
+
+      <b-row class="border-bottom limited-height-row mt-3 pb-3">
+        <b-col
+          v-for="(game, index) in yourRecommendationStore.content.slice(0, maxElements)"
+          :key="index"
+          class="p-2 rounded-lg game mt-1 mb-1 testing"
+          tag="a"
+        >
+          <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, user: user } }">
+            <b-card class="border-0" no-body>
+              <b-card-body class="p-0">
+                <b-row class="game-image">
+                  <b-col class="h-100 m-auto">
+                    <b-card-img :src="game.images.main" :alt="game.title" img-top class="rounded-lg" />
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col>
+                    <b-card-title title-tag="h4" class="mb-2" style="font-size: .85em;">
+                      {{ game.title }}
+                    </b-card-title>
+                  </b-col>
+                </b-row>
+              </b-card-body>
+            </b-card>
+          </router-link>
+        </b-col>
+      </b-row>
+    </div>
+
+    <div v-else class="border-bottom">
+      <h4 class="text-white font-weight-normal">Recommended Games</h4>
+      <p>No Recommended Games...</p>
+    </div>
+
     <b-row class="pb-5 mb-5">
       <b-col class="col-8 mr-auto text-white">
-        <p v-if="USER.bio" class="pb-5">
-          {{ USER.bio }}
-        </p>
         <b-row class="pb-4 mb-3">
           <b-col class="col-8 d-inline mr-auto">
             <h4 class="display-4 d-inline" style="font-size: 1.5rem;">
@@ -121,13 +188,13 @@
       <b-col class="col-4 d-inline text-white border-left">
         <h4 class="display-4 d-inline" style="font-size: 1.5rem;">Friends: {{ numOfFriends }}</h4>
         <!-- <span class="d-inline float-right">0</span> -->
-        <!-- <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" /> -->
-        <div v-if="numOfFriends < 1">
+        <img class="mt-5" src="../assets/icons/firends_block.png" alt="friendsBlock" />
+        <!-- <div v-if="numOfFriends < 1">
           <p>Go and make some friends!</p>
         </div>
         <div v-else>
-          <!-- Put friends here -->
-        </div>
+         
+        </div> -->
       </b-col>
     </b-row>
 
@@ -406,7 +473,7 @@
       </b-col>
     </horizontal-view>
 
-    <horizontal-view
+    <!-- <horizontal-view
       v-if="!pending.games && yourRecommendationStore.content"
       v-once
       title="Your recommendation"
@@ -443,7 +510,8 @@
           </b-card-body>
         </b-card>
       </b-col>
-    </horizontal-view>
+    </horizontal-view> -->
+
     <!--
     <horizontal-view
       v-if="!pending.games && recentlyPlayedStore.content"
@@ -495,11 +563,189 @@
         </b-card>
       </b-col>
     </horizontal-view>
+
     <div v-if="loggedInUserRole == 'Developer' || loggedInUserRole == 'Publisher'">
       <h4 class="text-white font-weight-normal">Sales</h4>
       <b-table hover :items="sales" per-page="5"></b-table>
       <h4 class="text-white font-weight-normal">Total Profit: {{ totalDeveloperProfit }}</h4>
     </div>
+
+    <b-modal id="settingsModal" ref="settingsModal" class="settingsModal" centered hide-footer title="Settings">
+      <b-row class="border-bottom border-top limited-height-row mt-3 pb-3 ">
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-button v-b-modal.personalInfoModal variant="link"
+            >Edit personal information
+            <b-icon-chevron-right></b-icon-chevron-right>
+          </b-button>
+        </b-col>
+      </b-row>
+      <b-row class="border-bottom limited-height-row mt-3 pb-3">
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-button variant="link" @click="clearRecommendedGames()">Clear All Recommended Games </b-button>
+        </b-col>
+      </b-row>
+    </b-modal>
+
+    <b-modal id="personalInfoModal" ref="personalInfoModal" centered hide-footer title="Edit Personal Information">
+      <b-row>
+        <b-col>
+          <b-row class="p-5">
+            <b-col class="text-center">
+              <b-form id="personalInfo" @submit.prevent="personalInfo">
+                <b-form-group label="Change Avatar Photo:" label-for="avatarPhoto" class="text-left">
+                  <b-form-file
+                    v-model="avatarPhoto"
+                    accept="image/*"
+                    placeholder="Choose Image"
+                    drop-placeholder="Drop Image here..."
+                  ></b-form-file>
+                </b-form-group>
+                <b-form-group label="Bio: " class="text-left">
+                  <div class="editor">
+                    <editor-menu-bar v-slot="{ commands, isActive }" :editor="editor">
+                      <div class="menubar text-left">
+                        <button class="menubar__button" :class="{ 'is-active': isActive.bold() }" type="button" @click="commands.bold">
+                          <b-icon-type-bold></b-icon-type-bold>
+                        </button>
+
+                        <button class="menubar__button" :class="{ 'is-active': isActive.italic() }" type="button" @click="commands.italic">
+                          <b-icon-type-italic></b-icon-type-italic>
+                        </button>
+
+                        <button class="menubar__button" :class="{ 'is-active': isActive.strike() }" type="button" @click="commands.strike">
+                          <b-icon-type-strikethrough></b-icon-type-strikethrough>
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.underline() }"
+                          type="button"
+                          @click="commands.underline"
+                        >
+                          <b-icon-type-underline></b-icon-type-underline>
+                        </button>
+
+                        <button class="menubar__button" :class="{ 'is-active': isActive.code() }" type="button" @click="commands.code">
+                          <b-icon-code></b-icon-code>
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.paragraph() }"
+                          type="button"
+                          @click="commands.paragraph"
+                        >
+                          p
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.heading({ level: 1 }) }"
+                          type="button"
+                          @click="commands.heading({ level: 1 })"
+                        >
+                          H1
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.heading({ level: 2 }) }"
+                          type="button"
+                          @click="commands.heading({ level: 2 })"
+                        >
+                          H2
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+                          type="button"
+                          @click="commands.heading({ level: 3 })"
+                        >
+                          H3
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.bullet_list() }"
+                          type="button"
+                          @click="commands.bullet_list"
+                        >
+                          <b-icon-list-ul></b-icon-list-ul>
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.ordered_list() }"
+                          type="button"
+                          @click="commands.ordered_list"
+                        >
+                          <b-icon-list-ol></b-icon-list-ol>
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.blockquote() }"
+                          type="button"
+                          @click="commands.blockquote"
+                        >
+                          <b-icon-blockquote-left></b-icon-blockquote-left>
+                        </button>
+
+                        <button
+                          class="menubar__button"
+                          :class="{ 'is-active': isActive.code_block() }"
+                          type="button"
+                          @click="commands.code_block"
+                        >
+                          <b-icon-code-slash></b-icon-code-slash>
+                        </button>
+
+                        <button class="menubar__button" type="button" @click="commands.horizontal_rule">
+                          <b-icon-type-underline></b-icon-type-underline>
+                        </button>
+
+                        <button class="menubar__button" type="button" @click="commands.undo">
+                          <b-icon-arrow-counterclockwise></b-icon-arrow-counterclockwise>
+                        </button>
+
+                        <button class="menubar__button" type="button" @click="commands.redo">
+                          <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
+                        </button>
+                      </div>
+                    </editor-menu-bar>
+                    <editor-content class="editor__content" :editor="editor" :v-model="description" />
+                  </div>
+                </b-form-group>
+              </b-form>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col class="w-100 d-flex">
+              <b-button
+                size="lg"
+                variant="primary"
+                class="btn-auth"
+                style="min-width: 180px; margin: 0 auto;"
+                type="submit"
+                form="personalInfo"
+                :disabled="loading"
+              >
+                <span v-if="!loading" style="max-width: 1em; max-height: 1em;">Save</span>
+                <b-spinner v-else></b-spinner>
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </b-modal>
+    <b-modal id="submissionModal" ref="submissionModal" class="submissionModal" centered hide-footer title="Submission Successful">
+      <b-row class="border-bottom border-top limited-height-row mt-3 pb-3 ">
+        <b-col class="p-2 rounded-lg mt-1">
+          <h2>Your submission is Successful</h2>
+        </b-col>
+      </b-row>
+    </b-modal>
   </div>
 </template>
 
@@ -511,12 +757,43 @@ import date from "../mixins/date";
 import currency from "../mixins/currency";
 import user from "../mixins/user";
 import Axios from "axios";
-//import { baseURL } from "../apiConfig";
+import axios from "axios";
+import { baseURL } from "../apiConfig";
 import { USER } from "../store/modules/auth";
+import { Editor, EditorContent, EditorMenuBar } from "tiptap";
+import {
+  Blockquote,
+  CodeBlock,
+  HardBreak,
+  Heading,
+  HorizontalRule,
+  OrderedList,
+  BulletList,
+  ListItem,
+  TodoItem,
+  TodoList,
+  Bold,
+  Code,
+  Italic,
+  Link,
+  Strike,
+  Underline,
+  History
+} from "tiptap-extensions";
+
+import aws from "aws-sdk";
+
+aws.config.update({
+  accessKeyId: "AKIASKCWLEX6DIWB2K4E",
+  secretAccessKey: "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",
+  region: "us-east-2"
+});
 
 export default {
   components: {
-    HorizontalView
+    HorizontalView,
+    EditorContent,
+    EditorMenuBar
   },
   mixins: [store, date, currency, user],
   data() {
@@ -605,9 +882,36 @@ export default {
       },
       fixStatisticsPending: true,
       sales: [],
-      numOfFriends: 0
+      numOfFriends: 0,
       //fields: ["userId", "gameTitle", "developerProfit"]
       //totalProfit: 0.0
+      editor: new Editor({
+        extensions: [
+          new Blockquote(),
+          new BulletList(),
+          new CodeBlock(),
+          new HardBreak(),
+          new Heading({ levels: [1, 2, 3] }),
+          new HorizontalRule(),
+          new ListItem(),
+          new OrderedList(),
+          new TodoItem(),
+          new TodoList(),
+          new Link(),
+          new Bold(),
+          new Code(),
+          new Italic(),
+          new Strike(),
+          new Underline(),
+          new History()
+        ],
+        onUpdate: ({ getHTML }) => {
+          this.html = getHTML();
+        }
+      }),
+      html: "",
+      avatarPhoto: null,
+      loading: false
     };
   },
   computed: {
@@ -759,6 +1063,15 @@ export default {
         totalProfit += this.sales[i].developerProfit;
       }
       return totalProfit;
+    },
+    url() {
+      return baseURL;
+    },
+    voxcoins() {
+      // return Number.parseFloat(this[USER].numberOfTokens) || 0
+      var coins = this[USER].numberOfTokens;
+      coins *= 100;
+      return coins.toFixed(2);
     }
   },
   watch: {
@@ -785,6 +1098,8 @@ export default {
       .catch(err => {
         console.log("There was an error retrieving sales: ", err);
       });
+
+    console.log("is this user authorized: ", this.$store.getters["isAuthorized"]);
   },
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
@@ -823,6 +1138,93 @@ export default {
       };
       console.log("username: ", params.username);
       this.$store.dispatch("clearRecommendedGames", params);
+    },
+    showModal() {
+      console.log("inside show modal");
+      this.$refs["settingsModal"].show();
+    },
+    async personalInfo() {
+      this.load = true;
+      console.log("inside change personal info");
+      console.log("html variable: ", this.html);
+      console.log("avatar photo: ", this.avatarPhoto);
+
+      if (this.html || this.avatarPhoto) {
+        var avatarPhotoURL = null;
+
+        if (this.avatarPhoto) {
+          avatarPhotoURL = await this.uploadSingleFileToS3(this.$store.state.auth.user.username, this.avatarPhoto, this.avatarPhoto.name);
+        }
+
+        console.log("avatarPhotoURL: ", avatarPhotoURL);
+
+        const formData = new FormData();
+        formData.append("username", this.$store.state.auth.user.username);
+        formData.append("bio", this.html);
+        formData.append("avatarPhoto", avatarPhotoURL);
+
+        try {
+          await axios.post("/users/updateUserInfo", formData);
+        } catch (err) {
+          console.log("There was an error updating user info: ", err);
+        }
+        this.loading = false;
+        this.hidePersonalModal();
+        this.showSubmissionModal();
+      } else {
+        this.load = false;
+      }
+    },
+    showSubmissionModal() {
+      this.$refs["submissionModal"].show();
+    },
+    hidePersonalModal() {
+      this.$refs["personalInfoModal"].hide();
+    },
+    async uploadSingleFileToS3(username, file, name) {
+      return new Promise(async function(resolve, reject) {
+        var date = new Date();
+        var s3 = new aws.S3();
+
+        // var concatenatedTitleName = title;
+        // concatenatedTitleName = concatenatedTitleName.replace(/ /g, "-");
+
+        console.log("name inside upload function: ", name);
+        var regName = name;
+        console.log("regName: ", regName);
+        var concatName = regName.replace(/ /g, "-");
+
+        await s3.upload(
+          {
+            Bucket: "voxpop-image-bucket",
+            Key: username + "/" + date.getTime() + "_" + concatName,
+            Body: file,
+            ACL: "public-read"
+          },
+          function(err, data) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data.Location);
+              console.log("upload complete");
+            }
+          }
+        );
+      });
+    },
+    description(text) {
+      if (text) {
+        return (
+          text
+            // .replace(/&/g, "&amp;")
+            // .replace(/</g, "&lt;")
+            // .replace(/>/g, "&gt;")
+            // .replace(/"/g, "&quot;")
+            // .replace(/'/g, "&#039;")
+            .replace(/\n/g, "<br>")
+        );
+      }
+      return "";
     }
   }
 };
@@ -910,6 +1312,43 @@ export default {
 
 .voxlogoHolder {
   padding-bottom: 10px;
+}
+
+.menubar__button {
+  background: transparent;
+  color: #696e80;
+  text-align: left;
+}
+
+.is-active {
+  background-color: white;
+}
+
+.editor__content {
+  border: solid #696e80 1px;
+  height: 250px;
+  position: relative;
+}
+
+.ProseMirror {
+  outline-color: white;
+  height: 250px;
+  text-align: left;
+  overflow: auto;
+}
+
+.ProseMirror p {
+  margin-left: 10px;
+}
+
+.custom-file-input:lang(en) ~ .custom-file-label::after {
+  content: "Browse Files";
+  color: #696e80;
+  background-color: transparent;
+}
+
+.input-group-text {
+  background-color: transparent;
 }
 
 @keyframes pulse {

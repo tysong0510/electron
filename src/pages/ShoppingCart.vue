@@ -15,71 +15,34 @@
             </b-col>
           </b-row>
           <!-- Put repteating list here...-->
-          <b-row v-for="game in this.$store.state.cart" :key="game.id" class="pt-2 pb-5 mb-5 border-bottom">
-            <b-img :src="game.images.main" class="align-self-start m-1" height="75px" width="125" />
-            <p>{{ game.developer }}</p>
+
+          <b-row v-for="obj in this.$store.state.recoUserAndGame" :key="obj.game.id" class="pt-2 pb-5 mb-5 border-bottom">
+            <b-img :src="obj.game.images.main" class="align-self-start m-1" height="75px" width="125" />
+
+            <b-col>
+              <b-row>
+                <p>{{ obj.game.developer }}</p>
+              </b-row>
+              <b-row v-if="obj.user != null">
+                <p>Recommended by: {{ obj.user.username }}</p>
+              </b-row>
+            </b-col>
 
             <b-col class=" text-center ">
-              {{ game.price | currency("USD") }}
+              {{ obj.game.price | currency("USD") }}
             </b-col>
 
             <b-col>
-              <b-icon-x-circle-fill id="remove" variant="danger" class="float-right" @click="removeFromCart(game)"></b-icon-x-circle-fill>
+              <b-icon-x-circle-fill
+                id="remove"
+                variant="danger"
+                class="float-right"
+                @click="removeFromCart(obj.game)"
+              ></b-icon-x-circle-fill>
             </b-col>
           </b-row>
         </b-col>
-
-        <!--
-        <b-col>
-          <h4>Price</h4>
-          <b-row v-for="game in this.$store.state.cart" :key="game.id" class="pt-4 pb-5 mb-5 ">
-           {{ game.price | currency("USD")}}
-          </b-row>
-        </b-col>
-        -->
-        <!--
-        <b-col>
-          <h4>Description</h4>
-          <b-row>
-            <ul id="cartUL" class="list-unstyled">
-              <b-media v-for="game in this.$store.state.cart" :key="game.id" tag="li">
-                <p>{{ game.publisher }}</p>
-                <p>{{ game.developer }}</p>
-              </b-media>
-            </ul>
-          </b-row>
-        </b-col>
-
-        <b-col>
-          <h4>Price</h4>
-          <b-row>
-            <ul id="cartUL" class="list-unstyled">
-              <b-media v-for="game in this.$store.state.cart" :key="game.id" tag="li">
-                <p>{{ game.price | currency("USD") }}</p>
-              </b-media>
-            </ul>
-          </b-row>
-        </b-col> -->
       </b-row>
-
-      <!-- <ul id="cartUL" class="list-unstyled">
-        <b-media v-for="game in this.$store.state.cart" :key="game.id" tag="li" class="pt-2 pb-5 mb-5 border-bottom">
-          <b-img slot="aside" :src="game.images.main" class="align-self-start" height="75px" />
-
-          <h4>{{ game.title }}</h4>
-
-          <p>
-            {{ game.publisher }}
-
-            <b-icon-x-circle-fill id="remove" variant="danger" class="float-right" @click="removeFromCart(game)"></b-icon-x-circle-fill>
-          </p>
-        </b-media>
-      </ul> -->
-
-      <!-- <p class="text-white text-left">Enter ID of user who recommended game(s):</p>
-      <b-col sm="2">
-        <b-form-input id="recommenderID" v-model="recommenderID" name="recommenderID" type="text" size="sm" />
-      </b-col> -->
 
       <p class="text-white text-center">Estimated Total: {{ totalPrice | currency("USD") }}</p>
 
@@ -132,6 +95,10 @@ export default {
         totalPrice += shoppingCart[i].price;
       }
       return totalPrice;
+    },
+    recommendedUsers() {
+      console.log("RecoUserAndGame: ", this.$store.state.recoUserAndGame);
+      return this.$store.state.recoUserAndGame;
     }
   },
 
@@ -154,9 +121,11 @@ export default {
       this.$store.dispatch("removeFromCart", index);
 
       this.$store.dispatch("removeUserRecommendedIdIndex", index);
+      this.$store.dispatch("removeRecoUserAndGame", index);
 
       console.log("list of recommended userId's after removal: ", this.$store.state.recommendedUserId);
       console.log("shopping cart: ", this.$store.state.cart);
+      console.log("recoUserAndGame: ", this.$store.state.recoUserAndGame);
       //console.log("list of user recommendedId indexes after removing from cart: " + this.$store.state.recommendedUserIdIndex);
     },
 
@@ -213,7 +182,7 @@ export default {
         //Need to pass an array/list of game objects to backend
         ipcRenderer.send("open-new-window", gameIDs, this.totalPrice, userRecommendedIDs);
         this.$store.dispatch("clearCart");
-        this.$store.dispatch("clearUserRecommendedId");
+        this.$store.dispatch("clearRecoUserAndGame");
         this.$store.dispatch("clearUserRecommendedIdIndex");
         this.loading = false;
       } catch (err) {
