@@ -655,7 +655,6 @@ const demoData = {
     addToCart(state, data) {
       state.cart.push(data);
       state.cartLength++;
-      console.log("length of shopping cart: " + state.cart.length);
       this.dispatch("saveCart");
     },
 
@@ -671,7 +670,6 @@ const demoData = {
       this.dispatch("saveCart");
     },
     saveCart(state) {
-      console.log("inside save cart");
       //localStorage.setItem("cart", state.cart);
       storage.set("cart", state.cart, function(err) {
         if (err) {
@@ -694,7 +692,6 @@ const demoData = {
         if (err) {
           console.log("error retrieving path: ", err);
         } else {
-          console.log("user path from index.js: ", data);
           state.tempInstallPath = data;
           return data;
         }
@@ -708,12 +705,14 @@ const demoData = {
       });
     },
     addDownloadedGame(state, savedContent) {
-      console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in mutation");
       state.tempDownloadedGames[savedContent.game.id] = savedContent.path;
       //state.tempDownloadedGames.push(savedContent.path);
-      console.log("tempDownloadedGames array: ", state.tempDownloadedGames);
       storage.set("downloadedGame", state.tempDownloadedGames, function(err) {
-        console.log("there was an error saving downloadedGames: ", err);
+        if (err) {
+          console.log("there was an error saving downloadedGames: ", err);
+        } else {
+          console.log("saving downloadedGames succeed!");
+        }
       });
     },
     retrieveDownloadedGame(state) {
@@ -733,7 +732,6 @@ const demoData = {
       });
     },
     tempDownloadPath(state, path) {
-      console.log("path from mutation: ", path);
       state.absolutePath = path;
     },
     addToRecommendedGames(state, recoParams) {
@@ -751,7 +749,6 @@ const demoData = {
             reject(err);
           }
         });
-        console.log("value of state.recommendedGames within promise: ", state.recommendedGames);
         resolve(state.recommendedGames);
       });
     },
@@ -772,7 +769,6 @@ const demoData = {
       });
     },
     removeFromRecommendedGames(state, recoParams) {
-      console.log("state.recommendedGames in removeFromRecommendedGames mutation: ", state.recommendedGames);
       // let recommendedGames = Object.values(state.recommendedGames);
 
       var index;
@@ -803,7 +799,6 @@ const demoData = {
       // });
     },
     clearRecommendedGames(state, recoParams) {
-      console.log("params for clearing recommended Games: ", recoParams);
       storage.remove(recoParams.username, function(err) {
         console.log("error clearing recommended games: ", err);
       });
@@ -835,13 +830,9 @@ const demoData = {
       } else {
         state.recommendedUserIdIndex.push(params.userId);
       }
-      console.log("recommendedUserIdIndex after push: ", state.recommendedUserIdIndex);
     },
     removeUserRecommendedIdIndex(state, index) {
-      console.log("index inside removeUserRecommendedIdIndex");
-
       state.recommendedUserIdIndex.splice(index, 1); //This will just remove whatever is in recommendedUserIdIndex at the same index as the game that was removed
-      console.log("recommendedUserIdIndex after splice: ", state.recommendedUserIdIndex);
     },
     clearUserRecommendedIdIndex(state) {
       state.recommendedUserIdIndex = [];
@@ -874,7 +865,6 @@ const demoData = {
     },
 
     removeFromCart(context, index) {
-      console.log("from removeFromCart in index...");
       context.commit("removeFromCart", index);
     },
 
@@ -894,7 +884,6 @@ const demoData = {
       context.commit("removePath");
     },
     addDownloadedGame(context, savedContent) {
-      console.log("game to be added to downloaded array: ", savedContent.game, "path: ", savedContent.path, " in action");
       context.commit("addDownloadedGame", savedContent);
     },
     retrieveDownloadedGame(context) {
@@ -913,7 +902,6 @@ const demoData = {
       context.commit("removeFromRecommendedGames", recoParams);
     },
     clearRecommendedGames(context, recoParams) {
-      console.log("recoParams in action: ", recoParams);
       context.commit("clearRecommendedGames", recoParams);
     },
     addRecoUserAndGame(context, data) {
@@ -973,7 +961,6 @@ const demoData = {
     },
 
     async [INSTALL_GAME]({ getters }, { gameId }) {
-      console.log(`Installing game with id ${gameId} started`);
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
       const installPath = getters[GAME_INSTALL_PATH](gameId);
 
@@ -1025,7 +1012,6 @@ const demoData = {
                     dir: installPath
                   },
                   err => {
-                    console.log("unzip done", file);
                     resolve(file);
 
                     if (err) {
@@ -1041,9 +1027,6 @@ const demoData = {
         });
 
         await Promise.all(promises);
-
-        console.log(`Installing game with id ${gameId} finished`);
-
         return {
           success: true,
           errors
@@ -1061,18 +1044,13 @@ const demoData = {
     },
 
     async [UPDATE_GAME]({ state, dispatch }, data) {
-      console.log(data);
       await dispatch("getGame", { params: { id: data.id } });
-
-      console.log(state.game);
-
       if (state.game) {
         state.game.magnetURI = data.magnetURI;
         state.game.sizeBytes = data.sizeBytes;
 
         Axios({ url: "/games", data: state.game, method: "PUT" })
-          .then(resp => {
-            console.log(resp);
+          .then(() => {
             dispatch("getGames");
           })
           .catch(err => {
@@ -1121,21 +1099,20 @@ const demoData = {
       commit(UNARCHIVE_FAIL, data);
     },
 
-    async [START_SEEDING]({ state, commit }, { gameId }) {
+    async [START_SEEDING]({ state, commit }, { gameId, filePaths }) {
+      console.log("START_SEEDING", gameId, filePaths);
       if (ipcMain) {
-        const { dialog } = electron;
-
-        let files = dialog.showOpenDialog({ properties: ["openFile"], filters: [{ name: "Archives", extensions: ["zip"] }] });
-
-        if (!files) {
+        if (!filePaths) {
           return;
         }
 
-        files = files.map(filePath => {
+        const files = filePaths.map(filePath => {
           return {
             path: filePath
           };
         });
+
+        console.log("Inside files in START_SEEDING", files);
 
         ipcMain.emit(
           "wt-create-torrent",
@@ -1152,10 +1129,9 @@ const demoData = {
     },
 
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
-      console.log("inside index.js start download game");
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
-      console.log("this is torrent, gotten from findTorrentByGameId: ");
+      console.log("=============== START_DOWNLOAD_GAME ================ ");
       console.log(torrent);
       let magnetURI;
       if (!torrent) {
@@ -1175,8 +1151,6 @@ const demoData = {
 
       const user = getters[USER];
       if (!user.username) console.log("TRY AGAIN");
-      console.log(`user ${user.username}`);
-      console.log("START_DOWNLOAD_GAME");
       let torrentKey;
       // const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
       // const gameDownloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
@@ -1187,7 +1161,6 @@ const demoData = {
       if (torrent) {
         ({ torrentKey } = torrent);
         if (torrent.state === "downloading") {
-          console.log("state is downloading: exit");
           // nothing to do
           return;
         }
@@ -1220,8 +1193,10 @@ const demoData = {
 
       const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
+      console.log("==================== Start Torrenting =============");
+      console.log(downloadPath);
+
       if (!ipcRenderer) {
-        console.log("ipcRenderer is index js emit");
         ipcMain.emit(
           "wt-start-torrenting",
           null,
@@ -1231,7 +1206,6 @@ const demoData = {
           null
         );
       } else {
-        console.log("else in ipcRenderer in index js");
         ipcRenderer.emit(
           "wt-start-torrenting",
           torrentKey, // key
@@ -1442,12 +1416,10 @@ const demoData = {
              */
             case "*": {
               rating = games.slice(0); //returns a new object/array starting at 0
-              console.log("rating from index.js for ", name, ": ", rating);
               break;
             }
 
             case "recommendation": {
-              console.log("state.recommendedGames: ", state.recommendedGames);
               //rating = Object.values(state.recommendedGames);
               if (state.recommendedGames != null) {
                 rating = Object.values(state.recommendedGames);

@@ -167,7 +167,6 @@ export default {
         return;
       }
       let torrentKey;
-
       const gameInstallPath = getters[GAME_INSTALL_PATH](gameId);
       const gameDownloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 

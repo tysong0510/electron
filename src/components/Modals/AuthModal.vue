@@ -412,27 +412,19 @@ export default {
     }
   },
   created: function() {
-    console.log("within created function inside authModal...");
-
     if (this.$store.state.firstTime == null) {
-      console.log("firstTime is null...");
       this.$store
         .dispatchPromise("autoLogin")
         .then(data => {
-          console.log("data gotten from dispatchPromise: ", data);
           if (data != null) {
             if (!this.$route.query["no-redirect"]) {
-              console.log("inside conditional to set page...");
               this.$router.push(this.$route.query.redirect || { name: "profile" });
             }
             this.$root.$emit("authorized");
-          } else {
-            console.log("User does not have remember Me activated either due to time or never activated...");
           }
           this.$store.state.firstTime = true;
         })
         .catch(err => {
-          console.log("error with dispatch Promise inseide created auth modal: ", err);
           const res = err && err.response;
 
           if (res && res.status === 404) {
@@ -444,8 +436,6 @@ export default {
           }
           this.$store.state.firstTime = true;
         });
-    } else {
-      console.log("firstTime is not null...");
     }
   },
 

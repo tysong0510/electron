@@ -24,7 +24,8 @@ const WebTorrent = require("webtorrent");
 
 const config = require("./config");
 
-const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST; // require('create-torrent').announceList
+// const defaultAnnounceList = config.TRACKER_ANNOUNCE_LIST; // require('create-torrent').announceList
+const defaultAnnounceList = require("create-torrent").announceList;
 const pieceLength = config.PIECE_LENGTH;
 
 class TorrentError extends ExtendableError {}
@@ -65,59 +66,58 @@ const PEER_ID = Buffer.from(VERSION_PREFIX + crypto.randomBytes(9).toString("bas
 window.requestIdleCallback = void 0;
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
-let client = (window.client = new WebTorrent({
-  peerId: PEER_ID,
-  tracker: {
-    rtcConfig: {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
-        { url: "stun:stun01.sipphone.com" },
-        { url: "stun:stun.ekiga.net" },
-        { url: "stun:stun.fwdnet.net" },
-        { url: "stun:stun.ideasip.com" },
-        { url: "stun:stun.iptel.org" },
-        { url: "stun:stun.rixtelecom.se" },
-        { url: "stun:stun.schlund.de" },
-        { url: "stun:stun1.l.google.com:19302" },
-        { url: "stun:stun2.l.google.com:19302" },
-        { url: "stun:stun3.l.google.com:19302" },
-        { url: "stun:stun4.l.google.com:19302" },
-        { url: "stun:stunserver.org" },
-        { url: "stun:stun.softjoys.com" },
-        { url: "stun:stun.voiparound.com" },
-        { url: "stun:stun.voipbuster.com" },
-        { url: "stun:stun.voipstunt.com" },
-        { url: "stun:stun.voxgratia.org" },
-        { url: "stun:stun.xten.com" },
-        {
-          url: "turn:numb.viagenie.ca",
-          credential: "muazkh",
-          username: "webrtc@live.com"
-        },
-        {
-          url: "turn:192.158.29.39:3478?transport=udp",
-          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-          username: "28224511:1379330808"
-        },
-        {
-          url: "turn:192.158.29.39:3478?transport=tcp",
-          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-          username: "28224511:1379330808"
-        }
-      ]
-    }
-  },
-  dht: false,
-  torrentPort: 8000
-  // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
-}));
+// let client = (window.client = new WebTorrent({
+//   peerId: PEER_ID,
+//   tracker: {
+//     rtcConfig: {
+//       iceServers: [
+//         { urls: "stun:stun.l.google.com:19302" },
+//         { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+//         { url: "stun:stun01.sipphone.com" },
+//         { url: "stun:stun.ekiga.net" },
+//         { url: "stun:stun.fwdnet.net" },
+//         { url: "stun:stun.ideasip.com" },
+//         { url: "stun:stun.iptel.org" },
+//         { url: "stun:stun.rixtelecom.se" },
+//         { url: "stun:stun.schlund.de" },
+//         { url: "stun:stun1.l.google.com:19302" },
+//         { url: "stun:stun2.l.google.com:19302" },
+//         { url: "stun:stun3.l.google.com:19302" },
+//         { url: "stun:stun4.l.google.com:19302" },
+//         { url: "stun:stunserver.org" },
+//         { url: "stun:stun.softjoys.com" },
+//         { url: "stun:stun.voiparound.com" },
+//         { url: "stun:stun.voipbuster.com" },
+//         { url: "stun:stun.voipstunt.com" },
+//         { url: "stun:stun.voxgratia.org" },
+//         { url: "stun:stun.xten.com" },
+//         {
+//           url: "turn:numb.viagenie.ca",
+//           credential: "muazkh",
+//           username: "webrtc@live.com"
+//         },
+//         {
+//           url: "turn:192.158.29.39:3478?transport=udp",
+//           credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+//           username: "28224511:1379330808"
+//         },
+//         {
+//           url: "turn:192.158.29.39:3478?transport=tcp",
+//           credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+//           username: "28224511:1379330808"
+//         }
+//       ]
+//     }
+//   },
+//   dht: false,
+//   torrentPort: 8000
+//   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
+// }));
+
+let client = (window.client = new WebTorrent({ peerId: PEER_ID }));
 
 function setPeerId() {
-  console.log("outputting web torrent client below...");
-  console.log(client);
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
-  console.log("newPeerId string", newPeerIdBuffer.toString("utf-8"));
 
   client.peerIdBuffer = newPeerIdBuffer;
   client.peerId = newPeerIdBuffer.toString("hex");
@@ -135,17 +135,9 @@ let prevProgress = null;
 init();
 
 function init() {
-  console.log("inside function init...");
   listenToClientEvents();
   //console.log("right above start torrenting in function init from webtorrent.js");
   ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
-    console.log("within ipc.on for start torrenting...");
-    console.log(e);
-    console.log(torrentKey);
-    console.log(torrentID);
-    console.log(path);
-    console.log(fileModtimes);
-    console.log(selections);
     // console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
     startTorrenting(torrentKey, torrentID, path, fileModtimes, selections);
   });
@@ -157,7 +149,6 @@ function init() {
 
   ipc.on("wt-reset", () => reset());
 
-  console.log("ipcReadyWebTorrent");
   ipc.send("ipcReadyWebTorrent");
 
   window.addEventListener(
@@ -175,8 +166,6 @@ function init() {
 }
 
 function listenToClientEvents() {
-  console.log("listenToClientEvents");
-  console.log(client);
   client.on("warning", err => {
     console.warn(err.message);
     ipc.send("wt-warning", null, err.message);
@@ -186,45 +175,34 @@ function listenToClientEvents() {
     console.error(err.message);
     ipc.send("wt-error", null, err);
   });
-  client.on("seed", torrent => {
-    console.log("seed", torrent);
-  });
+  // client.on("seed", torrent => {
+  //   console.log("seed", torrent);
+  // });
 }
 
 // Starts a given TorrentID, which can be an infohash, magnet URI, etc.
 // Returns a WebTorrent object. See https://git.io/vik9M
 function startTorrenting(torrentKey, torrentID, path, fileModtimes, selections) {
-  console.log("wt-start-torrenting");
-  console.log("starting torrent %s: %s", torrentKey, torrentID);
-  console.log("insideStartTorrenting in webtorrent.js");
-
   //downloading a torrent
   const torrent = client.add(torrentID, {
     path,
     fileModtimes
     //announce: "wss://tracker.webtorrent.io"
   });
-
-  console.log("web torrent created using torrentID, path and fileModTimes in startTorrenting below");
-  console.log(torrent);
   torrent.key = torrentKey;
-  console.log("check1");
   // Listen for ready event, progress notifications, etc
   addTorrentEvents(torrent);
-  console.log("check2");
   // Only download the files the user wants, not necessarily all files
   torrent.once("ready", () => selectFiles(torrent, selections));
 }
 
 function stopTorrenting(infoHash) {
-  console.log("--- STOP TORRENTING: ", infoHash);
   const torrent = client.get(infoHash);
   if (torrent) torrent.destroy();
 }
 
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
-  console.log("creating torrent", torrentKey, options);
   const fsExtra = require("fs-extra");
   const gameDownloadPath = store.getters[GAME_DOWNLOAD_PATH](options.gameId);
 
@@ -254,6 +232,8 @@ function createTorrent(torrentKey, options = {}) {
 
   torrent.once("ready", function() {
     // saveTorrentFile(torrentKey);
+    console.log("============================================");
+    console.log(torrent);
 
     store.dispatch({
       type: ADD_TORRENT_SEED,
@@ -271,7 +251,6 @@ function createTorrent(torrentKey, options = {}) {
 }
 
 function addTorrentEvents(torrent) {
-  console.log("inside addTorrentEvents...");
   let downloadedPieces = [];
   console.log(torrent);
   console.log("torrent key: " + torrent.key);
@@ -532,8 +511,8 @@ function saveTorrentFile(torrentKey) {
 function updateTorrentProgress() {
   //console.log("inside updateTorrent Progress");
   const progress = getTorrentProgress();
-  //console.log("outputting progress object below...");
-  //console.log(progress);
+  // console.log("outputting progress object below...");
+  // console.log(progress);
   //console.log("gor progress from getTorrentProgress");
   // TODO: diff torrent-by-torrent, not once for the whole update
   if (prevProgress && deepEqual(progress, prevProgress, { strict: true })) {
@@ -663,7 +642,6 @@ window.testOfflineMode = function() {
 window.wtClient = client;
 
 function reset() {
-  console.log("reset");
   if (!client || !client.torrents.length) {
     ipc.send("wt-reset-ok");
     return;
