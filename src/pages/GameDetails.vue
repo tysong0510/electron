@@ -91,7 +91,7 @@
                       </div> -->
 
                     <!-- Seeding information below... -->
-                    <div v-else>
+                    <!-- <div v-else>
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
                         Pause
                       </b-button>
@@ -131,7 +131,7 @@
                           <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
                         </div>
                       </transition>
-                    </div>
+                    </div> -->
                   </div>
                   <!-- <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
@@ -283,82 +283,44 @@
               </template> -->
 
               <template v-else-if="currentRouteIs('my-game-details')">
-                <b-row>
-                  <b-col class="game-buttons">
-                    <b-button
-                      v-if="!isGameDownloaded"
-                      :disabled="load"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="startDownloadingForSeeding()"
-                    >
-                      <span v-if="!load">Download</span>
-                      <b-spinner v-if="load"></b-spinner>
-                    </b-button>
-                    <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
-                      Play
-                    </b-button>
-                    <div v-if="load" class="p-3">
-                      <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
-                      {{ percentage }}/100
-                    </div>
-                  </b-col>
-
-                  <b-col>
-                    <b-button
-                      v-if="!isGameRecommended"
-                      :disabled="hasItBeenRecommended"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="addToRecommendedGames(game)"
-                    >
-                      <span>Recommend</span>
-                    </b-button>
-                    <b-button
-                      v-else-if="isGameRecommended"
-                      variant="success"
-                      class="btn-voted ml-2"
-                      @click="removeFromRecommendedGames(game)"
-                    >
-                      <span class="show"> Recommended </span>
-                      <span class="hoverShow">Un-Recommend</span>
-                    </b-button>
-                  </b-col>
-                  <!-- <b-col>
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="assignTorrent"
-                    >
-                      Change Directory
-                    </b-button>
-                  </b-col> -->
-                </b-row>
                 <div>
-                  <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
-                    Pause
-                  </b-button>
-                  <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
-                    Resume
-                  </b-button>
-
-                  <transition>
-                    <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
-                      <loading-progress v-if="showDownloadProgress" :progress="progress" shape="line" size="160" width="160" height="6" />
-                      <br />
-                      <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
-                      <span v-else-if="paused">
-                        Seeding paused
-                      </span>
-                      <span v-else>
-                        Seeding
-                      </span>
-                      <br />
-                      <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
-                    </div>
-                  </transition>
+                  <b-row>
+                    <b-col class="col-7 torrent-status">
+                      <transition>
+                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                          <loading-progress
+                            v-if="showDownloadProgress"
+                            :progress="progress"
+                            shape="line"
+                            size="160"
+                            width="160"
+                            height="6"
+                          />
+                          <br />
+                          <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
+                          <span v-else-if="paused">
+                            Seeding paused
+                          </span>
+                          <span v-else>
+                            Seeding
+                          </span>
+                          <br />
+                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
+                        </div>
+                      </transition>
+                    </b-col>
+                    <b-col class="torrent-buttons">
+                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
+                        Pause Seeding
+                      </b-button>
+                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
+                        Resume Seeding
+                      </b-button>
+                      <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
+                        Copy MagnetURI
+                      </b-button>
+                    </b-col>
+                  </b-row>
                 </div>
               </template>
             </b-card-body>
@@ -980,6 +942,33 @@ export default {
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
+    },
+    copyMagnetURI() {
+      var textArea = document.createElement("textarea");
+      textArea.style.position = "fixed";
+      textArea.style.top = 0;
+      textArea.style.left = 0;
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = 0;
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      textArea.value = this.game.magnetURI;
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        var successful = document.execCommand("copy");
+        var msg = successful ? "successful" : "unsuccessful";
+        console.log("Copying text command was " + msg);
+      } catch (err) {
+        console.log("Oops, unable to copy");
+      }
+      document.body.removeChild(textArea);
     },
     formReset() {
       this.name = null;
