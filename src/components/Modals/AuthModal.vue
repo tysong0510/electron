@@ -495,7 +495,7 @@ export default {
     // },
     signIn() {
       //check in here if there is a value saved if not, call goTo
-      console.log("inside sign method...");
+      //console.log("inside sign method...");
       this.goTo("sign-in");
     },
 

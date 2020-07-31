@@ -4,14 +4,13 @@
     <!-- Can place router link right here-->
     <b-row class="mt-1 mb-4 pb-2">
       <b-col>
-        <router-link :to="{ name: 'store' }">
-          <!--This needs to be updated with correct store path, either top, featured, etc... -->
+        <b-link @click="routerLink()">
           <div
             class="d-inline-block"
             style="border-left: 1px solid; border-bottom: 1px solid; border-radius: 1px; height: .6em; width: .6em; transform: matrix(1, 1, -1, 1, 0, 0);"
           />
-          Back to Store
-        </router-link>
+          Back</b-link
+        >
       </b-col>
     </b-row>
     <div v-if="!pending.game && game && !pending.gameStatus" class="content">
@@ -134,9 +133,65 @@
                       </transition>
                     </div> -->
                   </div>
-                  <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
+                  <!-- <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
                     <img src="../assets/icons/settings.svg" alt="Settings" />
-                  </b-button>
+                  </b-button> -->
+                  <div v-else-if="currentRouteIs('my-game-details')">
+                    <b-row>
+                      <b-col class="game-buttons p-2">
+                        <b-button
+                          v-if="!isGameDownloaded"
+                          :disabled="load"
+                          variant="primary"
+                          size="lg"
+                          class="btn-buy"
+                          @click="startDownload()"
+                        >
+                          <span v-if="!load">Download</span>
+                          <b-spinner v-if="load"></b-spinner>
+                        </b-button>
+                        <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                          Play
+                        </b-button>
+                        <div v-if="load" class="p-3">
+                          <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
+                          {{ percentage }}/100
+                        </div>
+                      </b-col>
+
+                      <b-col class="p-2">
+                        <b-button
+                          v-if="!isGameRecommended"
+                          :disabled="hasItBeenRecommended"
+                          variant="outline-secondary"
+                          class="btn-voted ml-2"
+                          @click="addToRecommendedGames(game)"
+                        >
+                          <span>Recommend</span>
+                        </b-button>
+                        <b-button
+                          v-else-if="isGameRecommended"
+                          variant="success"
+                          class="btn-voted ml-2"
+                          @click="removeFromRecommendedGames(game)"
+                        >
+                          <span class="show"> Recommended </span>
+                          <span class="hoverShow">Un-Recommend</span>
+                        </b-button>
+                      </b-col>
+
+                      <!-- <b-col>
+                    <b-button
+                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
+                      variant="outline-secondary"
+                      class="btn-voted ml-2"
+                      @click="changeDirectory"
+                    >
+                      Change Directory
+                    </b-button>
+                  </b-col> -->
+                    </b-row>
+                  </div>
                 </b-col>
               </b-row>
               <b-row ref="hLine">
@@ -154,12 +209,12 @@
                     <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
                   </b-col>
                 </b-row>
-                <b-row class="mt-2" size="sm">
+                <!-- <b-row class="mt-2" size="sm">
                   <b-col>
                     <b-button variant="outline-secondary" class="btn-voted">
                       Voted
                     </b-button>
-                    <!--
+                    
                       Removing assigning torrents until P2P is back up
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
@@ -168,9 +223,9 @@
                       @click="assignTorrent"
                     >
                       Assign torrent
-                    </b-button-->
+                    </b-button
                   </b-col>
-                </b-row>
+                </b-row> -->
               </template>
 
               <!--
@@ -228,60 +283,41 @@
               </template> -->
 
               <template v-else-if="currentRouteIs('my-game-details')">
-                <b-row>
-                  <b-col class="game-buttons">
-                    <b-button
-                      v-if="!isGameDownloaded"
-                      :disabled="load"
-                      variant="primary"
-                      size="lg"
-                      class="btn-buy"
-                      @click="startDownload()"
-                    >
-                      <span v-if="!load">Download</span>
-                      <b-spinner v-if="load"></b-spinner>
-                    </b-button>
-                    <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
-                      Play
-                    </b-button>
-                    <div v-if="load" class="p-3">
-                      <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
-                      {{ percentage }}/100
-                    </div>
-                  </b-col>
+                <div v-if="!didVote">
+                  <b-row>
+                    <b-col>
+                      <b-button v-b-modal.ratingModal variant="primary" class="btn-voted"> Rate {{ game.title }} </b-button>
+                    </b-col>
+                  </b-row>
+                </div>
 
-                  <b-col>
-                    <b-button
-                      v-if="!isGameRecommended"
-                      :disabled="hasItBeenRecommended"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="addToRecommendedGames(game)"
-                    >
-                      <span>Recommend</span>
-                    </b-button>
-                    <b-button
-                      v-else-if="isGameRecommended"
-                      variant="success"
-                      class="btn-voted ml-2"
-                      @click="removeFromRecommendedGames(game)"
-                    >
-                      <span class="show"> Recommended </span>
-                      <span class="hoverShow">Un-Recommend</span>
-                    </b-button>
-                  </b-col>
-
-                  <!-- <b-col>
+                <div v-else>
+                  <b-row class="rating">
+                    <b-col class="pr-0 m-auto d-inline-flex align-middle">
+                      <span class="mr-3">
+                        {{ (game.vote && game.vote.toFixed(1)) || (game.rating && game.rating.toFixed(1)) }}
+                      </span>
+                      <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
+                    </b-col>
+                  </b-row>
+                  <b-row class="mt-2" size="sm">
+                    <b-col>
+                      <b-button variant="outline-secondary" class="btn-voted">
+                        Voted
+                      </b-button>
+                      <!--
+                      Removing assigning torrents until P2P is back up
                     <b-button
                       v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
                       variant="outline-secondary"
                       class="btn-voted ml-2"
-                      @click="changeDirectory"
+                      @click="assignTorrent"
                     >
-                      Change Directory
-                    </b-button>
-                  </b-col> -->
-                </b-row>
+                      Assign torrent
+                    </b-button-->
+                    </b-col>
+                  </b-row>
+                </div>
               </template>
             </b-card-body>
           </b-col>
@@ -302,6 +338,74 @@
         </b-col>
       </b-row>
     </div>
+    <b-modal id="ratingModal" ref="ratingModal" class="ratingModal" centered hide-footer title="Select Your Rating">
+      <b-row class="border-bottom border-top limited-height-row mt-3 pb-3 ">
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-form-radio v-model="ratingValue" value="1">
+            <b-icon-star></b-icon-star>
+          </b-form-radio>
+        </b-col>
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-form-radio v-model="ratingValue" value="2">
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+          </b-form-radio>
+        </b-col>
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-form-radio v-model="ratingValue" value="3">
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+          </b-form-radio>
+        </b-col>
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-form-radio v-model="ratingValue" value="4">
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+          </b-form-radio>
+        </b-col>
+        <b-col class="p-2 rounded-lg mt-1">
+          <b-form-radio v-model="ratingValue" value="5">
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+            <b-icon-star></b-icon-star>
+          </b-form-radio>
+        </b-col>
+      </b-row>
+      <b-row class="p-3">
+        <b-col class="w-100 d-flex">
+          <b-button
+            size="lg"
+            variant="primary"
+            class="btn-auth"
+            style="min-width: 180px; margin: 0 auto;"
+            :disabled="ratingLoad"
+            @click="rate()"
+          >
+            <span v-if="!ratingLoad" style="max-width: 1em; max-height: 1em;">Submit</span>
+            <b-spinner v-else></b-spinner>
+          </b-button>
+        </b-col>
+      </b-row>
+    </b-modal>
+    <b-modal
+      id="ratingSubmissionModal"
+      ref="ratingSubmissionModal"
+      class="ratingSubmissionModal"
+      centered
+      hide-footer
+      title="Submission Successful"
+    >
+      <b-row class="border-bottom border-top limited-height-row mt-3 pb-3 ">
+        <b-col class="p-2 rounded-lg mt-1">
+          <h2>Your Rating has been successfully submitted!</h2>
+        </b-col>
+      </b-row>
+    </b-modal>
   </div>
 </template>
 
@@ -328,6 +432,7 @@ import user from "../mixins/user";
 import { IS_LOGGED_IN } from "../store/modules/auth";
 const { ipcRenderer } = require("electron");
 import axios from "axios";
+import Axios from "axios";
 import request from "request";
 import fs from "fs";
 import child_process from "child_process";
@@ -376,7 +481,9 @@ export default {
       maxPercentage: 100,
       load: false,
       recommended: false,
-      unRecommended: true
+      unRecommended: true,
+      ratingValue: null,
+      ratingLoad: false
     };
   },
 
@@ -497,6 +604,20 @@ export default {
       }
       console.log("is game downloaded: ", isGameDownloaded);
       return isGameDownloaded;
+    },
+
+    didVote() {
+      var votedGames = this.$store.state.votedGames;
+
+      var voted = false;
+
+      for (var i = 0; i < votedGames; i++) {
+        if (votedGames[i].id == this.game.id) {
+          voted = true;
+        }
+      }
+      console.log("Was this game voted on: ", voted);
+      return voted;
     }
   },
 
@@ -510,6 +631,7 @@ export default {
     this.$store.dispatch("retrievePath");
     this.$store.dispatch("retrieveDownloadedGame");
     this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username);
+    this.$store.dispatch("getVotedGames", this.$store.state.auth.user.username);
   },
   updated() {
     this.isGameInstalled;
@@ -869,18 +991,29 @@ export default {
       } else {
         this.$store.dispatch("addToCart", game);
         console.log("Value of route params: ", this.$route.params);
-        console.log("Is user id null: ", this.$route.params.userId == null);
-        if (this.$route.params.userId != null) {
+        console.log("Is user id null: ", this.$route.params.user == null);
+        if (this.$route.params.user != null) {
           let userParams = {
-            userId: this.$route.params.userId,
+            userId: this.$route.params.user.id,
             gameId: this.game.id
           };
 
-          this.$store.dispatch("addUserRecommendedId", userParams);
+          let data = {
+            user: this.$route.params.user,
+            game: game
+          };
+
+          console.log("data to be added to recoUserAndGame: ", data);
+          this.$store.dispatch("addRecoUserAndGame", data);
           console.log("list of recommended userId's after adding: ", this.$store.state.recommendedUserId);
           this.$store.dispatch("addUserRecommendedIdIndex", userParams);
           console.log("list of user recommendedId indexes after adding to cart: " + this.$store.state.recommendedUserIdIndex);
         } else {
+          let data = {
+            user: null,
+            game: game
+          };
+          this.$store.dispatch("addRecoUserAndGame", data);
           this.$store.dispatch("addUserRecommendedIdIndex", null);
         }
       }
@@ -980,7 +1113,9 @@ export default {
 
         console.log("pathToGame using path.join windows: ", pathToGame);
         //console.log(await child_process.execFile(pathToGame));
-        return await child_process.execFile(pathToGame);
+        var username = this.$store.state.auth.user.username;
+        var password = this.$store.state.auth.user.password;
+        return await child_process.execFile(pathToGame, [username, password]);
       }
     },
 
@@ -1071,7 +1206,63 @@ export default {
         return null;
       }
     },
-    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME])
+    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME]),
+
+    routerLink() {
+      if (this.$route.params.user != null) {
+        this.$router.push({ name: "userDirectoryProfile", params: { user: this.$route.params.user } });
+      } else {
+        this.$router.go(-1);
+      }
+    },
+
+    async rate() {
+      console.log("The value for rate is: ", this.ratingValue);
+      this.ratingLoad = true;
+
+      const formData = new FormData();
+
+      formData.append("rating", this.ratingValue);
+
+      formData.append("gameTitle", this.game.title);
+
+      // try {
+      //   await axios.post("/games/rating",formData);
+      // } catch(err) {
+      //   console.log("There was an error submitting form data...");
+      // }
+
+      let params = {
+        rating: this.ratingValue,
+        gameTitle: this.game.title
+      };
+
+      Axios({ url: "/games/rating", params: params, method: "POST" })
+        .then(async resp => {
+          console.log("Successfully submitted rating, response is: ", resp);
+          let voteParams = {
+            game: this.game,
+            username: this.$store.state.auth.user.username
+          };
+          this.$store.dispatch("setVotedGames", voteParams);
+          this.ratingLoad = false;
+        })
+        .catch(err => {
+          console.log("There was an error submitting rating: ", err);
+          this.ratingLoad = false;
+        });
+
+      this.hideRatingModal();
+
+      this.showSubmissionModal();
+    },
+
+    showSubmissionModal() {
+      this.$refs["ratingSubmissionModal"].show();
+    },
+    hideRatingModal() {
+      this.$refs["ratingModal"].hide();
+    }
   }
 };
 </script>

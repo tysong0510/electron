@@ -23,6 +23,7 @@ import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
 
 const { autoUpdater } = require("electron-updater");
+autoUpdater.autoDownload = false; //should resolve issue of ENOENT, as this arises from being called so many times
 autoUpdater.logger = require("electron-log");
 const { dialog } = require("electron");
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
@@ -102,7 +103,7 @@ function createWindow({ debug }) {
 
       var index = 9;
       if (index + 1 > str.length) {
-        dialog.showErrorBox("Error", "There was no username present...");
+        //dialog.showErrorBox("Error", "There was no username present...");
       } else {
         var username = "";
 
@@ -189,8 +190,9 @@ ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
   let win = new BrowserWindow({ width: 960, height: 540 });
   //win.loadURL(`https://www.voxpopgames.com/payment/buyGameByIds`, {
   //win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
-  win.loadURL(`http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/payment/buyGameByIds`, {
-    //win.loadURL(`https://www.voxpopgames.site/payment/buyGameByIds`, {
+  //win.loadURL(`http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/payment/buyGameByIds`, {
+  win.loadURL(`https://www.voxpopgames.site/payment/buyGameByIds`, {
+    //win.loadURL(`voxpopgames.site/payment/buyGameByIds`, {
     extraHeaders:
       "Authorization: " + userToken + "\n" + "amount: " + amount + "\n" + "token: " + gameIDs + "\n" + "recommender: " + recommenderID
   });
@@ -215,41 +217,38 @@ app.on("open-url", (event, data) => {
 
   if (index + 1 > link.length) {
     //output error message
-    dialog.showErrorBox("open-url", "There is no username attatched to this protocol, please try again");
+    dialog.showErrorBox("open-url", "There is no username/game title attatched to this protocol, please try again");
   } else {
     var username = "";
+
+    /**
+     * This is for getting the recommended games to go to game details...
+     */
+    // var gameTitle = "";
+    // var slashIndex = link.indexOf("/");
+
+    // if (slashIndex > 0) {
+    //   username = link.substring(index, slashIndex - 1);
+    //   gameTitle = link.substring(slashIndex + 1, link.length - 1);
+    // } else {
+    //   username = link.substring(index, slashIndex - 1);
+    //   gameTitle = null;
+    // }
     for (var i = index; i < link.length; i++) {
       username += link.charAt(i);
     }
     dialog.showErrorBox("open-url", "The username retrieved was: " + username);
+    //dialog.showErrorBox("GameTitle", "game title retrieved: ", gameTitle);
 
     if (win) {
+      // var externalData =  {
+      //   username: username,
+      //   gameTitle: gameTitle
+      // }
+
+      // console.log("data to be sent is: ", externalData);
       win.webContents.send("info", username);
     }
-
-    //export default  username;
-    //result = username;
-
-    //dialog.showErrorBox("open-url", "You arrived in open url and there is not an available window");
-    // app.on("ready", () => {
-    //   let window = new BrowserWindow({
-    //     width: 960,
-    //     height: 540,
-    //     webPreferences: {
-    //       nodeIntegration: true
-    //     }
-    //   });
-    //   createProtocol("voxpop");
-    //   window.loadURL("voxpop://./externalLink.html");
-    //   window.webContents.openDevTools({ mode: "detach" });
-    //   window.webContents.send("info", { msg: "hello from main" });
-    //   // window.webContents.once("dom-ready", () => {
-    //   //   win.webContents.send("info", "testing");
-    //   // });
-    //   //module.testing = username;
-    //   //window.loadURL("app://./externalLink.html");
-    //   //window.loadURL("voxpop://./externalLink.html");
-    // });
   }
 
   // console.log("app path: ", app.getAppPath());
@@ -273,15 +272,17 @@ function logEverywhere(s) {
 /**
  * To check for an update once an application turns on, then the interval below should check again in its respected time
  *
- * Untested, may mess up application
+ * Seems that when application initializes and checks for update, it may be causing issues.
  *
- * TODO: Test this...
+ * TODO: Test without below to see if issues arise or not
  */
-app.on("ready", () => {
-  if (!isDevelopment) {
-    autoUpdater.checkForUpdates();
-  }
-});
+
+// app.on("ready", () => {
+//   if (!isDevelopment) {
+//     autoUpdater.checkForUpdates();
+//   }
+// });
+
 //   autoUpdater.checkForUpdates();
 
 //   autoUpdater.on("checking-for-update", () => {

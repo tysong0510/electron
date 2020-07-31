@@ -87,6 +87,10 @@ export default {
               title: "Featured"
             },
             {
+              href: "/store/comingSoon",
+              title: "Coming Soon"
+            },
+            {
               href: "/store/all",
               title: "All"
             }
@@ -136,7 +140,7 @@ export default {
         {
           href: "/news",
           title: "News",
-          icon: "icon icon-news"
+          icon: "icon icon-news",
           /*
             disabled: true
             badge: {
@@ -144,21 +148,22 @@ export default {
                 // class:''
             }
             */
-          /*child: [
+          child: [
             {
               href: "newsPortal",
               title: "News Portal",
-              class: !this.$store.state.auth.user.role == "staff" ? "d-none" : ""
+              //class: !this.$store.state.auth.user.role == "staff" ? "d-none" : ""
               //class: !this[USER].role == 'staff' ? "d-none" : ""
+              class: !this.$store.getters["isAuthorized"] ? "d-none" : ""
             }
-          ]*/
+          ]
         },
         {
           href: "/developerPortal",
           title: "Dev Portal",
           //need an icon
           icon: "icon icon-devPortal",
-          class: !this.$store.getters[IS_LOGGED_IN] ? "d-none" : ""
+          class: !this.$store.getters["isAuthorized"] ? "d-none" : ""
         },
 
         {

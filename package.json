@@ -2,8 +2,8 @@
   "name": "voxpop",
   "productName": "VoxPop Games",
   "description": "P2P Application For Gaming",
-  "version": "1.0.82",
-  "repository": "github:voxpopgames/electron",
+  "version": "1.0.84",
+  "repository": "github:voxpopgames/electronUpdatingRepo",
   "private": false,
   "scripts": {
     "build": "vue-cli-service electron:build",

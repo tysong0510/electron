@@ -560,8 +560,9 @@ const demoData = {
     tempInstallPath: null,
     tempDownloadedGames: [],
     recommendedGames: [],
-    recommendedUserId: [],
+    recoUserAndGame: [],
     recommendedUserIdIndex: [],
+    votedGames: [],
     absolutePath: null
   },
   mutations: {
@@ -807,25 +808,27 @@ const demoData = {
         console.log("error clearing recommended games: ", err);
       });
     },
-    addUserRecommendedId(state, userParams) {
-      state.recommendedUserId[userParams.gameId] = userParams.userId;
+    addRecoUserAndGame(state, data) {
+      //state.recommendedUserId[userParams.gameId] = userParams.userId;
       //how should user id be added?
+      //state.recoUserAndGame.push(userParams.userId);
+
+      if (data == null) {
+        state.recoUserAndGame.push(0);
+      } else {
+        state.recoUserAndGame.push(data);
+      }
     },
-    removeUserRecommendedId(state, userParams) {
-      state.recommendedUserId[userParams.gameId] = null;
+    removeRecoUserAndGame(state, index) {
+      //state.recommendedUserId[userParams.gameId] = null;
+      state.recoUserAndGame.splice(index, 1);
     },
 
-    clearUserRecommendedId(state) {
-      state.recommendedUserId = [];
+    clearRecoUserAndGame(state) {
+      state.recoUserAndGame = [];
     },
     addUserRecommendedIdIndex(state, params) {
       console.log("inside addUserRecommendedIdIndex mutation");
-
-      // if (isNull == true) {
-      //   state.recommendedUserIdIndex.push(0);
-      // } else {
-      //   state.recommendedUserIdIndex.push(1);
-      // }
 
       if (params == null) {
         state.recommendedUserIdIndex.push(0);
@@ -842,6 +845,26 @@ const demoData = {
     },
     clearUserRecommendedIdIndex(state) {
       state.recommendedUserIdIndex = [];
+    },
+    setVotedGames(state, params) {
+      state.votedGames.push(params.game);
+
+      console.log("list of voted games: ", state.votedGames);
+
+      storage.set(params.username, state.votedGames, function(err) {
+        if (err) {
+          console.log("There was an error trying to save voted games...");
+        }
+      });
+    },
+    getVotedGames(state, username) {
+      storage.get(username, function(err, data) {
+        if (err) {
+          console.log("there was an error retrieving voted games: ", err);
+        } else {
+          state.votedGames = data;
+        }
+      });
     }
   },
   actions: {
@@ -893,14 +916,14 @@ const demoData = {
       console.log("recoParams in action: ", recoParams);
       context.commit("clearRecommendedGames", recoParams);
     },
-    addUserRecommendedId(context, userParams) {
-      context.commit("addUserRecommendedId", userParams);
+    addRecoUserAndGame(context, data) {
+      context.commit("addRecoUserAndGame", data);
     },
-    removeUserRecommendedId(context, userParams) {
-      context.commit("removeUserRecommendedId", userParams);
+    removeRecoUserAndGame(context, index) {
+      context.commit("removeRecoUserAndGame", index);
     },
-    clearUserRecommendedId(context) {
-      context.commit("clearUserRecommendedId");
+    clearRecoUserAndGame(context) {
+      context.commit("clearRecoUserAndGame");
     },
     addUserRecommendedIdIndex(context, params) {
       context.commit("addUserRecommendedIdIndex", params);
@@ -910,6 +933,12 @@ const demoData = {
     },
     clearUserRecommendedIdIndex(context, index) {
       context.commit("clearUserRecommendedIdIndex", index);
+    },
+    setVotedGames(context, params) {
+      context.commit("setVotedGames", params);
+    },
+    getVotedGames(context, username) {
+      context.commit("getVotedGames", username);
     },
 
     async [START_GAME]({ state, getters }, { gameId }) {

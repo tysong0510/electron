@@ -2,13 +2,15 @@
   <div>
     <b-row class="mt-1 mb-4 pb-2">
       <b-col>
-        <router-link :to="{ name: 'userDirectory' }">
-          <div
-            class="d-inline-block"
-            style="border-left: 1px solid; border-bottom: 1px solid; border-radius: 1px; height: .6em; width: .6em; transform: matrix(1, 1, -1, 1, 0, 0);"
-          />
-          Back to User Directory
-        </router-link>
+        <div v-if="loggedIn">
+          <router-link :to="{ name: 'userDirectory' }">
+            <div
+              class="d-inline-block"
+              style="border-left: 1px solid; border-bottom: 1px solid; border-radius: 1px; height: .6em; width: .6em; transform: matrix(1, 1, -1, 1, 0, 0);"
+            />
+            Back to User Directory
+          </router-link>
+        </div>
       </b-col>
     </b-row>
 
@@ -84,47 +86,6 @@
     </b-row>
 
     <div v-if="hasRecommendedGames" class="m-3">
-      <!-- <horizontal-view
-        v-once
-        title="Recommended Games"
-        class="text-white pb-5 mb-4 border-bottom"
-        title-class="font-weight-normal"
-        title-tag="h4"
-        :view-all-to="{ name: 'userRecommendationPage', params: { recoUser: user } }"
-      >
-      
-       <router-link :to="{ name: 'userRecommendationPage', params: { recoUser: user } }">
-         Test link button
-        </router-link>
-        <b-col
-          v-for="(game, index) in recommendedGames.slice(0, maxElements)"
-          :key="index"
-          class="pl-2 pr-2 item rounded-lg pb-2"
-          :style="{ 'max-width': 100 / maxElements + '%' }"
-          tag="a"
-          :href="getUrlByRoute({ name: 'my-game-details', params: { id: game.id } })"
-        >
-          <b-card class="border-0" no-body>
-            <b-card-body class="p-0">
-              <b-row class="game-image">
-                <b-col class="h-100 m-auto">
-                  <b-card-img :src="game.images.main" :alt="game.title" img-top class="rounded-lg" />
-                </b-col>
-              </b-row>
-              <b-row>
-                <b-col>
-                  <b-card-title title-tag="h4" class="mb-2" style="font-size: .85em;">
-                    {{ game.title }}
-                  </b-card-title>
-                  <b-card-text style="font-size: 0.7em;">
-                  {{ game.lastPlayed | distanceInWordsToNow({ addSuffix: true }) }}
-                </b-card-text>
-                </b-col>
-              </b-row>
-            </b-card-body>
-          </b-card>
-        </b-col>
-     </horizontal-view> -->
       <b-row>
         <b-col>
           <h4 class="text-white font-weight-normal">Recommended Games</h4>
@@ -146,7 +107,7 @@
           class="p-2 rounded-lg game mt-1 mb-1 testing"
           tag="a"
         >
-          <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, userId: user.id } }">
+          <router-link class="float-right view-all text-muted" :to="{ name: 'game-details', params: { id: game.id, user: user } }">
             <b-card class="border-0" no-body>
               <b-card-body class="p-0">
                 <b-row class="game-image">
@@ -239,10 +200,11 @@
 </template>
 <script>
 import Axios from "axios";
-import axios from "axios";
-const { ipcRenderer } = require("electron");
+// import axios from "axios";
+// const { ipcRenderer } = require("electron");
 
 import currency from "../mixins/currency";
+import { IS_LOGGED_IN } from "../store/modules/auth";
 
 export default {
   name: "UserDirectoryProfile",
@@ -271,11 +233,18 @@ export default {
     },
     hasRecommendedGames() {
       console.log("recommendedGames", this.$store.state.recommendedGames);
-      if (this.recommendedGames != null && this.recommendedGames.length > 0) {
+      if (this.recommendedGames != null && this.recommendedGames.length > 4) {
+        //Will only show recommended games if it is 5 or more
         console.log("recommendedGames has a recommended game");
         return true;
       }
       console.log("recommended games is null...");
+      return false;
+    },
+    loggedIn() {
+      if (this.$store.getters[IS_LOGGED_IN]) {
+        return true;
+      }
       return false;
     }
   },
@@ -295,33 +264,8 @@ export default {
         console.log("Error retrieving data from recommendedGames: ", err);
         this.recommendedGames = [];
       });
-
-    ipcRenderer.on("info", (event, data) => {
-      console.log("event: ", event);
-      console.log("data: ", data);
-      // this.$router.push({ name: "userDirectory" });
-
-      if (this.firstTime) {
-        axios
-          .get("/auth/external/link/users")
-          .then(response => {
-            console.log("inside axios then...");
-            var users = response.data;
-            for (var i = 0; i < users.length; i++) {
-              if (users[i].username == data) {
-                console.log("found user: ", users[i].username);
-                this.$router.push({ name: "userDirectoryProfile", params: { user: users[i] } });
-              }
-            }
-          })
-          .catch(e => {
-            console.log("error retrieving users: ", e);
-          });
-        this.firstTime = false;
-        console.log("router: ", this.$router);
-      }
-    });
   },
+
   methods: {
     addDeveloper() {
       this.loading = true;
