@@ -297,11 +297,11 @@
                             height="6"
                           />
                           <br />
-                          <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
-                          <span v-else-if="paused">
+                          <span v-if="!seeding && showDownloadProgress">Downloading: {{ progressDisplay }}</span>
+                          <span v-if="paused && seeding">
                             Seeding paused
                           </span>
-                          <span v-else>
+                          <span v-if="!paused && seeding">
                             Seeding
                           </span>
                           <br />
