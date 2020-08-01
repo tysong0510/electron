@@ -316,9 +316,9 @@
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume Seeding
                       </b-button>
-                      <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
+                      <!-- <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
                         Copy MagnetURI
-                      </b-button>
+                      </b-button> -->
                     </b-col>
                   </b-row>
                 </div>
