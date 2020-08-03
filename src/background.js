@@ -21,6 +21,7 @@ import { ACTION_REFRESH } from "./store/modules/auth";
 import { INSTALL_PATH } from "./store/modules/path";
 import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
+import { baseURL } from "./apiConfig";
 
 const { autoUpdater } = require("electron-updater");
 autoUpdater.autoDownload = false; //should resolve issue of ENOENT, as this arises from being called so many times
@@ -87,7 +88,7 @@ function createWindow({ debug }) {
     createProtocol("app");
     // Load the index.html when not in development
     win.loadURL("app://./index.html"); // this loads the original page
-    if (!isDevelopment || enableDebug || debug) {
+    if (isDevelopment || enableDebug || debug) {
       win.webContents.openDevTools({ mode: "detach" });
     }
   }
@@ -145,7 +146,7 @@ function createWindow({ debug }) {
 }
 
 //Attempting to open a second window for windows
-app.requestSingleInstanceLock();
+//app.requestSingleInstanceLock();
 app.on("second-instance", (event, argv, cwd) => {
   /* ... */
   //dialog.showErrorBox("Second", "second instance here");
@@ -187,12 +188,14 @@ ipcMain.on("open-new-window", (event, gameIDs, amount, recommenderID) => {
   //console.log(event);
   console.log("amount price is: " + amount);
   console.log("gameIds to be sent: ", gameIDs);
+  console.log("base url is: ", baseURL);
   let win = new BrowserWindow({ width: 960, height: 540 });
   //win.loadURL(`https://www.voxpopgames.com/payment/buyGameByIds`, {
   //win.loadURL(`http://localhost:5000/payment/buyGameByIds`, {
   //win.loadURL(`http://voxpopapitestenviornment-env.eba-wkri97ms.us-east-2.elasticbeanstalk.com/payment/buyGameByIds`, {
-  win.loadURL(`https://www.voxpopgames.site/payment/buyGameByIds`, {
-    //win.loadURL(`voxpopgames.site/payment/buyGameByIds`, {
+  //win.loadURL(`https://www.voxpopgames.site/payment/buyGameByIds`, {
+  //win.loadURL(`voxpopgames.site/payment/buyGameByIds`, {
+  win.loadURL(baseURL + `payment/buyGameByIds`, {
     extraHeaders:
       "Authorization: " + userToken + "\n" + "amount: " + amount + "\n" + "token: " + gameIDs + "\n" + "recommender: " + recommenderID
   });
@@ -527,6 +530,10 @@ async function init() {
       win.show();
     }
   });
+
+  /**
+   * If log out gives issues, put to contact API to logout from here as well if user is logged in
+   */
 
   app.on("before-quit", e => {
     if (app.isQuitting) return;

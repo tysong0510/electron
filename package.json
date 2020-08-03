@@ -2,7 +2,7 @@
   "name": "voxpop",
   "productName": "VoxPop Games",
   "description": "P2P Application For Gaming",
-  "version": "1.0.84",
+  "version": "1.1.0",
   "repository": "github:voxpopgames/electronUpdatingRepo",
   "private": false,
   "scripts": {

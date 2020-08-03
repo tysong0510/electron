@@ -366,19 +366,30 @@ export default {
         // Stop all torrents and clear state
         // console.log('sending wt-reset on logout');
         // (ipcMain || ipcRenderer).send('wt-reset');
-        commit(CLEAR_TORRENTS);
 
-        commit(MUTATION_LOGOUT, ACTION_LOGOUT);
+        Axios({ url: "/auth/logout", method: "GET" })
+          .then(async resp => {
+            console.log("log out was successful: ", resp);
+            //resolve(resp);
 
-        delete Axios.defaults.headers.common.authorization;
+            commit(CLEAR_TORRENTS);
 
-        if (ipcMain) {
-          ipcMain.emit(UNAUTHORIZED);
-        } else if (ipcRenderer) {
-          ipcRenderer.emit(UNAUTHORIZED);
-        }
+            commit(MUTATION_LOGOUT, ACTION_LOGOUT);
 
-        resolve();
+            delete Axios.defaults.headers.common.authorization;
+
+            if (ipcMain) {
+              ipcMain.emit(UNAUTHORIZED);
+            } else if (ipcRenderer) {
+              ipcRenderer.emit(UNAUTHORIZED);
+            }
+
+            resolve();
+          })
+          .catch(err => {
+            //reject(err);
+            console.log("There was an error logging out: ", err);
+          });
       });
     }
   },

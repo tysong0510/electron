@@ -1073,7 +1073,8 @@ export default {
       // return Number.parseFloat(this[USER].numberOfTokens) || 0
       var coins = this[USER].numberOfTokens;
       coins *= 100;
-      return coins.toFixed(2);
+      //return coins.toFixed(2);
+      return coins;
     }
   },
   watch: {
