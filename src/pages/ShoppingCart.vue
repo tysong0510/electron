@@ -24,7 +24,7 @@
                 <p>{{ obj.game.developer }}</p>
               </b-row>
               <b-row v-if="obj.user != null">
-                <p>Recommended by: {{ obj.user.username }}</p>
+                <p>Recommended by {{ obj.user.username }}: {{ obj.user.id }}</p>
               </b-row>
             </b-col>
 

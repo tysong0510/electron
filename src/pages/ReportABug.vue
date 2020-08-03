@@ -19,12 +19,28 @@
     </b-row>
     <p class="text-white p-3">Please Include the Client Version Number (found below) for any issues you have encountered</p>
 
-    <p class="text-right pt-4">Dev 1.0.84</p>
+    <div>
+      <p v-if="!isLive">TEST ENV</p>
+      <p class="text-right pt-4">Dev 1.1.0</p>
+    </div>
   </b-container>
 </template>
 
 <script>
-export default {};
+import { baseURL } from "../apiConfig";
+
+export default {
+  computed: {
+    isLive() {
+      var isLive = false;
+      if (baseURL === "https://www.voxpopgames.site/") {
+        isLive = true;
+      }
+      console.log("Is this live: ", isLive);
+      return isLive;
+    }
+  }
+};
 </script>
 
 <style>
