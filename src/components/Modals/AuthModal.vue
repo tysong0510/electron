@@ -129,6 +129,12 @@
                       {{ validationErrors.password }}
                     </b-form-invalid-feedback>
                   </b-form-group>
+                  <b-form-group label="Enter the ID of the person who recommended you: " label-for="recommender" class="text-left">
+                    <b-form-input id="recommender" v-model="recommenderID" name="recommender" type="number" />
+                    <b-form-invalid-feedback :state="!recommenderIDError">
+                      {{ recommenderIDMessage }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </b-form>
               </b-col>
             </b-row>
@@ -377,7 +383,10 @@ export default {
       usernameValidation: true,
       emailValidation: true,
       msg: "",
-      validationErrors: {}
+      validationErrors: {},
+      recommenderID: null,
+      recommenderIDError: false,
+      recommenderIDMessage: null
     };
   },
   computed: {
@@ -561,6 +570,8 @@ export default {
     register(evt) {
       evt.preventDefault();
 
+      //console.log("Value of recommenderID: ", this.recommenderID);
+
       const that = this;
       this.loading = true;
 
@@ -573,7 +584,8 @@ export default {
           email: this.email,
           username: this.username,
           role: this.role, //Submitting user role from the one they picked on sign in
-          password: this.password
+          password: this.password,
+          recommenderID: this.recommenderID
         })
         .then(() => {
           this.loading = false;
@@ -591,6 +603,11 @@ export default {
 
           if (res && res.data) {
             this.validationErrors = res.data.userValidationResult || {};
+            console.log("There was an error registering: ", res);
+            if (res.status == 404) {
+              this.recommenderIDError = true;
+              this.recommenderIDMessage = res.data.errorMessage;
+            }
           }
 
           // if (res.status === 500) {
