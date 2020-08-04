@@ -83,59 +83,7 @@
                         {{ percentage }}/100
                       </div>
                     </div>
-                    <!-- <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
-                      <b-button variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                      </b-button>
-                      </div> -->
-
-                    <!-- Seeding information below... -->
-                    <!-- <div v-else>
-                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
-                        Pause
-                      </b-button>
-                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
-                        Resume
-                      </b-button>
-                      <b-button
-                        v-if="showPlayBtn"
-                        variant="primary"
-                        size="lg"
-                        class="btn-buy"
-                        :disabled="!isGameInstalled"
-                        @click="playGame()"
-                      >
-                        Play
-                      </b-button>
-
-                      <transition>
-                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
-                          <loading-progress
-                            v-if="showDownloadProgress"
-                            :progress="progress"
-                            shape="line"
-                            size="160"
-                            width="160"
-                            height="6"
-                          />
-                          <br />
-                          <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
-                          <span v-else-if="paused">
-                            Seeding paused
-                          </span>
-                          <span v-else>
-                            Seeding
-                          </span>
-                          <br />
-                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
-                        </div>
-                      </transition>
-                    </div> -->
                   </div>
-                  <!-- <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
-                    <img src="../assets/icons/settings.svg" alt="Settings" />
-                  </b-button> -->
                   <div v-else-if="currentRouteIs('my-game-details')">
                     <b-row>
                       <b-col class="game-buttons p-2">
@@ -150,7 +98,7 @@
                           <span v-if="!load">Download</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
-                        <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                        <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
                           Play
                         </b-button>
                         <div v-if="load" class="p-3">
@@ -209,81 +157,10 @@
                     <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
                   </b-col>
                 </b-row>
-                <!-- <b-row class="mt-2" size="sm">
-                  <b-col>
-                    <b-button variant="outline-secondary" class="btn-voted">
-                      Voted
-                    </b-button>
-                    
-                      Removing assigning torrents until P2P is back up
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="assignTorrent"
-                    >
-                      Assign torrent
-                    </b-button
-                  </b-col>
-                </b-row> -->
               </template>
 
-              <!--
-  This will be used for when torrenting is back in action...-->
-
-              <!-- <template v-else-if="currentRouteIs('my-game-details')">
-                <b-row>
-                  <b-col class="game-buttons">
-                    <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
-                      Play
-                    </b-button>
-
-                     <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
-                      <span v-if="!installing">Install</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                    </b-button>
-
-                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                      </b-button>
-                    
-                    <b-button
-                      v-if="isGameInstalled"
-                      variant="light"
-                      class="text-primary border-0 btn-delete"
-                      :disabled="uninstalling"
-                      @click="uninstallGame()"
-                    >
-                      <span v-if="!uninstalling">Uninstall</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                    </b-button>
-                  </b-col>
-                  <b-col>
-                    <b-button
-                      v-if="!isGameRecommended"
-                      :disabled="hasItBeenRecommended"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="addToRecommendedGames(game)"
-                    >
-                      <span>Recommend</span>
-                    </b-button>
-                    <b-button
-                      v-else-if="isGameRecommended"
-                      variant="success"
-                      class="btn-voted ml-2"
-                      @click="removeFromRecommendedGames(game)"
-                    >
-                      <span class="show"> Recommended </span>
-                      <span class="hoverShow">Un-Recommend</span>
-                    </b-button>
-                  </b-col>
-                </b-row>
-              </template> -->
-
               <template v-else-if="currentRouteIs('my-game-details')">
-                <div>
+                <div v-if="!load">
                   <b-row>
                     <b-col class="col-7 torrent-status">
                       <transition>
@@ -712,6 +589,8 @@ export default {
           req.on("end", () => {
             alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
             this.downloadDataFile(filePath);
+
+            // TODO: Need to add logic to seed all files download from the server.
           });
         } else {
           this.load = false;
