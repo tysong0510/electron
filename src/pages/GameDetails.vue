@@ -44,7 +44,6 @@
                 <b-col cols="5" class="text-center">
                   <div v-if="currentRouteIs('game-details')">
                     <div v-if="showBuyBtn && !gameStatus">
-                      <!--<b-button variant="primary" size="lg" class="btn-buy" :disabled="pending.buyGame" @click="gameBuy()">-->
                       <b-button
                         v-if="game.price != 500 && game.price != 250"
                         variant="primary"
@@ -101,7 +100,7 @@
                         <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
                           Play
                         </b-button>
-                        <div v-if="load" class="p-3">
+                        <div v-if="load && !isGameDownloaded" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -127,17 +126,6 @@
                           <span class="hoverShow">Un-Recommend</span>
                         </b-button>
                       </b-col>
-
-                      <!-- <b-col>
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="changeDirectory"
-                    >
-                      Change Directory
-                    </b-button>
-                  </b-col> -->
                     </b-row>
                   </div>
                 </b-col>
@@ -160,7 +148,7 @@
               </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
-                <div v-if="!load">
+                <div v-if="isGameDownloaded">
                   <b-row>
                     <b-col class="col-7 torrent-status">
                       <transition>
@@ -520,6 +508,12 @@ export default {
     currentRouteIs(route) {
       return route === this.$router.currentRoute.name;
     },
+    isMagnetLinkValid(magnetLink) {
+      if (magnetLink === null || magnetLink.search("magnet:?") === -1) {
+        return false;
+      }
+      return true;
+    },
     description(text) {
       if (text) {
         return (
@@ -562,7 +556,7 @@ export default {
         this.$store.dispatch("savePath", filePath);
       }
 
-      if (this.game.magnetURI != null && this.game.dataFile != null) {
+      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile != null) {
         if (filePath) {
           var recievedBytes = 0;
           var totalBytes = 0;
@@ -598,8 +592,7 @@ export default {
         }
       }
 
-      if (this.game.magnetURI && this.game.dataFile === null) {
-        console.log(filePath);
+      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile === null) {
         if (filePath) {
           let recievedBytesM = 0;
           let totalBytesM = 0;
@@ -643,8 +636,6 @@ export default {
           this.load = false;
           console.log("user cancelled...");
         }
-      } else {
-        alert("There is no game file available...");
       }
     },
 
@@ -880,7 +871,9 @@ export default {
       }
     },
     startDownload() {
-      if (this.game.magnetURI) {
+      console.log("======================= Check if URL is valid ============================");
+      console.log(this.isMagnetLinkValid(this.game.magnetURI));
+      if (this.isMagnetLinkValid(this.game.magnetURI)) {
         if (this.$store.getters.findTorrentByGameId(this.game.id)) {
           return;
         }
