@@ -94,7 +94,7 @@
                           class="btn-buy"
                           @click="startDownload()"
                         >
-                          <span v-if="!load">Download</span>
+                          <span v-if="!load">{{ isMagnetLinkValid(game.magnetURI) ? "Torrent Download" : "Server Download" }}</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
                         <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
@@ -529,17 +529,14 @@ export default {
       return "";
     },
     startDownloadingForSeeding() {
+      console.log("startDownloading from the torrent");
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
     },
     startDownloading() {
-      console.log("startDownloading");
+      console.log("startDownloading from the server");
       this.load = true;
-      this[START_DOWNLOAD_GAME]({
-        gameId: this.game.id
-      });
-
       //create file path hidden inside voxpop directory
       var filePath = this.createDirectory();
 
@@ -871,15 +868,13 @@ export default {
       }
     },
     startDownload() {
-      console.log("======================= Check if URL is valid ============================");
-      console.log(this.isMagnetLinkValid(this.game.magnetURI));
       if (this.isMagnetLinkValid(this.game.magnetURI)) {
         if (this.$store.getters.findTorrentByGameId(this.game.id)) {
           return;
         }
+        this.startDownloadingForSeeding();
+      } else if (this.game.magnetURI !== null) {
         this.startDownloading();
-      } else {
-        confirm("There is no seeds available for this game");
       }
     },
     assignTorrent() {
