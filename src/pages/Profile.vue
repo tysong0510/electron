@@ -1089,7 +1089,6 @@ export default {
     this.getUserFilesStatistic();
     this.fixAndGetStats();
     this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username); //to load state.recommendedGames with list of recommended games
-    console.log("this user is: ", this.$store.state.auth.user);
 
     let salesParam = {
       username: this.$store.state.auth.user.username
@@ -1108,14 +1107,12 @@ export default {
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
     fixAndGetStats() {
-      console.log("Fix and get stats");
       this.fixStatisticsPending = true;
 
       // this.$store.dispatchPromise("fixStatistics").then((res) => {
       //   console.log(res);
-      this.$store.dispatchPromise("getGamesStatistics").then(res => {
+      this.$store.dispatchPromise("getGamesStatistics").then(() => {
         this.fixStatisticsPending = false;
-        console.log("getGamesStatistics", res);
       });
       // });
     },

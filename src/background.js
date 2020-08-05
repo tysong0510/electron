@@ -131,7 +131,7 @@ function createWindow({ debug }) {
 
   win.on("close", e => {
     if (process.platform !== "darwin") {
-      console.log("quitting1");
+      // console.log("quitting1");
       app.quit();
     }
     if (!app.isQuitting) {

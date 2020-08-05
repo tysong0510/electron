@@ -60,7 +60,6 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.matched.some(record => record.meta.auth)) {
-    console.log("not sure what goes here...");
     if (store.getters[IS_LOGGED_IN]) {
       next();
       return;

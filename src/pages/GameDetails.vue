@@ -44,7 +44,6 @@
                 <b-col cols="5" class="text-center">
                   <div v-if="currentRouteIs('game-details')">
                     <div v-if="showBuyBtn && !gameStatus">
-                      <!--<b-button variant="primary" size="lg" class="btn-buy" :disabled="pending.buyGame" @click="gameBuy()">-->
                       <b-button
                         v-if="game.price != 500 && game.price != 250"
                         variant="primary"
@@ -69,7 +68,7 @@
                         variant="primary"
                         size="lg"
                         class="btn-buy"
-                        @click="startDownload()"
+                        @click="startDownloadingForSeeding()"
                       >
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
@@ -83,59 +82,7 @@
                         {{ percentage }}/100
                       </div>
                     </div>
-                    <!-- <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
-                      <b-button variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                      </b-button>
-                      </div> -->
-
-                    <!-- Seeding information below... -->
-                    <!-- <div v-else>
-                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
-                        Pause
-                      </b-button>
-                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
-                        Resume
-                      </b-button> -->
-                    <!--                      <b-button-->
-                    <!--                        v-if="showPlayBtn"-->
-                    <!--                        variant="primary"-->
-                    <!--                        size="lg"-->
-                    <!--                        class="btn-buy"-->
-                    <!--                        :disabled="!isGameInstalled"-->
-                    <!--                        @click="playGame()"-->
-                    <!--                      >-->
-                    <!--                        Play-->
-                    <!--                      </b-button>-->
-
-                    <!-- <transition>
-                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
-                          <loading-progress
-                            v-if="showDownloadProgress"
-                            :progress="progress"
-                            shape="line"
-                            size="160"
-                            width="160"
-                            height="6"
-                          />
-                          <br />
-                          <span v-if="!seeding">Downloading: {{ progressDisplay }}</span>
-                          <span v-else-if="paused">
-                            Seeding paused
-                          </span>
-                          <span v-else>
-                            Seeding
-                          </span>
-                          <br />
-                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
-                        </div>
-                      </transition>
-                    </div> -->
                   </div>
-                  <!-- <b-button v-else-if="currentRouteIs('my-game-details')" class="float-right btn-settings" variant="link">
-                    <img src="../assets/icons/settings.svg" alt="Settings" />
-                  </b-button> -->
                   <div v-else-if="currentRouteIs('my-game-details')">
                     <b-row>
                       <b-col class="game-buttons p-2">
@@ -147,13 +94,13 @@
                           class="btn-buy"
                           @click="startDownload()"
                         >
-                          <span v-if="!load">Download</span>
+                          <span v-if="!load">{{ isMagnetLinkValid(game.magnetURI) ? "Torrent Download" : "Server Download" }}</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
-                        <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                        <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
                           Play
                         </b-button>
-                        <div v-if="load" class="p-3">
+                        <div v-if="load && !isGameDownloaded" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -179,17 +126,6 @@
                           <span class="hoverShow">Un-Recommend</span>
                         </b-button>
                       </b-col>
-
-                      <!-- <b-col>
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="changeDirectory"
-                    >
-                      Change Directory
-                    </b-button>
-                  </b-col> -->
                     </b-row>
                   </div>
                 </b-col>
@@ -209,112 +145,45 @@
                     <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
                   </b-col>
                 </b-row>
-                <!-- <b-row class="mt-2" size="sm">
-                  <b-col>
-                    <b-button variant="outline-secondary" class="btn-voted">
-                      Voted
-                    </b-button>
-                    
-                      Removing assigning torrents until P2P is back up
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="assignTorrent"
-                    >
-                      Assign torrent
-                    </b-button
-                  </b-col>
-                </b-row> -->
               </template>
 
-              <!--
-  This will be used for when torrenting is back in action...-->
-
-              <!-- <template v-else-if="currentRouteIs('my-game-details')">
-                <b-row>
-                  <b-col class="game-buttons">
-                    <b-button v-if="isGameInstalled" variant="primary" class="border-0" @click="playGame()">
-                      Play
-                    </b-button>
-
-                     <b-button v-else variant="primary" class="border-0" :disabled="!canGameInstall" @click="installGame()">
-                      <span v-if="!installing">Install</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                    </b-button>
-
-                    <b-button v-else variant="primary" class="border-0" @click="startDownloadingForSeeding()">
-                      <span v-if="!installing">Download</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                      </b-button>
-                    
-                    <b-button
-                      v-if="isGameInstalled"
-                      variant="light"
-                      class="text-primary border-0 btn-delete"
-                      :disabled="uninstalling"
-                      @click="uninstallGame()"
-                    >
-                      <span v-if="!uninstalling">Uninstall</span>
-                      <b-spinner v-else style="max-height: 1em; max-width: 1em;"></b-spinner>
-                    </b-button>
-                  </b-col>
-                  <b-col>
-                    <b-button
-                      v-if="!isGameRecommended"
-                      :disabled="hasItBeenRecommended"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="addToRecommendedGames(game)"
-                    >
-                      <span>Recommend</span>
-                    </b-button>
-                    <b-button
-                      v-else-if="isGameRecommended"
-                      variant="success"
-                      class="btn-voted ml-2"
-                      @click="removeFromRecommendedGames(game)"
-                    >
-                      <span class="show"> Recommended </span>
-                      <span class="hoverShow">Un-Recommend</span>
-                    </b-button>
-                  </b-col>
-                </b-row>
-              </template> -->
-
               <template v-else-if="currentRouteIs('my-game-details')">
-                <div v-if="!didVote">
+                <div v-if="isGameDownloaded">
                   <b-row>
-                    <b-col>
-                      <b-button v-b-modal.ratingModal variant="primary" class="btn-voted"> Rate {{ game.title }} </b-button>
+                    <b-col class="col-7 torrent-status">
+                      <transition>
+                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                          <loading-progress
+                            v-if="showDownloadProgress"
+                            :progress="progress"
+                            shape="line"
+                            size="160"
+                            width="160"
+                            height="6"
+                          />
+                          <br />
+                          <span v-if="!seeding && showDownloadProgress">Downloading: {{ progressDisplay }}</span>
+                          <span v-if="paused && seeding">
+                            Seeding paused
+                          </span>
+                          <span v-if="!paused && seeding">
+                            Seeding
+                          </span>
+                          <br />
+                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
+                        </div>
+                      </transition>
                     </b-col>
-                  </b-row>
-                </div>
-
-                <div v-else>
-                  <b-row class="rating">
-                    <b-col class="pr-0 m-auto d-inline-flex align-middle">
-                      <span class="mr-3">
-                        {{ (game.vote && game.vote.toFixed(1)) || (game.rating && game.rating.toFixed(1)) }}
-                      </span>
-                      <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
-                    </b-col>
-                  </b-row>
-                  <b-row class="mt-2" size="sm">
-                    <b-col>
-                      <b-button variant="outline-secondary" class="btn-voted">
-                        Voted
+                    <b-col class="torrent-buttons">
+                      <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
+                        Pause Seeding
                       </b-button>
-                      <!--
-                      Removing assigning torrents until P2P is back up
-                    <b-button
-                      v-if="$store.getters['IS_LOGGED_IN'] && gameStatus"
-                      variant="outline-secondary"
-                      class="btn-voted ml-2"
-                      @click="assignTorrent"
-                    >
-                      Assign torrent
-                    </b-button-->
+                      <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
+                        Resume Seeding
+                      </b-button>
+                      <!-- <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
+                        Copy MagnetURI
+                      </b-button> -->
                     </b-col>
                   </b-row>
                 </div>
@@ -325,6 +194,7 @@
       </b-card>
 
       <b-row class="mt-4">
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <b-col cols="9" v-html="description(game.description)" />
       </b-row>
 
@@ -438,8 +308,8 @@ import fs from "fs";
 import child_process from "child_process";
 import { remote } from "electron";
 import path from "path";
-//const dialog = remote.dialog;
-//const win = remote.getCurrentWindow();
+const dialog = remote.dialog;
+const win = remote.getCurrentWindow();
 
 //import path from "path";
 const USER_DATA_PATH = remote.app.getPath("userData");
@@ -543,10 +413,10 @@ export default {
 
       return torrent && torrent.downloaded;
     },
-    // showPlayBtn() {
-    //   const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-    //   return torrent && torrent.downloaded;
-    // },
+    showPlayBtn() {
+      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+      return torrent && torrent.downloaded;
+    },
     showDownloadProgress() {
       return this.$store.getters.findTorrentByGameId(this.game.id);
     },
@@ -561,7 +431,6 @@ export default {
       return this.game && this.game.id && this.$store.getters[CAN_GAME_INSTALL](this.game.id);
     },
     isGameInCart() {
-      console.log("isGameInCart has been called...");
       var isGameInCart = false;
       var shoppingCart = this.$store.state.cart;
       for (var i = 0; i < shoppingCart.length; i++) {
@@ -570,24 +439,20 @@ export default {
         }
       }
       //return this.$store.state.cart.includes(this.game);
-      console.log("is this game in cart: " + isGameInCart);
       return isGameInCart;
     },
     isGameRecommended() {
       var isGameRecommended = false;
       var recommendedGames = this.$store.state.recommendedGames;
-      console.log("recommendedGames before pressing recommend: ", recommendedGames);
       for (var i = 0; i < recommendedGames.length; i++) {
         if (recommendedGames[i].id == this.game.id) {
           isGameRecommended = true;
         }
       }
       //return this.$store.state.cart.includes(this.game);
-      console.log("is this game recommended: " + isGameRecommended);
       return isGameRecommended;
     },
     hasItBeenRecommended() {
-      //console.log("hasItBeenRecommended is called...");
       var recommendedGames = this.$store.state.recommendedGames;
       for (var i = 0; i < recommendedGames.length; i++) {
         if (recommendedGames[i].id == this.game.id) {
@@ -599,10 +464,10 @@ export default {
     isGameDownloaded() {
       var isGameDownloaded = false;
 
-      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
         isGameDownloaded = true;
       }
-      console.log("is game downloaded: ", isGameDownloaded);
+
       return isGameDownloaded;
     },
 
@@ -643,6 +508,12 @@ export default {
     currentRouteIs(route) {
       return route === this.$router.currentRoute.name;
     },
+    isMagnetLinkValid(magnetLink) {
+      if (magnetLink === null || magnetLink.search("magnet:?") === -1) {
+        return false;
+      }
+      return true;
+    },
     description(text) {
       if (text) {
         return (
@@ -658,29 +529,21 @@ export default {
       return "";
     },
     startDownloadingForSeeding() {
+      console.log("startDownloading from the torrent");
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
-      console.log("under where start download game should have started...");
     },
     startDownloading() {
-      console.log("gonna start downloading game...");
+      console.log("startDownloading from the server");
       this.load = true;
-      /*
-      this[START_DOWNLOAD_GAME]({
-        gameId: this.game.id
-      });
-      console.log("under where start download game should have started...");
-      */
-
       //create file path hidden inside voxpop directory
       var filePath = this.createDirectory();
-      console.log("directory created: ", filePath);
 
       /**
-       * this option is reserved to let user pick their own directory to save game 
-       *  
-      if (!filePath) { 
+       * this option is reserved to let user pick their own directory to save game
+       *  */
+      if (!filePath) {
         let options = {
           title: "Choose Directory to save " + this.game.title,
           buttonLabel: "Select Directory",
@@ -689,114 +552,56 @@ export default {
         filePath = dialog.showOpenDialog(win, options);
         this.$store.dispatch("savePath", filePath);
       }
-      */
 
-      // if (this.game.magnetURI != null && this.game.dataFile != null) {
-      //   if (filePath) {
-      //     console.log("this game contains exe and data file");
-      //     var recievedBytes = 0;
-      //     var totalBytes = 0;
-
-      //     var req = request({
-      //       method: "GET",
-      //       uri: this.game.magnetURI
-      //     });
-      //     //need to do something with file path, need to create a file...
-      //     console.log(req);
-
-      //     //here is where i need to remove space in game title
-      //     var noSpaceTitle = this.game.title;
-      //     noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
-      //     var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-      //     req.pipe(out);
-
-      //     req.on("response", function(data) {
-      //       totalBytes = parseInt(data.headers["content-length"]);
-      //     });
-
-      //     req.on("data", chunk => {
-      //       recievedBytes += chunk.length;
-      //       this.percentage = parseInt((recievedBytes * 100) / totalBytes);
-      //     });
-
-      //     req.on("end", () => {
-      //       alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
-      //       //this.load = false;
-      //       //here is where i would put something to indicate that this game is downloaded
-      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
-
-      //       this.downloadDataFile(filePath);
-      //       //this.$forceUpdate();
-      //     });
-      //   } else {
-      //     this.load = false;
-      //     console.log("user cancelled...");
-      //   }
-      // } else if (this.game.magnetURI) {
-      //   if (filePath) {
-      //     var recievedBytesM = 0;
-      //     var totalBytesM = 0;
-
-      //     var reqM = request({
-      //       method: "GET",
-      //       uri: this.game.magnetURI
-      //     });
-      //     //need to do something with file path, need to create a file...
-      //     console.log(reqM);
-
-      //     //here is where i need to remove space in game title
-      //     var noSpaceTitleM = this.game.title;
-      //     noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
-      //     var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
-      //     req.pipe(outM);
-
-      //     reqM.on("response", function(data) {
-      //       totalBytesM = parseInt(data.headers["content-length"]);
-      //     });
-
-      //     reqM.on("data", chunk => {
-      //       recievedBytesM += chunk.length;
-      //       this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
-      //     });
-
-      //     reqM.on("end", () => {
-      //       alert(this.game.title + " has been successfully downloaded!");
-      //       this.load = false;
-      //       //here is where i would put something to indicate that this game is downloaded
-      //       console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
-
-      //       let savedContent = {
-      //         game: this.game,
-      //         path: filePath
-      //       };
-      //       //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
-      //       this.$store.dispatch("addDownloadedGame", savedContent);
-      //       this.$forceUpdate();
-      //     });
-      //   } else {
-      //     this.load = false;
-      //     console.log("user cancelled...");
-      //   }
-      // } else {
-      //   alert("There is no file available for this game");
-      // }
-
-      if (this.game.magnetURI) {
+      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile != null) {
         if (filePath) {
-          var recievedBytesM = 0;
-          var totalBytesM = 0;
+          var recievedBytes = 0;
+          var totalBytes = 0;
 
-          var reqM = request({
+          var req = request({
             method: "GET",
             uri: this.game.magnetURI
           });
-          //need to do something with file path, need to create a file...
-          console.log(reqM);
 
-          //here is where i need to remove space in game title
-          var noSpaceTitleM = this.game.title;
+          var noSpaceTitle = this.game.title;
+          noSpaceTitle = noSpaceTitle.replace(/ /g, "-");
+          var out = fs.createWriteStream(filePath + "/" + noSpaceTitle + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          req.pipe(out);
+
+          req.on("response", function(data) {
+            totalBytes = parseInt(data.headers["content-length"]);
+          });
+
+          req.on("data", chunk => {
+            recievedBytes += chunk.length;
+            this.percentage = parseInt((recievedBytes * 100) / totalBytes);
+          });
+
+          req.on("end", () => {
+            alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
+            this.downloadDataFile(filePath);
+
+            // TODO: Need to add logic to seed all files download from the server.
+          });
+        } else {
+          this.load = false;
+          console.log("user cancelled...");
+        }
+      }
+
+      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile === null) {
+        if (filePath) {
+          let recievedBytesM = 0;
+          let totalBytesM = 0;
+
+          let reqM = request({
+            method: "GET",
+            uri: this.game.magnetURI
+          });
+
+          let noSpaceTitleM = this.game.title;
           noSpaceTitleM = noSpaceTitleM.replace(/ /g, "-");
-          var outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
+          let outM = fs.createWriteStream(filePath + "/" + noSpaceTitleM + ".exe", { mode: 0o777 }); //should allow read,write,execute permissions
           reqM.pipe(outM);
 
           reqM.on("response", function(data) {
@@ -813,31 +618,25 @@ export default {
               game: this.game,
               path: filePath
             };
-            //this contacts index.js to update addDownloadedGame into array to show play button, need a remove addDownloadedButton
-
-            console.log("game going to be added to downloaded: ", this.game, " path: ", filePath);
             this.$store.dispatch("addDownloadedGame", savedContent);
 
-            if (this.game.dataFile) {
-              alert(this.game.title + " has been successfully downloaded,  will now start downloading data files...");
-              this.downloadDataFile(filePath);
-            } else {
-              alert(this.game.title + " has been successfully downloaded!");
-              this.load = false;
-            }
+            // alert(this.game.title + " has been successfully downloaded!");
+
+            this.load = false;
+            const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
+
+            this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+
+            console.log("START_SEEDING = ", seedFilePath);
           });
         } else {
           this.load = false;
           console.log("user cancelled...");
         }
-      } else {
-        alert("There is no game file available...");
       }
     },
 
     downloadDataFile(filePath) {
-      console.log("downloading data file now...");
-
       var recievedBytesD = 0;
       var totalBytesD = 0;
 
@@ -845,10 +644,7 @@ export default {
         method: "GET",
         uri: this.game.dataFile
       });
-      //need to do something with file path, need to create a file...
-      console.log(reqD);
 
-      //here is where i need to remove space in game title
       var noSpaceTitleD = this.game.title;
       noSpaceTitleD = noSpaceTitleD.replace(/ /g, "-");
       var outD = fs.createWriteStream(filePath + "/" + noSpaceTitleD + ".exe.data", { mode: 0o777 }); //should allow read,write,execute permissions
@@ -888,16 +684,12 @@ export default {
      * This creates a directory using the path below, if it already exists it will just return it
      */
     createDirectory() {
-      //create that directory in here...
-      console.log("inside createDirectory");
       var concatTitle = this.game.title;
       concatTitle = concatTitle.replace(/ /g, "-");
       const absolutePath = path.join(USER_DATA_PATH, VOXPOP, this[USER].username, APPS, TEMP, concatTitle);
       if (!fs.existsSync(absolutePath)) {
-        console.log("this directory does not exist, going to make it...");
         this.mkdirDeep(absolutePath);
       }
-      console.log("This directory exists...");
       return absolutePath;
     },
 
@@ -908,7 +700,6 @@ export default {
      * @param {object | number} options - The same as [here](https://nodejs.org/api/fs.html#fs_fs_mkdirsync_path_options)
      */
     mkdirDeep(dirPath, options = undefined) {
-      console.log("inside mkdirDeep");
       if (!fs.existsSync(dirPath)) {
         this.mkdirDeep(path.join(dirPath, ".."), options);
         fs.mkdirSync(dirPath, options);
@@ -916,9 +707,6 @@ export default {
     },
 
     addToRecommendedGames(game) {
-      //functionality to connect to index.js
-      console.log("addToRecommendedGames");
-
       let recoParams = {
         username: this.$store.state.auth.user.username,
         game: game
@@ -927,21 +715,17 @@ export default {
 
       this.$store
         .dispatchPromise("addToRecommendedGames", recoParams)
-        .then(data => {
-          console.log("data gotten from add to recommended games promise: ", data);
+        .then(() => {
           this.saveRecommendedGamesInAPI(this.$store.state.recommendedGames);
         })
         .catch(err => {
           console.log("There was an error saving recommended games: ", err);
         });
-      console.log("recommended games after recommendation has been pressed: ", this.$store.state.recommendedGames);
       //this.saveRecommendedGamesInAPI();
     },
 
     removeFromRecommendedGames(game) {
       this.recommendedLoading = true;
-      console.log("inside of removeFromRecommendedGames");
-
       let recoParams = {
         username: this.$store.state.auth.user.username,
         game: game
@@ -953,9 +737,7 @@ export default {
 
       this.$store
         .dispatchPromise("removeFromRecommendedGames", recoParams)
-        .then(data => {
-          console.log("data from removing recommended games: ", data);
-          console.log("recommended games send to saveRecommendedGamesInAPI: ", this.$store.state.recommendedGames);
+        .then(() => {
           this.saveRecommendedGamesInAPI(this.$store.state.recommendedGames);
         })
         .catch(err => {
@@ -964,7 +746,6 @@ export default {
     },
 
     async saveRecommendedGamesInAPI(data) {
-      console.log("saveRecommendedGamesInAPI: ", data);
       var gameArray = [];
 
       for (var i = 0; i < data.length; i++) {
@@ -985,7 +766,6 @@ export default {
     },
 
     addProduct(game) {
-      console.log("Inside add product to cart");
       if (!this.$store.getters[IS_LOGGED_IN]) {
         this.$root.$emit("unauthorized", { noRedirect: true });
       } else {
@@ -1007,7 +787,6 @@ export default {
           this.$store.dispatch("addRecoUserAndGame", data);
           console.log("list of recommended userId's after adding: ", this.$store.state.recommendedUserId);
           this.$store.dispatch("addUserRecommendedIdIndex", userParams);
-          console.log("list of user recommendedId indexes after adding to cart: " + this.$store.state.recommendedUserIdIndex);
         } else {
           let data = {
             user: null,
@@ -1023,17 +802,41 @@ export default {
       //localStorage.setItem("cart", this.$store.state.cart);
     },
     pauseDownloading() {
-      console.log("download has paused...");
       this[PAUSE_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
     },
     resumeDownloading() {
-      //console.log("in resume Downloading");
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
-      //console.log("last sentence in resume downloading");
+    },
+    copyMagnetURI() {
+      var textArea = document.createElement("textarea");
+      textArea.style.position = "fixed";
+      textArea.style.top = 0;
+      textArea.style.left = 0;
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = 0;
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      textArea.value = this.game.magnetURI;
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        var successful = document.execCommand("copy");
+        var msg = successful ? "successful" : "unsuccessful";
+        console.log("Copying text command was " + msg);
+      } catch (err) {
+        console.log("Oops, unable to copy");
+      }
+      document.body.removeChild(textArea);
     },
     formReset() {
       this.name = null;
@@ -1065,47 +868,31 @@ export default {
       }
     },
     startDownload() {
-      console.log("inside start Download");
-      if (this.game.magnetURI) {
+      if (this.isMagnetLinkValid(this.game.magnetURI)) {
         if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-          console.log("found something");
           return;
         }
-
-        console.log("about to start Downloading function");
+        this.startDownloadingForSeeding();
+      } else if (this.game.magnetURI !== null) {
         this.startDownloading();
-      } else {
-        confirm("There is no seeds available for this game");
       }
     },
     assignTorrent() {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
     isTempGameDownloaded() {
-      console.log("value from temp game downloaded: ", this.$store.state.tempDownloadedGames);
       return this.$store.state.tempDownloadedGames[this.game.id];
     },
     isRecommended() {
-      console.log("Checking if this game has been recommended...");
-      console.log("recommendedGames: ", this.$store.state.recommendedGames);
       return this.$store.state.recommendedGames[this.game.id];
     },
     async tempPlayGame() {
-      console.log("inside temp play game");
-      //Since i called Retrieve gameDownloaded it loads the state tempGameDownloaded array with data from the saved local storage
-
-      console.log("outputting route: ", this.$route);
-      console.log("outputting router: ", this.$router);
-
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
       const execFile = fs
         .readdirSync(originalPath)
         .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
         .shift();
-
-      console.log("execFile: ", execFile);
-
       if (!execFile) {
         console.log("file could not be found in path: ", originalPath);
       } else {
@@ -1128,13 +915,11 @@ export default {
           gameId: this.game.id
         })
         .then(res => {
-          console.log(res);
           if (res && res.error) {
             confirm("An error occurred while starting the game");
           }
         })
-        .catch(err => {
-          console.log(err);
+        .catch(() => {
           confirm("An error occurred while starting the game");
         });
     },
