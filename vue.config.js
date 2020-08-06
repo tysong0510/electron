@@ -44,6 +44,10 @@ module.exports = {
         },
         win: {
           publisherName: "VoxPop Games Inc"
+        },
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true
         }
       }
     }

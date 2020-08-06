@@ -60,7 +60,11 @@
         <b-row no-gutters>
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
-              :data="[{ key: 'test', value: 20 }, { key: 'test1', value: 50 }, { key: 'test2', value: 30 }]"
+              :data="[
+                { key: 'test', value: 20 },
+                { key: 'test1', value: 50 },
+                { key: 'test2', value: 30 }
+              ]"
               style="width: auto; height: 184.02px;"
             />
           </b-col>

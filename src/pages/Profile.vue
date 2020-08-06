@@ -83,9 +83,7 @@
         </b-row>
 
         <b-dropdown variant="outline-secondary">
-          <template v-slot:button-content
-            ><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL
-          </template>
+          <template v-slot:button-content><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL </template>
           <b-dropdown-text>{{ url }}invite/{{ USER.username }}</b-dropdown-text>
         </b-dropdown>
         <br />
@@ -171,7 +169,11 @@
         <b-row no-gutters>
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
-              :data="[{ key: 'test', value: 20 }, { key: 'test1', value: 50 }, { key: 'test2', value: 30 }]"
+              :data="[
+                { key: 'test', value: 20 },
+                { key: 'test1', value: 50 },
+                { key: 'test2', value: 30 }
+              ]"
               style="width: auto; height: 184.02px;"
             />
           </b-col>
