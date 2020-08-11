@@ -73,7 +73,13 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button
+                        v-else-if="isGameDownloaded || isGameServerDownloaded"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="tempPlayGame()"
+                      >
                         Play
                       </b-button>
 
@@ -87,7 +93,7 @@
                     <b-row>
                       <b-col class="game-buttons p-2">
                         <b-button
-                          v-if="!isGameDownloaded"
+                          v-if="!isGameDownloaded || !isGameServerDownloaded"
                           :disabled="load"
                           variant="primary"
                           size="lg"
@@ -97,7 +103,13 @@
                           <span v-if="!load">{{ isMagnetLinkValid(game.magnetURI) ? "Torrent Download" : "Server Download" }}</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
-                        <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                        <b-button
+                          v-else-if="(isGameDownloaded || isGameServerDownloaded) && !load"
+                          variant="primary"
+                          size="lg"
+                          class="btn-buy"
+                          @click="tempPlayGame"
+                        >
                           Play
                         </b-button>
                         <div v-if="load && !isGameDownloaded" class="p-3">
@@ -462,6 +474,8 @@ export default {
       return false;
     },
     isGameDownloaded() {
+      console.log("tempDownloadedGames: ", this.$store.state.tempDownloadedGames[this.game.id]);
+
       var isGameDownloaded = false;
 
       if (this.$store.getters.findTorrentByGameId(this.game.id)) {
@@ -469,6 +483,16 @@ export default {
       }
 
       return isGameDownloaded;
+    },
+
+    isGameServerDownloaded() {
+      console.log("tempDownloadedGames: ", this.$store.state.tempDownloadedGames[this.game.id]);
+
+      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+        return true;
+      }
+
+      return false;
     },
 
     didVote() {
@@ -618,11 +642,15 @@ export default {
               game: this.game,
               path: filePath
             };
+
             this.$store.dispatch("addDownloadedGame", savedContent);
 
             // alert(this.game.title + " has been successfully downloaded!");
 
             this.load = false;
+
+            alert(this.game.title + " has successfully been downloaded");
+
             const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
             this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
@@ -894,7 +922,8 @@ export default {
         .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
         .shift();
       if (!execFile) {
-        console.log("file could not be found in path: ", originalPath);
+        //console.log("file could not be found in path: ", originalPath);
+        alert("could not find file in path");
       } else {
         var pathToGame = path.join(originalPath, execFile);
 
