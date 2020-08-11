@@ -904,8 +904,8 @@ export default {
         var password = this.$store.state.auth.user.password;
         console.log("Username: ", username);
         console.log("Password: ", password);
-        return await child_process.execFile(pathToGame, [username, password]);
-        //return await child_process.execFile(pathToGame);
+        //return await child_process.execFile(pathToGame, [username, password]);
+        return await child_process.execFile(pathToGame);
       }
     },
 

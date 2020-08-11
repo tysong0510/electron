@@ -49,7 +49,8 @@ export default {
     game: {},
     refreshInterval: 30,
     thirtyDays: 30 * 24 * 60 * 60 * 1000,
-    firstTime: null
+    firstTime: null,
+    userCredentials: {}
   },
   mutations: {
     [MUTATION_AUTH_REQUEST](state) {
@@ -170,6 +171,7 @@ export default {
 
             const savedState = await State.loadUser(username);
             await restoreStoreFromSavedUserState(store, savedState);
+
             resolve(resp);
           })
           .catch(err => {

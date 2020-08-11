@@ -100,7 +100,17 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group label="Username" label-for="username" class="text-left">
-                    <b-form-input id="username" v-model="username" name="username" required type="text" placeholder="example123" />
+                    <b-form-input
+                      id="username"
+                      v-model="username"
+                      name="username"
+                      required
+                      type="text"
+                      placeholder="example123"
+                      :maxlength="max"
+                    />
+
+                    <b-input-group-append v-if="username != null"> {{ max - username.length }} </b-input-group-append>
                     <b-form-invalid-feedback :state="!validationErrors.username">
                       {{ validationErrors.username }}
                     </b-form-invalid-feedback>
@@ -386,7 +396,8 @@ export default {
       validationErrors: {},
       recommenderID: null,
       recommenderIDError: false,
-      recommenderIDMessage: null
+      recommenderIDMessage: null,
+      max: 20
     };
   },
   computed: {
@@ -529,6 +540,16 @@ export default {
           this.$authModal.showModal = false;
 
           console.log("Authorized");
+
+          console.log("What is username from auth modal: ", this.username);
+          console.log("What is password from auth modal: ", this.password);
+
+          let credentials = {
+            username: this.username,
+            password: this.password
+          };
+
+          this.$store.state.auth.userCredentials = credentials;
 
           this.formReset();
 
