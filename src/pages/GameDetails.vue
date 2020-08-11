@@ -462,13 +462,15 @@ export default {
       return false;
     },
     isGameDownloaded() {
-      var isGameDownloaded = false;
-
-      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-        isGameDownloaded = true;
+      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+        return true;
       }
 
-      return isGameDownloaded;
+      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+        return true;
+      }
+
+      return false;
     },
 
     didVote() {
@@ -535,7 +537,7 @@ export default {
       });
     },
     startDownloading() {
-      console.log("startDownloading from the server");
+      console.log("startDownloading from the server", this.game);
       this.load = true;
       //create file path hidden inside voxpop directory
       var filePath = this.createDirectory();
@@ -553,14 +555,15 @@ export default {
         this.$store.dispatch("savePath", filePath);
       }
 
-      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile != null) {
+      if (this.game.downloadURL !== null && this.game.dataFile !== null) {
+        console.log("startDownloading from the server with data file");
         if (filePath) {
           var recievedBytes = 0;
           var totalBytes = 0;
 
           var req = request({
             method: "GET",
-            uri: this.game.magnetURI
+            uri: this.game.downloadURL
           });
 
           var noSpaceTitle = this.game.title;
@@ -589,14 +592,15 @@ export default {
         }
       }
 
-      if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.dataFile === null) {
+      if (this.game.downloadURL !== null && this.game.dataFile === null) {
         if (filePath) {
+          console.log("startDownloading from the server without data file");
           let recievedBytesM = 0;
           let totalBytesM = 0;
 
           let reqM = request({
             method: "GET",
-            uri: this.game.magnetURI
+            uri: this.game.downloadURL
           });
 
           let noSpaceTitleM = this.game.title;
@@ -619,8 +623,6 @@ export default {
               path: filePath
             };
             this.$store.dispatch("addDownloadedGame", savedContent);
-
-            // alert(this.game.title + " has been successfully downloaded!");
 
             this.load = false;
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
