@@ -94,7 +94,7 @@
                           class="btn-buy"
                           @click="startDownload()"
                         >
-                          <span v-if="!load">{{ isMagnetLinkValid(game.magnetURI) ? "Torrent Download" : "Server Download" }}</span>
+                          <span v-if="!load">Download</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
                         <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
