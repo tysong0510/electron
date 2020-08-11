@@ -1131,8 +1131,6 @@ const demoData = {
     async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
-      console.log("=============== START_DOWNLOAD_GAME_VIA_TORRENT ================ ");
-      console.log(torrent);
       let magnetURI;
       if (!torrent) {
         const { game } = state;
