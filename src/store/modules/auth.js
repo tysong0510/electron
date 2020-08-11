@@ -164,10 +164,7 @@ export default {
 
             const { username } = await dispatch(ACTION_USER);
             commit(MUTATION_AUTH_SUCCESS);
-            commit(
-              MUTATION_SET_REFRESH_INTERVAL,
-              setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
-            );
+            commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
 
             const savedState = await State.loadUser(username);
             await restoreStoreFromSavedUserState(store, savedState);
@@ -221,10 +218,7 @@ export default {
                     commit(MUTATION_AUTH_TOKEN, token);
                     const { username } = await dispatch(ACTION_USER);
                     commit(MUTATION_AUTH_SUCCESS);
-                    commit(
-                      MUTATION_SET_REFRESH_INTERVAL,
-                      setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
-                    );
+                    commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
                     const savedState = await State.loadUser(username);
                     await restoreStoreFromSavedUserState(store, savedState);
                     resolve(resp);
@@ -282,10 +276,7 @@ export default {
             commit(MUTATION_AUTH_SUCCESS);
 
             if (ipcMain) {
-              commit(
-                MUTATION_SET_REFRESH_INTERVAL,
-                setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL])
-              );
+              commit(MUTATION_SET_REFRESH_INTERVAL, setInterval(() => dispatch(ACTION_REFRESH), getters[REFRESH_INTERVAL]));
             }
 
             resolve(resp);
