@@ -22,11 +22,14 @@ import { INSTALL_PATH } from "./store/modules/path";
 import { UNARCHIVE_FAIL, UNARCHIVE_OK } from "./store/mutation-types";
 import fsExtra from "fs-extra";
 import { baseURL } from "./apiConfig";
+import regedit from "regedit";
+regedit.setExternalVBSLocation("resources/regedit/vbs");
 
 const { autoUpdater } = require("electron-updater");
 autoUpdater.autoDownload = false; //should resolve issue of ENOENT, as this arises from being called so many times
 autoUpdater.logger = require("electron-log");
 const { dialog } = require("electron");
+
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
 
@@ -132,6 +135,15 @@ function createWindow({ debug }) {
   win.on("close", e => {
     if (process.platform !== "darwin") {
       // console.log("quitting1");
+      if (process.platform == "win32") {
+        regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+          if (err) {
+            console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+          } else {
+            console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+          }
+        });
+      }
       app.quit();
     }
     if (!app.isQuitting) {
@@ -541,6 +553,13 @@ async function init() {
     app.isQuitting = true;
     e.preventDefault();
     if (win) {
+      regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+        if (err) {
+          console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+        } else {
+          console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+        }
+      });
       console.log("Encrypting apps");
       dummyDRM(DRM_MODE_ENCRYPT);
       console.log("Apps are encrypted");

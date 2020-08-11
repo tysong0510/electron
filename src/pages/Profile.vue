@@ -594,7 +594,11 @@
           <b-row class="p-5">
             <b-col class="text-center">
               <b-form id="personalInfo" @submit.prevent="personalInfo">
-                <b-form-group label="Change Avatar Photo:" label-for="avatarPhoto" class="text-left">
+                <b-form-group
+                  label="Change Avatar Photo (Images should be as close to 1:1 for best fit):"
+                  label-for="avatarPhoto"
+                  class="text-left"
+                >
                   <b-form-file
                     v-model="avatarPhoto"
                     accept="image/*"
@@ -716,7 +720,8 @@
                         </button>
                       </div>
                     </editor-menu-bar>
-                    <editor-content class="editor__content" :editor="editor" :v-model="description" />
+                    <editor-content class="editor__content" :editor="editor" :v-model="description" :maxlength="20" />
+                    <!-- <div> {{editor.length / max}} </div> -->
                   </div>
                 </b-form-group>
               </b-form>
@@ -784,6 +789,9 @@ import {
 } from "tiptap-extensions";
 
 import aws from "aws-sdk";
+//import winreg from "winreg";
+import regedit from "regedit";
+regedit.setExternalVBSLocation("resources/regedit/vbs");
 
 aws.config.update({
   accessKeyId: "AKIASKCWLEX6DIWB2K4E",
@@ -913,7 +921,8 @@ export default {
       }),
       html: "",
       avatarPhoto: null,
-      loading: false
+      loading: false,
+      max: 20
     };
   },
   computed: {
@@ -1074,7 +1083,7 @@ export default {
       var coins = this[USER].numberOfTokens;
       coins *= 100;
       //return coins.toFixed(2);
-      return coins;
+      return Math.floor(coins);
     }
   },
   watch: {
@@ -1103,6 +1112,70 @@ export default {
       });
 
     console.log("is this user authorized: ", this.$store.getters["isAuthorized"]);
+    console.log("value of this.auth: ", this.$store.state.auth);
+
+    if (process.platform == "win32") {
+      regedit.createKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+        if (err) {
+          console.log("There was an error creating Registry key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+        } else {
+          console.log("value of auth userCredentials: ", this.$store.state.auth.userCredentials);
+
+          var username = this.$store.state.auth.userCredentials.username;
+          var password = this.$store.state.auth.userCredentials.password;
+
+          console.log("What is the value of username: ", username);
+          console.log("What is the value of password: ", password);
+
+          regedit.putValue(
+            {
+              "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
+                username: {
+                  value: username,
+                  type: "REG_EXPAND_SZ"
+                },
+
+                password: {
+                  value: password,
+                  type: "REG_EXPAND_SZ"
+                }
+              }
+            },
+            err => {
+              if (err) {
+                console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+              }
+            }
+          );
+
+          console.log(
+            "regedit put data: ",
+            regedit.putValue(
+              {
+                "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
+                  username: {
+                    value: username,
+                    type: "REG_EXPAND_SZ"
+                  },
+
+                  password: {
+                    value: password,
+                    type: "REG_EXPAND_SZ"
+                  }
+                }
+              },
+              err => {
+                if (err) {
+                  console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+                }
+              }
+            )
+          );
+
+          console.log("Response to creating key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+        }
+      });
+    }
   },
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),

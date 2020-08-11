@@ -48,7 +48,15 @@ module.exports = {
         nsis: {
           oneClick: false,
           allowToChangeInstallationDirectory: true
-        }
+        },
+
+        extraResources: [
+          {
+            from: "node_modules/regedit/vbs",
+            to: "regedit/vbs",
+            filter: ["**/*"]
+          }
+        ]
       }
     }
   },
