@@ -623,11 +623,11 @@ export default {
             // alert(this.game.title + " has been successfully downloaded!");
 
             this.load = false;
-            const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
+            // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
-            this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            // this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
 
-            console.log("START_SEEDING = ", seedFilePath);
+            // console.log("START_SEEDING = ", seedFilePath);
           });
         } else {
           this.load = false;
@@ -868,12 +868,15 @@ export default {
       }
     },
     startDownload() {
-      if (this.isMagnetLinkValid(this.game.magnetURI)) {
-        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-          return;
-        }
-        this.startDownloadingForSeeding();
-      } else if (this.game.magnetURI !== null) {
+      // if (this.isMagnetLinkValid(this.game.magnetURI)) {
+      //   if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+      //     return;
+      //   }
+      //   this.startDownloadingForSeeding();
+      // } else if (this.game.magnetURI !== null) {
+      //   this.startDownloading();
+      // }
+      if (this.game.magnetURI !== null) {
         this.startDownloading();
       }
     },
