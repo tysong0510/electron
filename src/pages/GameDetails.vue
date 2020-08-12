@@ -660,17 +660,17 @@ export default {
     },
 
     downloadDataFile(filePath) {
-      var recievedBytesD = 0;
-      var totalBytesD = 0;
+      let recievedBytesD = 0;
+      let totalBytesD = 0;
 
-      var reqD = request({
+      let reqD = request({
         method: "GET",
         uri: this.game.dataFile
       });
 
-      var noSpaceTitleD = this.game.title;
+      let noSpaceTitleD = this.game.title;
       noSpaceTitleD = noSpaceTitleD.replace(/ /g, "-");
-      var outD = fs.createWriteStream(filePath + "/" + noSpaceTitleD + ".exe.data", { mode: 0o777 }); //should allow read,write,execute permissions
+      let outD = fs.createWriteStream(filePath + "/" + noSpaceTitleD + ".exe.data", { mode: 0o777 }); //should allow read,write,execute permissions
       reqD.pipe(outD);
 
       reqD.on("response", function(data) {
@@ -685,6 +685,7 @@ export default {
       reqD.on("end", () => {
         this.$store.dispatch("retrieveDownloadedGame");
         this.load = false;
+        console.log("=============== Download data file succeed! =============");
       });
     },
     /** 
