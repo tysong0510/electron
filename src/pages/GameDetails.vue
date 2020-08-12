@@ -441,6 +441,7 @@ export default {
       //return this.$store.state.cart.includes(this.game);
       return isGameInCart;
     },
+
     isGameRecommended() {
       var isGameRecommended = false;
       var recommendedGames = this.$store.state.recommendedGames;
