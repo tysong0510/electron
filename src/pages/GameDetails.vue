@@ -462,6 +462,7 @@ export default {
       return false;
     },
     isGameDownloaded() {
+      console.log("===========================================");
       if (this.$store.state.tempDownloadedGames[this.game.id]) {
         return true;
       }
@@ -581,7 +582,12 @@ export default {
           });
 
           req.on("end", () => {
-            alert(this.game.title + " has been successfully downloaded,  will now commence downloading data files...");
+            let savedContent = {
+              game: this.game,
+              path: filePath
+            };
+            this.$store.dispatch("addDownloadedGame", savedContent);
+
             this.downloadDataFile(filePath);
 
             // TODO: Need to add logic to seed all files download from the server.
@@ -625,6 +631,7 @@ export default {
             this.$store.dispatch("addDownloadedGame", savedContent);
 
             this.load = false;
+            // console.log('==== Download FInished =====');
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
             // this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
@@ -662,7 +669,6 @@ export default {
       });
 
       reqD.on("end", () => {
-        alert(this.game.title + " data files has been successfully downloaded...");
         this.load = false;
       });
     },
