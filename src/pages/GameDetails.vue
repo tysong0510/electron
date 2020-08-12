@@ -462,6 +462,8 @@ export default {
       return false;
     },
     isGameDownloaded() {
+      //console.log("tempDownloadedGames: " ,this.$store.state.tempDownloadedGames[this.game.id]);
+
       var isGameDownloaded = false;
 
       if (this.$store.getters.findTorrentByGameId(this.game.id)) {
@@ -469,6 +471,16 @@ export default {
       }
 
       return isGameDownloaded;
+    },
+
+    isGameServerDownloaded() {
+      console.log("tempDownloadedGames: ", this.$store.state.tempDownloadedGames[this.game.id]);
+
+      if (this.$store.state.tempDownloadedGames[this.game.id]) {
+        return true;
+      }
+
+      return false;
     },
 
     didVote() {
@@ -618,11 +630,15 @@ export default {
               game: this.game,
               path: filePath
             };
+
             this.$store.dispatch("addDownloadedGame", savedContent);
 
             // alert(this.game.title + " has been successfully downloaded!");
 
             this.load = false;
+
+            alert(this.game.title + " has successfully been downloaded");
+
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
             // this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
@@ -898,6 +914,7 @@ export default {
         .shift();
       if (!execFile) {
         console.log("file could not be found in path: ", originalPath);
+        //alert("could not find file in path");
       } else {
         var pathToGame = path.join(originalPath, execFile);
 
