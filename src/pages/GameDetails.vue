@@ -644,13 +644,14 @@ export default {
             this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
           });
 
-          reqM.on("end", () => {
+          reqM.on("end", async () => {
             let savedContent = {
               game: this.game,
               path: filePath
             };
 
-            this.$store.dispatch("addDownloadedGame", savedContent);
+            await this.$store.dispatch("addDownloadedGame", savedContent);
+            await this.$store.dispatch("retrieveDownloadedGame");
 
             this.load = false;
 
@@ -696,7 +697,8 @@ export default {
         this.percentage = parseInt((recievedBytesD * 100) / totalBytesD);
       });
 
-      reqD.on("end", () => {
+      reqD.on("end", async () => {
+        await this.$store.dispatch("retrieveDownloadedGame");
         this.load = false;
       });
     },
