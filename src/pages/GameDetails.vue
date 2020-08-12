@@ -462,7 +462,6 @@ export default {
       return false;
     },
     isGameDownloaded() {
-      console.log("===========================================");
       if (this.$store.state.tempDownloadedGames[this.game.id]) {
         return true;
       }
@@ -623,14 +622,15 @@ export default {
             this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
           });
 
-          reqM.on("end", () => {
+          reqM.on("end", async () => {
             let savedContent = {
               game: this.game,
               path: filePath
             };
-            this.$store.dispatch("addDownloadedGame", savedContent);
-
+            await this.$store.dispatch("addDownloadedGame", savedContent);
+            await this.$store.dispatch("retrieveDownloadedGame");
             this.load = false;
+            // this.$forceUpdate();
             // console.log('==== Download FInished =====');
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
@@ -668,7 +668,8 @@ export default {
         this.percentage = parseInt((recievedBytesD * 100) / totalBytesD);
       });
 
-      reqD.on("end", () => {
+      reqD.on("end", async () => {
+        await this.$store.dispatch("retrieveDownloadedGame");
         this.load = false;
       });
     },
