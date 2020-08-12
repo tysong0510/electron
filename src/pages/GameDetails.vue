@@ -921,8 +921,14 @@ export default {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
     isTempGameDownloaded() {
-      console.log("Inside isTempGameDownloaded");
+      console.log("Inside isTempGameDownloaded", this.$store.state.tempDownloadedGames);
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+
+      console.log("Inside isTempGameDownloaded", originalPath);
+
+      if (!originalPath) {
+        return false;
+      }
 
       const execFile = fs
         .readdirSync(originalPath)
