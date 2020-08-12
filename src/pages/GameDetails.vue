@@ -63,7 +63,7 @@
                     </div>
                     <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button
-                        v-if="!isGameDownloaded"
+                        v-if="!isTempGameDownloaded()"
                         :disabled="load"
                         variant="primary"
                         size="lg"
@@ -73,7 +73,7 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else-if="isGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button v-else-if="isTempGameDownloaded()" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
                         Play
                       </b-button>
 
@@ -87,7 +87,7 @@
                     <b-row>
                       <b-col class="game-buttons p-2">
                         <b-button
-                          v-if="!isGameDownloaded"
+                          v-if="!isTempGameDownloaded()"
                           :disabled="load"
                           variant="primary"
                           size="lg"
@@ -97,10 +97,16 @@
                           <span v-if="!load">Download</span>
                           <b-spinner v-if="load"></b-spinner>
                         </b-button>
-                        <b-button v-else-if="isGameDownloaded && !load" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame">
+                        <b-button
+                          v-else-if="isTempGameDownloaded() && !load"
+                          variant="primary"
+                          size="lg"
+                          class="btn-buy"
+                          @click="tempPlayGame"
+                        >
                           Play
                         </b-button>
-                        <div v-if="load && !isGameDownloaded" class="p-3">
+                        <div v-if="load && !isTempGameDownloaded()" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -148,7 +154,7 @@
               </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
-                <div v-if="isGameDownloaded">
+                <div v-if="isTempGameDownloaded()">
                   <b-row>
                     <b-col class="col-7 torrent-status">
                       <transition>
@@ -443,6 +449,7 @@ export default {
     },
 
     isGameRecommended() {
+      console.log("RECOMMENDED");
       var isGameRecommended = false;
       var recommendedGames = this.$store.state.recommendedGames;
       for (var i = 0; i < recommendedGames.length; i++) {
@@ -462,28 +469,31 @@ export default {
       }
       return false;
     },
-    isGameDownloaded() {
-      console.log("===========================================");
-      if (this.$store.state.tempDownloadedGames[this.game.id]) {
-        return true;
-      }
 
-      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-        return true;
-      }
+    /**
+     * Functionality for this has been moved down to isTempGameDownloaded in methods below
+     */
 
-      return false;
-    },
+    // isGameDownloaded() {
+    //   console.log("===========================================");
 
-    isGameServerDownloaded() {
-      console.log("tempDownloadedGames: ", this.$store.state.tempDownloadedGames[this.game.id]);
+    //   var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
-      if (this.$store.state.tempDownloadedGames[this.game.id]) {
-        return true;
-      }
+    //   const execFile = fs
+    //     .readdirSync(originalPath)
+    //     .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+    //     .shift();
 
-      return false;
-    },
+    //   if (execFile) { //checks if file has been deleted or not
+    //     return true;
+    //   }
+
+    //   if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+    //     return true;
+    //   }
+
+    //   return false;
+    // },
 
     didVote() {
       var votedGames = this.$store.state.votedGames;
@@ -645,6 +655,11 @@ export default {
 
             this.load = false;
 
+            console.log(
+              "tempDownloadedGames array for " + this.game.title + "id: " + this.game.id,
+              this.$store.state.tempDownloadedGames[this.game.id]
+            );
+
             // console.log('==== Download FInished =====');
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
@@ -735,7 +750,6 @@ export default {
         username: this.$store.state.auth.user.username,
         game: game
       };
-      //this.$store.dispatch("addToRecommendedGames", recoParams);// need to make this sidpatch promise...
 
       this.$store
         .dispatchPromise("addToRecommendedGames", recoParams)
@@ -745,7 +759,6 @@ export default {
         .catch(err => {
           console.log("There was an error saving recommended games: ", err);
         });
-      //this.saveRecommendedGamesInAPI();
     },
 
     removeFromRecommendedGames(game) {
@@ -908,11 +921,26 @@ export default {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
     isTempGameDownloaded() {
-      return this.$store.state.tempDownloadedGames[this.game.id];
+      console.log("Inside isTempGameDownloaded");
+      var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+
+      const execFile = fs
+        .readdirSync(originalPath)
+        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+        .shift();
+
+      if (execFile) {
+        //checks if file has been deleted or not
+        return true;
+      }
+
+      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+        return true;
+      }
+
+      return false;
     },
-    isRecommended() {
-      return this.$store.state.recommendedGames[this.game.id];
-    },
+
     async tempPlayGame() {
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
