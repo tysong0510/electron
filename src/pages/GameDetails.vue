@@ -921,34 +921,38 @@ export default {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
     isTempGameDownloaded() {
-      console.log("Inside isTempGameDownloaded", this.$store.state.tempDownloadedGames);
-      var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      try {
+        let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+        console.log("Inside isTempGameDownloaded", originalPath);
 
-      console.log("Inside isTempGameDownloaded", originalPath);
+        if (!originalPath) {
+          console.log("Return as the original path is not defined!");
+          return false;
+        }
 
-      if (!originalPath) {
+        const execFile = fs
+          .readdirSync(originalPath)
+          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+          .shift();
+
+        if (execFile) {
+          //checks if file has been deleted or not
+          return true;
+        }
+
+        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.log("Inside isTempGameDownloaded", error);
         return false;
       }
-
-      const execFile = fs
-        .readdirSync(originalPath)
-        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
-        .shift();
-
-      if (execFile) {
-        //checks if file has been deleted or not
-        return true;
-      }
-
-      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-        return true;
-      }
-
-      return false;
     },
 
     async tempPlayGame() {
-      var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
       const execFile = fs
         .readdirSync(originalPath)
