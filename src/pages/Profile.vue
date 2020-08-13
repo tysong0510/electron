@@ -1095,6 +1095,9 @@ export default {
     this.getGames();
     this.getUserFilesStatistic();
     this.fixAndGetStats();
+
+    console.log(this.$store.state.auth.user.username);
+
     this.$store.dispatch("retrieveRecommendedGames", this.$store.state.auth.user.username); //to load state.recommendedGames with list of recommended games
 
     let salesParam = {

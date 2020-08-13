@@ -157,28 +157,19 @@
                 <div v-if="isTempGameDownloaded()">
                   <b-row>
                     <b-col class="col-7 torrent-status">
-                      <transition>
-                        <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
-                          <loading-progress
-                            v-if="showDownloadProgress"
-                            :progress="progress"
-                            shape="line"
-                            size="160"
-                            width="160"
-                            height="6"
-                          />
-                          <br />
-                          <span v-if="!seeding && showDownloadProgress">Downloading: {{ progressDisplay }}</span>
-                          <span v-if="paused && seeding">
-                            Seeding paused
-                          </span>
-                          <span v-if="!paused && seeding">
-                            Seeding
-                          </span>
-                          <br />
-                          <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
-                        </div>
-                      </transition>
+                      <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
+                        <loading-progress v-if="showDownloadProgress" :progress="progress" shape="line" size="160" width="160" height="6" />
+                        <br />
+                        <span v-if="!seeding && showDownloadProgress">Downloading: {{ progressDisplay }}</span>
+                        <span v-if="paused && seeding">
+                          Seeding paused
+                        </span>
+                        <span v-if="!paused && seeding">
+                          Seeding
+                        </span>
+                        <br />
+                        <span v-if="showDownloadProgress" class="torrent-info">Peers: {{ numberOfPeers }}</span>
+                      </div>
                     </b-col>
                     <b-col class="torrent-buttons">
                       <b-button v-if="showPauseBtn" variant="primary" size="lg" class="btn-buy" @click="pauseDownloading()">
@@ -660,12 +651,12 @@ export default {
               this.$store.state.tempDownloadedGames[this.game.id]
             );
 
-            // console.log('==== Download FInished =====');
-            // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
+            console.log("==== Download FInished =====");
+            const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
-            // this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
 
-            // console.log("START_SEEDING = ", seedFilePath);
+            console.log("START_SEEDING = ", seedFilePath);
           });
         } else {
           this.load = false;
@@ -923,10 +914,7 @@ export default {
     isTempGameDownloaded() {
       try {
         let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
-        console.log("Inside isTempGameDownloaded", originalPath);
-
         if (!originalPath) {
-          console.log("Return as the original path is not defined!");
           return false;
         }
 

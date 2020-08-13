@@ -30,6 +30,8 @@ autoUpdater.autoDownload = false; //should resolve issue of ENOENT, as this aris
 autoUpdater.logger = require("electron-log");
 const { dialog } = require("electron");
 
+import { init as initMenu } from "./menu";
+
 // const downloadPath = store.getters[GAME_DOWNLOAD_PATH];
 // const installPath = store.getters[INSTALL_PATH];
 
@@ -582,7 +584,8 @@ async function init() {
   const [, appState] = await Promise.all([{ then: res => app.on("ready", () => res()) }, State.load()]);
   isReady = true;
 
-  if (isDevelopment && !process.env.IS_TEST) {
+  // if (isDevelopment && !process.env.IS_TEST) {
+  if (!process.env.IS_TEST) {
     // FIXME: IPC is shown only in one window. In other window it remains empty
     // If require it manually then it works fine.
     // BrowserWindow.addDevToolsExtension('./node_modules/devtron');
@@ -597,6 +600,8 @@ async function init() {
 
   createWindow(appState);
   torrentWin = webtorrent.getInstance(appState);
+
+  initMenu();
 
   // To keep app startup fast, some code is delayed.
   setTimeout(() => {
