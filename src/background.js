@@ -98,41 +98,43 @@ function createWindow({ debug }) {
     }
   }
 
-  if (process.platform == "win32") {
-    //dialog.showErrorBox("Title", "inside where i should be");
-    deeplinkingUrl = process.argv.slice(1);
-    //dialog.showErrorBox("deepLinkingURL", deeplinkingUrl);
-    if (deeplinkingUrl != null) {
-      //if app is openend by URL
-      //dialog.showErrorBox("URL", "app was opened by external link")
-      var str = deeplinkingUrl[0];
+  // Since it's blocking build - Just commented for now.
 
-      var index = 9;
-      if (index + 1 > str.length) {
-        //dialog.showErrorBox("Error", "There was no username present...");
-      } else {
-        var username = "";
+  // if (process.platform == "win32") {
+  //   //dialog.showErrorBox("Title", "inside where i should be");
+  //   deeplinkingUrl = process.argv.slice(1);
+  //   //dialog.showErrorBox("deepLinkingURL", deeplinkingUrl);
+  //   if (deeplinkingUrl != null) {
+  //     //if app is openend by URL
+  //     //dialog.showErrorBox("URL", "app was opened by external link")
+  //     var str = deeplinkingUrl[0];
 
-        for (var i = index; i < str.length; i++) {
-          username += str.charAt(i);
-        }
+  //     var index = 9;
+  //     if (index + 1 > str.length) {
+  //       //dialog.showErrorBox("Error", "There was no username present...");
+  //     } else {
+  //       var username = "";
 
-        //need to check if there is a back slash at end of username, if so then remove it
-        if (username.charAt(username.length - 1) == "/") {
-          username = username.substring(0, username.length - 1);
-        }
+  //       for (var i = index; i < str.length; i++) {
+  //         username += str.charAt(i);
+  //       }
 
-        // dialog.showErrorBox("Username", "Value of username is: " + username);
+  //       //need to check if there is a back slash at end of username, if so then remove it
+  //       if (username.charAt(username.length - 1) == "/") {
+  //         username = username.substring(0, username.length - 1);
+  //       }
 
-        if (win) {
-          setTimeout(() => {
-            //dialog.showErrorBox("Delay", "Delay has just finished...");
-            win.webContents.send("info", username);
-          }, 12000);
-        }
-      }
-    }
-  }
+  //       // dialog.showErrorBox("Username", "Value of username is: " + username);
+
+  //       if (win) {
+  //         setTimeout(() => {
+  //           //dialog.showErrorBox("Delay", "Delay has just finished...");
+  //           win.webContents.send("info", username);
+  //         }, 12000);
+  //       }
+  //     }
+  //   }
+  // }
 
   win.on("close", e => {
     if (process.platform !== "darwin") {
@@ -602,6 +604,8 @@ async function init() {
   torrentWin = webtorrent.getInstance(appState);
 
   initMenu();
+
+  // win.setMenuBarVisibility(false);
 
   // To keep app startup fast, some code is delayed.
   setTimeout(() => {
