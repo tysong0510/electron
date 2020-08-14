@@ -655,12 +655,21 @@ export default {
 
             this.load = false;
 
-            console.log(
-              "tempDownloadedGames array for " + this.game.title + "id: " + this.game.id,
-              this.$store.state.tempDownloadedGames[this.game.id]
-            );
+            console.log("==== Download FInished =====");
 
-            // console.log('==== Download FInished =====');
+            let params = {
+              username: this.$store.state.auth.user.username,
+              gameId: this.game.id
+            };
+
+            Axios({ url: "/user-games/downloaded", params: params, method: "POST" })
+              .then(async resp => {
+                console.log("Successfully submitted downloaded time stamp: ", resp);
+              })
+              .catch(err => {
+                console.log("There was an error submitting timestamp: ", err);
+              });
+
             // const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
 
             // this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
@@ -701,6 +710,19 @@ export default {
         this.$store.dispatch("retrieveDownloadedGame");
         this.load = false;
         console.log("=============== Download data file succeed! =============");
+
+        let params = {
+          username: this.$store.state.auth.user.username,
+          gameId: this.game.id
+        };
+
+        Axios({ url: "/user-games/downloaded", params: params, method: "POST" })
+          .then(async resp => {
+            console.log("Successfully submitted downloaded time stamp: ", resp);
+          })
+          .catch(err => {
+            console.log("There was an error submitting timestamp: ", err);
+          });
       });
     },
     /** 

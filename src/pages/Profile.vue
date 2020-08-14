@@ -83,9 +83,7 @@
         </b-row>
 
         <b-dropdown variant="outline-secondary">
-          <template v-slot:button-content
-            ><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL
-          </template>
+          <template v-slot:button-content><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL </template>
           <b-dropdown-text>{{ url }}invite/{{ USER.username }}</b-dropdown-text>
         </b-dropdown>
         <br />
@@ -171,7 +169,11 @@
         <b-row no-gutters>
           <b-col class="col-4 d-inline mr-auto">
             <d3-pie
-              :data="[{ key: 'test', value: 20 }, { key: 'test1', value: 50 }, { key: 'test2', value: 30 }]"
+              :data="[
+                { key: 'test', value: 20 },
+                { key: 'test1', value: 50 },
+                { key: 'test2', value: 30 }
+              ]"
               style="width: auto; height: 184.02px;"
             />
           </b-col>
@@ -788,8 +790,12 @@ import {
 
 import aws from "aws-sdk";
 //import winreg from "winreg";
-import regedit from "regedit";
-regedit.setExternalVBSLocation("resources/regedit/vbs");
+// import regedit from "regedit";
+// regedit.setExternalVBSLocation("resources/regedit/vbs");
+import fs from "fs";
+import path from "path";
+import { remote } from "electron";
+const USER_DATA_PATH = remote.app.getPath("userData");
 
 aws.config.update({
   accessKeyId: "AKIASKCWLEX6DIWB2K4E",
@@ -1112,68 +1118,70 @@ export default {
     console.log("is this user authorized: ", this.$store.getters["isAuthorized"]);
     console.log("value of this.auth: ", this.$store.state.auth);
 
-    if (process.platform == "win32") {
-      regedit.createKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
-        if (err) {
-          console.log("There was an error creating Registry key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
-        } else {
-          console.log("value of auth userCredentials: ", this.$store.state.auth.userCredentials);
+    // if (process.platform == "win32") {
+    //   regedit.createKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+    //     if (err) {
+    //       console.log("There was an error creating Registry key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+    //     } else {
+    //       console.log("value of auth userCredentials: ", this.$store.state.auth.userCredentials);
 
-          var username = this.$store.state.auth.userCredentials.username;
-          var password = this.$store.state.auth.userCredentials.password;
+    //       var username = this.$store.state.auth.userCredentials.username;
+    //       var password = this.$store.state.auth.userCredentials.password;
 
-          console.log("What is the value of username: ", username);
-          console.log("What is the value of password: ", password);
+    //       console.log("What is the value of username: ", username);
+    //       console.log("What is the value of password: ", password);
 
-          regedit.putValue(
-            {
-              "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
-                username: {
-                  value: username,
-                  type: "REG_EXPAND_SZ"
-                },
+    //       regedit.putValue(
+    //         {
+    //           "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
+    //             username: {
+    //               value: username,
+    //               type: "REG_EXPAND_SZ"
+    //             },
 
-                password: {
-                  value: password,
-                  type: "REG_EXPAND_SZ"
-                }
-              }
-            },
-            err => {
-              if (err) {
-                console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
-              }
-            }
-          );
+    //             password: {
+    //               value: password,
+    //               type: "REG_EXPAND_SZ"
+    //             }
+    //           }
+    //         },
+    //         err => {
+    //           if (err) {
+    //             console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+    //           }
+    //         }
+    //       );
 
-          console.log(
-            "regedit put data: ",
-            regedit.putValue(
-              {
-                "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
-                  username: {
-                    value: username,
-                    type: "REG_EXPAND_SZ"
-                  },
+    //       console.log(
+    //         "regedit put data: ",
+    //         regedit.putValue(
+    //           {
+    //             "HKCU\\SOFTWARE\\VoxPop Games\\Credentials": {
+    //               username: {
+    //                 value: username,
+    //                 type: "REG_EXPAND_SZ"
+    //               },
 
-                  password: {
-                    value: password,
-                    type: "REG_EXPAND_SZ"
-                  }
-                }
-              },
-              err => {
-                if (err) {
-                  console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
-                }
-              }
-            )
-          );
+    //               password: {
+    //                 value: password,
+    //                 type: "REG_EXPAND_SZ"
+    //               }
+    //             }
+    //           },
+    //           err => {
+    //             if (err) {
+    //               console.log("There was an error submitting values to key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+    //             }
+    //           }
+    //         )
+    //       );
 
-          console.log("Response to creating key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
-        }
-      });
-    }
+    //       console.log("Response to creating key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+    //     }
+    //   });
+    // }
+
+    this.createCredentials();
   },
   methods: {
     ...mapActions(["getUserFilesStatistic", "getGamesStatistics", "fixStatistics"]),
@@ -1299,6 +1307,42 @@ export default {
         );
       }
       return "";
+    },
+    createCredentials() {
+      const credentialsPath = path.join(USER_DATA_PATH, "credentials.txt");
+
+      //this.mkdirDeep(credentialsPath);
+
+      var username = this.$store.state.auth.userCredentials.username;
+      var password = this.$store.state.auth.userCredentials.password;
+
+      let data = {
+        username: username,
+        password: password
+      };
+
+      const credentials = JSON.stringify(data);
+
+      fs.writeFile(credentialsPath, credentials, err => {
+        if (err) {
+          console.log("There was an error writing file: ", err);
+        } else {
+          console.log("Credentials written successfully to: ", credentialsPath);
+        }
+      });
+    },
+
+    /**
+     * The function recursively creates directories in the specified path if they do not exist
+     *
+     * @param {string} dirPath - Path to directory
+     * @param {object | number} options - The same as [here](https://nodejs.org/api/fs.html#fs_fs_mkdirsync_path_options)
+     */
+    mkdirDeep(dirPath, options = undefined) {
+      if (!fs.existsSync(dirPath)) {
+        this.mkdirDeep(path.join(dirPath, ".."), options);
+        fs.mkdirSync(dirPath, options);
+      }
     }
   }
 };

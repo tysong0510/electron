@@ -36,6 +36,8 @@ const { dialog } = require("electron");
 const isDevelopment = process.env.NODE_ENV !== "production";
 const enableDebug = process.env.DEBUG === "true" || process.argv.includes("--debug");
 
+const USER_DATA_PATH = app.getPath("userData");
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -135,15 +137,25 @@ function createWindow({ debug }) {
   win.on("close", e => {
     if (process.platform !== "darwin") {
       // console.log("quitting1");
-      if (process.platform == "win32") {
-        regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
-          if (err) {
-            console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
-          } else {
-            console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
-          }
-        });
-      }
+      // if (process.platform == "win32") {
+      //   regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+      //     if (err) {
+      //       console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+      //     } else {
+      //       console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+      //     }
+      //   });
+      // }
+      const credentialsPath = path.join(USER_DATA_PATH, "credentials.txt");
+
+      fs.unlink(credentialsPath, err => {
+        if (err) {
+          console.log("There was an issue removing the path: ", credentialsPath);
+        } else {
+          console.log(credentialsPath, "has been removed successfully");
+        }
+      });
+
       app.quit();
     }
     if (!app.isQuitting) {
@@ -548,18 +560,28 @@ async function init() {
    */
 
   app.on("before-quit", e => {
+    const credentialsPath = path.join(USER_DATA_PATH, "credentials.txt");
+
+    fs.unlink(credentialsPath, err => {
+      if (err) {
+        console.log("There was an issue removing the path: ", credentialsPath);
+      } else {
+        console.log(credentialsPath, "has been removed successfully");
+      }
+    });
+
     if (app.isQuitting) return;
 
     app.isQuitting = true;
     e.preventDefault();
     if (win) {
-      regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
-        if (err) {
-          console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
-        } else {
-          console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
-        }
-      });
+      // regedit.deleteKey(["HKCU\\SOFTWARE\\VoxPop Games\\Credentials"], (err, data) => {
+      //   if (err) {
+      //     console.log("There was an error deleting key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", err);
+      //   } else {
+      //     console.log("Successful deletion of key: HKCU\\SOFTWARE\\VoxPop Games\\Credentials ", data);
+      //   }
+      // });
       console.log("Encrypting apps");
       dummyDRM(DRM_MODE_ENCRYPT);
       console.log("Apps are encrypted");
