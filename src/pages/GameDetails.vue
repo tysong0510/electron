@@ -465,26 +465,25 @@ export default {
      * Functionality for this has been moved down to isTempGameDownloaded in methods below
      */
 
-    // isGameDownloaded() {
-    //   console.log("===========================================");
+    isGameDownloaded() {
+      var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
-    //   var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      const execFile = fs
+        .readdirSync(originalPath)
+        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+        .shift();
 
-    //   const execFile = fs
-    //     .readdirSync(originalPath)
-    //     .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
-    //     .shift();
+      if (execFile) {
+        //checks if file has been deleted or not
+        return true;
+      }
 
-    //   if (execFile) { //checks if file has been deleted or not
-    //     return true;
-    //   }
+      if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+        return true;
+      }
 
-    //   if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-    //     return true;
-    //   }
-
-    //   return false;
-    // },
+      return false;
+    },
 
     didVote() {
       var votedGames = this.$store.state.votedGames;
@@ -913,7 +912,11 @@ export default {
     },
     isTempGameDownloaded() {
       try {
+        console.log("Inside isTempGameDownloaded game.id", this.game.id);
+
         let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+
+        console.log("Inside isTempGameDownloaded originalPath", originalPath);
         if (!originalPath) {
           return false;
         }
@@ -924,13 +927,17 @@ export default {
           .shift();
 
         if (execFile) {
+          console.log("Inside isTempGameDownloaded", execFile);
           //checks if file has been deleted or not
           return true;
         }
 
         if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          console.log("Inside isTempGameDownloaded torrent found");
           return true;
         }
+
+        console.log("Inside isTempGameDownloaded not torrent found - final");
 
         return false;
       } catch (error) {
@@ -1022,6 +1029,7 @@ export default {
       const gameId = this.$route.params.id || 0;
       this.getGameStatus({ params: { id: gameId } });
       this.getGame({ params: { id: gameId } });
+      console.log("============ inside the fetch data ===============", gameId);
     },
     getImagePath(game, type = "main") {
       if (game.images) {

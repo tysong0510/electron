@@ -138,7 +138,7 @@ function init() {
   listenToClientEvents();
   //console.log("right above start torrenting in function init from webtorrent.js");
   ipc.on("wt-start-torrenting", (e, torrentKey, torrentID, path, fileModtimes, selections) => {
-    // console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
+    console.log(e, torrentKey, torrentID, path, fileModtimes, selections);
     startTorrenting(torrentKey, torrentID, path, fileModtimes, selections);
   });
 
