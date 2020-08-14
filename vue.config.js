@@ -88,14 +88,14 @@ module.exports = {
       // chunks: ['chunk-vendors', 'chunk-common', 'webtorrent']
     }
     // ,
-    // externalLink: {
-    //   //entry for the page
-    //   entry: "src/externalMain.js",
-    //   //the source template
-    //   template: "public/externalLink.html",
-    //   //output as dist/index.html
-    //   filename: "externalLink.html"
-    // }
+    /*externalLink: {
+      //entry for the page
+      entry: "src/externalMain.js",
+      //the source template
+      template: "public/externalLink.html",
+      //output as dist/index.html
+      filename: "externalLink.html"
+    }*/
   }
 
   /* devServer: {

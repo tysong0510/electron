@@ -62,11 +62,11 @@
 
       <!-- Adding button here to remove downloaded games from array in local storage for testing -->
 
-      <!-- <b-row>
+      <b-row>
         <b-col>
           <button class="btn btn-primary" @click="removeDownloadedGames()">Remove Downloaded Games</button>
         </b-col>
-      </b-row> -->
+      </b-row>
     </b-row>
   </div>
 </template>
