@@ -68,7 +68,7 @@
                         variant="primary"
                         size="lg"
                         class="btn-buy"
-                        @click="startDownloadingForSeeding()"
+                        @click="startDownloading()"
                       >
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
