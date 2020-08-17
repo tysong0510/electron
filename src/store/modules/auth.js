@@ -144,6 +144,14 @@ export default {
           console.log("There was an issue saving User Credentials for Remember Me: ", err);
         }
       });
+    },
+    removeRememberMe() {
+      console.log("inside remove rememberMe mutation...");
+      storage.remove("rememberMe", function(err) {
+        if (err) {
+          console.log("There was an issue removing User Credentials for Remember Me: ", err);
+        }
+      });
     }
   },
   actions: {
@@ -364,6 +372,8 @@ export default {
           .then(async resp => {
             console.log("log out was successful: ", resp);
             //resolve(resp);
+
+            commit("removeRememberMe");
 
             commit(CLEAR_TORRENTS);
 
