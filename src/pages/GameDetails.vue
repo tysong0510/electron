@@ -188,7 +188,7 @@
               </template>
 
               <template v-if="currentRouteIs('my-game-details')">
-                <div v-if="!isTempGameDownloaded()">
+                <div v-if="!isTempGameDownloaded() && isMagnetLinkValid(game.magnetURI)">
                   <b-row>
                     <b-col class="col-7 torrent-seed-status">
                       <b-card-text>
@@ -593,6 +593,7 @@ export default {
       return route === this.$router.currentRoute.name;
     },
     isMagnetLinkValid(magnetLink) {
+      console.log(magnetLink);
       if (magnetLink === null || magnetLink.search("magnet:?") === -1) {
         return false;
       }
