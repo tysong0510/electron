@@ -160,6 +160,41 @@
               </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
+                <div v-if="!isTempGameDownloaded()">
+                  <b-row>
+                    <b-col class="col-7 torrent-status">
+                      <b-card-text>
+                        <div>Available Peers: {{ numberOfPeers }}</div>
+                      </b-card-text>
+                    </b-col>
+                    <b-col class="game-buttons p-2">
+                      <b-button
+                        v-if="!isTempGameDownloaded()"
+                        :disabled="load || numberOfPeers === 0"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="startDownload()"
+                      >
+                        <span v-if="!load">Torrent Download</span>
+                        <b-spinner v-if="load"></b-spinner>
+                      </b-button>
+                      <b-button
+                        v-else-if="isTempGameDownloaded() && !load"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="tempPlayGame"
+                      >
+                        Play
+                      </b-button>
+                      <div v-if="load && !isTempGameDownloaded()" class="p-3">
+                        <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
+                        {{ percentage }}/100
+                      </div>
+                    </b-col>
+                  </b-row>
+                </div>
                 <div v-if="isTempGameDownloaded()">
                   <b-row>
                     <b-col class="col-7 torrent-status">
