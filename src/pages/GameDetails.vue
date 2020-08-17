@@ -113,6 +113,12 @@
                       </b-col>
 
                       <b-col class="p-2">
+                        <b-button variant="info" size="sm" class="btn-voted ml-2" @click="changeDirectory()">
+                          <span>Change Directory</span>
+                        </b-button>
+                      </b-col>
+
+                      <b-col class="p-2">
                         <b-button
                           v-if="!isGameRecommended"
                           :disabled="hasItBeenRecommended"
@@ -549,24 +555,18 @@ export default {
         gameId: this.game.id
       });
     },
-    startDownloading() {
+    async startDownloading() {
       console.log("startDownloading from the server", this.game);
       this.load = true;
-      //create file path hidden inside voxpop directory
-      var filePath = this.createDirectory();
+      //var filePath = this.$store.state.tempInstallPath;
+      var filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
-      /**
-       * this option is reserved to let user pick their own directory to save game
-       *  */
-      if (!filePath) {
-        let options = {
-          title: "Choose Directory to save " + this.game.title,
-          buttonLabel: "Select Directory",
-          properties: ["openDirectory"]
-        };
-        filePath = dialog.showOpenDialog(win, options);
-        this.$store.dispatch("savePath", filePath);
+      if (filePath == null) {
+        filePath = await this.chooseDirectory();
+        filePath = filePath.filePaths[0];
       }
+
+      console.log("value of filePath: ", filePath);
 
       if (this.game.downloadURL !== null && this.game.dataFile !== null) {
         console.log("startDownloading from the server with data file");
@@ -598,6 +598,7 @@ export default {
               game: this.game,
               path: filePath
             };
+            console.log("filePath before being saved: ", filePath);
             this.$store.dispatch("addDownloadedGame", savedContent);
 
             this.downloadDataFile(filePath);
@@ -640,6 +641,8 @@ export default {
               game: this.game,
               path: filePath
             };
+
+            console.log("filePath before being saved: ", filePath);
 
             this.$store.dispatch("addDownloadedGame", savedContent);
             this.$store.dispatch("retrieveDownloadedGame");
@@ -717,21 +720,44 @@ export default {
           });
       });
     },
-    /** 
-    * 
-    * This function goes alongside letting the user pick a directory
+
+    chooseDirectory() {
+      var path = null;
+
+      let options = {
+        title: "Choose Folder to save " + this.game.title,
+        buttonLabel: "Select Folder",
+        properties: ["openDirectory"]
+      };
+
+      path = dialog.showOpenDialog(win, options);
+
+      console.log("chosen path in chooseDirectory: ", path.filePath);
+
+      return path;
+      //this.$store.dispatch("savePath", filePath);
+    },
+
     changeDirectory() {
-      this.$store.dispatchPromise("removePath");
+      //this.$store.dispatchPromise("removePath");
       var filePath = null;
       let options = {
-        title: "Choose Directory to save " + this.game.title,
+        title: "Choose New Directory to save " + this.game.title,
         buttonLabel: "Select Directory",
         properties: ["openDirectory"]
       };
       filePath = dialog.showOpenDialog(win, options);
-      this.$store.dispatch("savePath", filePath);
+
+      let savedContent = {
+        game: this.game,
+        path: filePath
+      };
+
+      console.log("filePath has changed to: ", filePath);
+
+      this.$store.dispatch("addDownloadedGame", savedContent);
+      //this.$store.dispatch("savePath", filePath);
     },
-    */
 
     /**
      * This creates a directory using the path below, if it already exists it will just return it
@@ -936,11 +962,11 @@ export default {
     },
     isTempGameDownloaded() {
       try {
-        console.log("Inside isTempGameDownloaded game.id", this.game.id);
+        //console.log("Inside isTempGameDownloaded game.id", this.game.id);
 
         let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
-        console.log("Inside isTempGameDownloaded originalPath", originalPath);
+        //console.log("Inside isTempGameDownloaded originalPath", originalPath);
         if (!originalPath) {
           return false;
         }
@@ -972,6 +998,7 @@ export default {
 
     async tempPlayGame() {
       let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      console.log("origincalPath: ", originalPath);
 
       const execFile = fs
         .readdirSync(originalPath)
@@ -984,11 +1011,7 @@ export default {
         var pathToGame = path.join(originalPath, execFile);
 
         console.log("pathToGame using path.join windows: ", pathToGame);
-        //console.log(await child_process.execFile(pathToGame));
-        var username = this.$store.state.auth.user.username;
-        var password = this.$store.state.auth.user.password;
-        console.log("Username: ", username);
-        console.log("Password: ", password);
+        //console.log(await child_process.execFile(pathToGame))
         //return await child_process.execFile(pathToGame, [username, password]);
         return await child_process.execFile(pathToGame);
       }
