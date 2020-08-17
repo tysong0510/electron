@@ -92,7 +92,7 @@
                           variant="primary"
                           size="lg"
                           class="btn-buy"
-                          @click="startDownload()"
+                          @click="startDownloading()"
                         >
                           <span v-if="!load">Download</span>
                           <b-spinner v-if="load"></b-spinner>
@@ -160,9 +160,37 @@
               </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
+                <div v-if="!didVote">
+                  <b-row>
+                    <b-col>
+                      <b-button v-b-modal.ratingModal variant="primary" class="btn-voted"> Rate {{ game.title }} </b-button>
+                    </b-col>
+                  </b-row>
+                </div>
+
+                <div v-else>
+                  <b-row class="rating">
+                    <b-col class="pr-0 m-auto d-inline-flex align-middle">
+                      <span class="mr-3">
+                        {{ (game.vote && game.vote.toFixed(1)) || (game.rating && game.rating.toFixed(1)) }}
+                      </span>
+                      <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
+                    </b-col>
+                  </b-row>
+                  <b-row class="mt-2" size="sm">
+                    <b-col>
+                      <b-button variant="outline-secondary" class="btn-voted">
+                        Voted
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </div>
+              </template>
+
+              <template v-if="currentRouteIs('my-game-details')">
                 <div v-if="!isTempGameDownloaded()">
                   <b-row>
-                    <b-col class="col-7 torrent-status">
+                    <b-col class="col-7 torrent-seed-status">
                       <b-card-text>
                         <div>Available Peers: {{ numberOfPeers }}</div>
                       </b-card-text>
@@ -174,7 +202,7 @@
                         variant="primary"
                         size="lg"
                         class="btn-buy"
-                        @click="startDownload()"
+                        @click="startDownloadingForSeeding()"
                       >
                         <span v-if="!load">Torrent Download</span>
                         <b-spinner v-if="load"></b-spinner>
@@ -1364,5 +1392,10 @@ button:hover .show {
 
 button:hover .hoverShow {
   display: inline;
+}
+
+.torrent-seed-status {
+  display: flex;
+  align-items: center;
 }
 </style>
