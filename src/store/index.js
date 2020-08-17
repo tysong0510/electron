@@ -7,6 +7,7 @@ import { createSharedMutations } from "vuex-electron";
 import {
   INSTALL_GAME,
   PAUSE_DOWNLOAD_GAME,
+  RESUME_DOWNLOAD_GAME,
   START_DOWNLOAD_GAME,
   START_GAME,
   START_SEEDING,
@@ -1185,6 +1186,48 @@ const demoData = {
         commit(addTorrentMsg);
         torrent = findTorrentByGameId(gameId);
       }
+
+      const { torrentFileName, torrentURL } = torrent;
+      const torrentId = torrentFileName || torrentURL;
+
+      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+
+      if (!ipcRenderer) {
+        ipcMain.emit(
+          "wt-start-torrenting",
+          null,
+          torrentKey, // key
+          torrentId,
+          downloadPath,
+          null
+        );
+      } else {
+        ipcRenderer.emit(
+          "wt-start-torrenting",
+          torrentKey, // key
+          torrentId,
+          downloadPath,
+          null
+          // select all torrent files by default
+        );
+      }
+    },
+
+    async [RESUME_DOWNLOAD_GAME]({ commit, getters }, { gameId }) {
+      const { findTorrentByGameId } = getters;
+      const torrent = findTorrentByGameId(gameId);
+      if (!torrent) {
+        return;
+      }
+      const { infoHash, torrentKey } = torrent;
+      commit({
+        type: UPDATE_TORRENT,
+        payload: {
+          state: "seeding",
+          infoHash,
+          torrentKey
+        }
+      });
 
       const { torrentFileName, torrentURL } = torrent;
       const torrentId = torrentFileName || torrentURL;

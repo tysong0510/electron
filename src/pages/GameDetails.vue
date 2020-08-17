@@ -286,6 +286,7 @@ import VoteBar from "../components/Progress/VoteBar.vue";
 import {
   START_DOWNLOAD_GAME,
   PAUSE_DOWNLOAD_GAME,
+  RESUME_DOWNLOAD_GAME,
   START_GAME,
   START_SEEDING,
   UNINSTALL_GAME,
@@ -857,7 +858,7 @@ export default {
       });
     },
     resumeDownloading() {
-      this[START_DOWNLOAD_GAME]({
+      this[RESUME_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
     },
@@ -1079,7 +1080,7 @@ export default {
         return null;
       }
     },
-    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME]),
+    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, RESUME_DOWNLOAD_GAME, START_GAME]),
 
     routerLink() {
       if (this.$route.params.user != null) {
