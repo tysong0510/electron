@@ -92,7 +92,7 @@
                           variant="primary"
                           size="lg"
                           class="btn-buy"
-                          @click="startDownload()"
+                          @click="startDownloading()"
                         >
                           <span v-if="!load">Download</span>
                           <b-spinner v-if="load"></b-spinner>
@@ -160,6 +160,69 @@
               </template>
 
               <template v-else-if="currentRouteIs('my-game-details')">
+                <div v-if="!didVote">
+                  <b-row>
+                    <b-col>
+                      <b-button v-b-modal.ratingModal variant="primary" class="btn-voted"> Rate {{ game.title }} </b-button>
+                    </b-col>
+                  </b-row>
+                </div>
+
+                <div v-else>
+                  <b-row class="rating">
+                    <b-col class="pr-0 m-auto d-inline-flex align-middle">
+                      <span class="mr-3">
+                        {{ (game.vote && game.vote.toFixed(1)) || (game.rating && game.rating.toFixed(1)) }}
+                      </span>
+                      <vote-bar :vote="game.vote || game.rating" style="font-size: 0.8em;" />
+                    </b-col>
+                  </b-row>
+                  <b-row class="mt-2" size="sm">
+                    <b-col>
+                      <b-button variant="outline-secondary" class="btn-voted">
+                        Voted
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </div>
+              </template>
+
+              <template v-if="currentRouteIs('my-game-details')">
+                <div v-if="!isTempGameDownloaded() && isMagnetLinkValid(game.magnetURI)">
+                  <b-row>
+                    <b-col class="col-7 torrent-seed-status">
+                      <b-card-text>
+                        <div>Available Peers: {{ numberOfPeers }}</div>
+                      </b-card-text>
+                    </b-col>
+                    <b-col class="game-buttons p-2">
+                      <b-button
+                        v-if="!isTempGameDownloaded()"
+                        :disabled="load || numberOfPeers === 0"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="startDownloadingForSeeding()"
+                      >
+                        <span v-if="!load">Torrent Download</span>
+                        <b-spinner v-if="load"></b-spinner>
+                      </b-button>
+                      <b-button
+                        v-else-if="isTempGameDownloaded() && !load"
+                        variant="primary"
+                        size="lg"
+                        class="btn-buy"
+                        @click="tempPlayGame"
+                      >
+                        Play
+                      </b-button>
+                      <div v-if="load && !isTempGameDownloaded()" class="p-3">
+                        <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
+                        {{ percentage }}/100
+                      </div>
+                    </b-col>
+                  </b-row>
+                </div>
                 <div v-if="isTempGameDownloaded()">
                   <b-row>
                     <b-col class="col-7 torrent-status">
@@ -292,6 +355,7 @@ import VoteBar from "../components/Progress/VoteBar.vue";
 import {
   START_DOWNLOAD_GAME,
   PAUSE_DOWNLOAD_GAME,
+  RESUME_DOWNLOAD_GAME,
   START_GAME,
   START_SEEDING,
   UNINSTALL_GAME,
@@ -529,6 +593,7 @@ export default {
       return route === this.$router.currentRoute.name;
     },
     isMagnetLinkValid(magnetLink) {
+      console.log(magnetLink);
       if (magnetLink === null || magnetLink.search("magnet:?") === -1) {
         return false;
       }
@@ -889,7 +954,7 @@ export default {
       });
     },
     resumeDownloading() {
-      this[START_DOWNLOAD_GAME]({
+      this[RESUME_DOWNLOAD_GAME]({
         gameId: this.game.id
       });
     },
@@ -1119,7 +1184,7 @@ export default {
         return null;
       }
     },
-    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, START_GAME]),
+    ...mapActions([START_DOWNLOAD_GAME, PAUSE_DOWNLOAD_GAME, RESUME_DOWNLOAD_GAME, START_GAME]),
 
     routerLink() {
       if (this.$route.params.user != null) {
@@ -1345,5 +1410,10 @@ button:hover .show {
 
 button:hover .hoverShow {
   display: inline;
+}
+
+.torrent-seed-status {
+  display: flex;
+  align-items: center;
 }
 </style>
