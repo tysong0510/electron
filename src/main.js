@@ -227,6 +227,7 @@ function setupIpc() {
     const existingTorrent = findTorrentByInfoHash(infoHash);
     if (existingTorrent && existingTorrent.torrentKey !== torrentKey) {
       ipcRenderer.send("wt-stop-torrenting", infoHash);
+      console.log("====== Existing Torrent =========", existingTorrent);
       return dispatch("error", "Cannot add duplicate torrent");
     }
     dispatch({

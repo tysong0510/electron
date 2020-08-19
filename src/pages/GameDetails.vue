@@ -63,7 +63,7 @@
                     </div>
                     <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button
-                        v-if="!isTempGameDownloaded()"
+                        v-if="!isTempGameDownloaded"
                         :disabled="load"
                         variant="primary"
                         size="lg"
@@ -73,7 +73,7 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else-if="isTempGameDownloaded()" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button v-else-if="isTempGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
                         Play
                       </b-button>
 
@@ -87,18 +87,18 @@
                     <b-row>
                       <b-col class="game-buttons p-2">
                         <b-button
-                          v-if="!isTempGameDownloaded()"
+                          v-if="!isTempGameDownloaded"
                           :disabled="load"
                           variant="primary"
                           size="lg"
                           class="btn-buy"
                           @click="startDownload()"
                         >
-                          <span v-if="!load">Download</span>
-                          <b-spinner v-if="load"></b-spinner>
+                          <span v-if="!load && !isSearchingPeer">Download</span>
+                          <b-spinner v-if="load || isSearchingPeer"></b-spinner>
                         </b-button>
                         <b-button
-                          v-else-if="isTempGameDownloaded() && !load"
+                          v-else-if="isTempGameDownloaded && !load && !isSearchingPeer"
                           variant="primary"
                           size="lg"
                           class="btn-buy"
@@ -106,7 +106,7 @@
                         >
                           Play
                         </b-button>
-                        <div v-if="load && !isTempGameDownloaded()" class="p-3">
+                        <div v-if="load && !isTempGameDownloaded" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -188,7 +188,7 @@
               </template>
 
               <template v-if="currentRouteIs('my-game-details')">
-                <div v-if="isTorrentGameDownloaded">
+                <div v-if="isTorrentGameDownloaded && !isSearchingPeer">
                   <b-row>
                     <b-col class="col-7 torrent-status">
                       <div :class="{ 'b-torrent-info': true, 'b-torrent-info__no-peers': numberOfPeers === 0 }">
@@ -327,6 +327,7 @@ import {
   INSTALL_GAME
   //ADD_TO_CART
 } from "../store/actions-types";
+import { SEARCHING_PEER } from "../store/mutation-types";
 
 import { CAN_GAME_INSTALL, IS_GAME_INSTALLED } from "../store/modules/path";
 //import { baseURL } from "../apiConfig";
@@ -498,6 +499,40 @@ export default {
     /**
      * Functionality for this has been moved down to isTempGameDownloaded in methods below
      */
+    isTempGameDownloaded() {
+      try {
+        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          console.log("Inside isTempGameDownloaded torrent found");
+          return true;
+        }
+        //console.log("Inside isTempGameDownloaded game.id", this.game.id);
+
+        let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+
+        console.log("Inside isTempGameDownloaded originalPath", originalPath);
+        if (!originalPath) {
+          return false;
+        }
+
+        const execFile = fs
+          .readdirSync(originalPath)
+          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+          .shift();
+
+        if (execFile) {
+          console.log("Inside isTempGameDownloaded", execFile);
+          //checks if file has been deleted or not
+          return true;
+        }
+
+        console.log("Inside isTempGameDownloaded not torrent found - final");
+
+        return false;
+      } catch (error) {
+        console.log("Inside isTempGameDownloaded", error);
+        return false;
+      }
+    },
 
     isGameDownloaded() {
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
@@ -552,7 +587,6 @@ export default {
   },
   updated() {
     this.isGameInstalled;
-    this.isTempGameDownloaded;
   },
 
   methods: {
@@ -582,25 +616,48 @@ export default {
     },
     async startDownloadingForSeeding() {
       console.log("startDownloading from the torrent");
-      this.load = true;
       //var filePath = this.$store.state.tempInstallPath;
-      var filePath = this.$store.state.tempDownloadedGames[this.game.id];
+      let filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
       if (filePath == null) {
         filePath = await this.chooseDirectory();
         filePath = filePath.filePaths[0];
       }
 
+      console.log("startDownloadingForSeeding - check before start downloading", filePath);
+
+      if (!filePath) {
+        return;
+      }
+
+      console.log("startDownloadingForSeeding - file path is valid and going to download from torrent", filePath);
+
       this[START_DOWNLOAD_GAME]({
         gameId: this.game.id,
         filePath
       });
+
+      setTimeout(async () => {
+        if (this.isSearchingPeer) {
+          await this.$store.dispatchPromise({
+            type: SEARCHING_PEER,
+            payload: false
+          });
+          console.log("still trying to find peers from the network! switching to server download afte 2 mins!");
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          console.log("torrent to be removed", torrent);
+          this.$store.dispatchPromise("removeTorrent", torrent).then(() => {
+            console.log("torrent removed !!!! Start downloading from server now!");
+            this.startDownloading();
+          });
+        }
+      }, 120000);
     },
     async startDownloading() {
       console.log("startDownloading from the server", this.game);
       this.load = true;
       //var filePath = this.$store.state.tempInstallPath;
-      var filePath = this.$store.state.tempDownloadedGames[this.game.id];
+      let filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
       if (filePath == null) {
         filePath = await this.chooseDirectory();
@@ -610,6 +667,11 @@ export default {
         // concatTitle = concatTitle.replace(/ /g, "-");
 
         // filePath = path.join(filePath, concatTitle);
+      }
+
+      if (!filePath) {
+        console.log("startDownloading cannot start download since the path is not defined");
+        return;
       }
 
       console.log("value of filePath: ", filePath);
@@ -711,7 +773,7 @@ export default {
               });
 
             console.log("==== Download FInished =====");
-            const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
+            const seedFilePath = filePath + "\\" + noSpaceTitleM + ".exe";
 
             this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
 
@@ -1004,48 +1066,13 @@ export default {
     assignTorrent() {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
-    isTempGameDownloaded() {
-      try {
-        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-          console.log("Inside isTempGameDownloaded torrent found");
-          return true;
-        }
-        //console.log("Inside isTempGameDownloaded game.id", this.game.id);
-
-        let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
-
-        console.log("Inside isTempGameDownloaded originalPath", originalPath);
-        if (!originalPath) {
-          return false;
-        }
-
-        const execFile = fs
-          .readdirSync(originalPath)
-          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
-          .shift();
-
-        if (execFile) {
-          console.log("Inside isTempGameDownloaded", execFile);
-          //checks if file has been deleted or not
-          return true;
-        }
-
-        console.log("Inside isTempGameDownloaded not torrent found - final");
-
-        return false;
-      } catch (error) {
-        console.log("Inside isTempGameDownloaded", error);
-        return false;
-      }
-    },
-
     async tempPlayGame() {
-      const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
-      let originalPath = null;
-      if (torrent) {
-        originalPath = torrent.path;
-      } else {
-        originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      if (originalPath) {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        if (torrent) {
+          originalPath = torrent.path;
+        }
       }
       console.log("origincalPath: ", originalPath);
 

@@ -189,6 +189,7 @@ function init() {
   });
 
   ipc.on("wt-stop-torrenting", (e, infoHash) => stopTorrenting(infoHash));
+  ipc.on("wt-remove-torrent", (e, infoHash) => removeTorrent(infoHash));
   ipc.on("wt-create-torrent", (e, torrentKey, options) => createTorrent(torrentKey, options));
   ipc.on("wt-save-torrent-file", (e, torrentKey) => saveTorrentFile(torrentKey));
   ipc.on("wt-select-files", (e, infoHash, selections) => selectFiles(infoHash, selections));
@@ -247,6 +248,12 @@ function stopTorrenting(infoHash) {
   if (torrent) torrent.destroy();
 }
 
+function removeTorrent(infoHash) {
+  // TODO: NEED MORE INVESTIATION
+  const torrent = client.get(infoHash);
+  if (torrent) torrent.destroy();
+}
+
 // Create a new torrent, start seeding
 function createTorrent(torrentKey, options = {}) {
   const fsExtra = require("fs-extra");
@@ -272,6 +279,7 @@ function createTorrent(torrentKey, options = {}) {
 
   //sharing a torrent to be downloaded
   const torrent = client.seed(files, options);
+  console.log("=========== Torrent Seeding ==========", torrent, torrentKey);
   torrent.key = torrentKey;
   addTorrentEvents(torrent); //would it contact application in this method...
   ipc.send("wt-new-torrent");
