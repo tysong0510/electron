@@ -114,7 +114,53 @@ window.requestIdleCallback = void 0;
 //   // iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478?transport=udp"}]
 // }));
 
-let client = (window.client = new WebTorrent({ peerId: PEER_ID }));
+let client = (window.client = new WebTorrent({
+  maxConns: 20,
+  peerId: PEER_ID,
+  dht: false,
+  webSeeds: true,
+  tracker: {
+    rtcConfig: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+        { url: "stun:stun01.sipphone.com" },
+        { url: "stun:stun.ekiga.net" },
+        { url: "stun:stun.fwdnet.net" },
+        { url: "stun:stun.ideasip.com" },
+        { url: "stun:stun.iptel.org" },
+        { url: "stun:stun.rixtelecom.se" },
+        { url: "stun:stun.schlund.de" },
+        { url: "stun:stun1.l.google.com:19302" },
+        { url: "stun:stun2.l.google.com:19302" },
+        { url: "stun:stun3.l.google.com:19302" },
+        { url: "stun:stun4.l.google.com:19302" },
+        { url: "stun:stunserver.org" },
+        { url: "stun:stun.softjoys.com" },
+        { url: "stun:stun.voiparound.com" },
+        { url: "stun:stun.voipbuster.com" },
+        { url: "stun:stun.voipstunt.com" },
+        { url: "stun:stun.voxgratia.org" },
+        { url: "stun:stun.xten.com" },
+        {
+          url: "turn:numb.viagenie.ca",
+          credential: "muazkh",
+          username: "webrtc@live.com"
+        },
+        {
+          url: "turn:192.158.29.39:3478?transport=udp",
+          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+          username: "28224511:1379330808"
+        },
+        {
+          url: "turn:192.158.29.39:3478?transport=tcp",
+          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+          username: "28224511:1379330808"
+        }
+      ]
+    }
+  }
+}));
 
 function setPeerId() {
   const newPeerIdBuffer = Buffer.from(store.getters[USER].peerId);
@@ -259,20 +305,20 @@ function addTorrentEvents(torrent) {
   torrent.on("download", bytes => {
     console.log("torrent download bytes:", bytes);
 
-    if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length >= 24) {
-      Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
-        .then(res => {
-          console.log("wire download add group done", res);
-        })
-        .catch(err => {
-          console.log("wire download add group error:", err, err.request);
-          if (err.request && Array.isArray(err.request.data)) {
-            downloadedPieces.concat(err.request.data);
-          }
-        });
+    // if (downloadedPieces && Array.isArray(downloadedPieces) && downloadedPieces.length >= 24) {
+    //   Axios({ url: "/user-game-download-blocks/group", data: downloadedPieces, method: "POST" })
+    //     .then(res => {
+    //       console.log("wire download add group done", res);
+    //     })
+    //     .catch(err => {
+    //       console.log("wire download add group error:", err, err.request);
+    //       if (err.request && Array.isArray(err.request.data)) {
+    //         downloadedPieces.concat(err.request.data);
+    //       }
+    //     });
 
-      downloadedPieces = [];
-    }
+    //   downloadedPieces = [];
+    // }
   });
 
   torrent.on("upload", bytes => {
