@@ -605,6 +605,11 @@ export default {
       if (filePath == null) {
         filePath = await this.chooseDirectory();
         filePath = filePath.filePaths[0];
+
+        // var concatTitle = this.game.title;
+        // concatTitle = concatTitle.replace(/ /g, "-");
+
+        // filePath = path.join(filePath, concatTitle);
       }
 
       console.log("value of filePath: ", filePath);
@@ -783,11 +788,12 @@ export default {
       //this.$store.dispatchPromise("removePath");
       var filePath = null;
       let options = {
-        title: "Choose New Directory to save " + this.game.title,
-        buttonLabel: "Select Directory",
+        title: "Choose New Folder to save " + this.game.title,
+        buttonLabel: "Select Folder",
         properties: ["openDirectory"]
       };
       filePath = dialog.showOpenDialog(win, options);
+      //filePath = dialog.showSaveDialog(win, options);
 
       let savedContent = {
         game: this.game,
@@ -1043,10 +1049,21 @@ export default {
       }
       console.log("origincalPath: ", originalPath);
 
+      var concatTitle = this.game.title;
+      concatTitle = concatTitle.replace(/ /g, "-");
+
+      console.log("concatTitle: ", concatTitle);
+
       const execFile = fs
         .readdirSync(originalPath)
-        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+        .filter(absPath => path.extname(absPath).toLowerCase() === ".exe" && absPath.includes(concatTitle + ".exe"))
         .shift();
+
+      // const testFile = fs.readdirSync(originalPath).filter(item => {
+      //   return item.includes(concatTitle+".exe");
+      // });
+      // console.log("Testing of testFile: ", testFile);
+
       if (!execFile) {
         console.log("file could not be found in path: ", originalPath);
         //alert("could not find file in path");

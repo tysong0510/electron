@@ -74,10 +74,10 @@
                       <b-col v-if="game.price != 500 && game.price != 250" class="text-white">
                         {{ game.price | currency }}
                       </b-col>
-                      <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
+                      <!-- <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
                         <img src="../assets/icons/downloaded.svg" alt="Downloaded" />
                         {{ game.downloaded || 0 }}
-                      </b-col>
+                      </b-col> -->
                     </b-row>
                   </b-card-sub-title>
                   <b-card-text class="font-weight-normal mt-3">
@@ -120,10 +120,10 @@
                           <b-col v-if="game.price != 500 && game.price != 250" class="text-white">
                             {{ game.price | currency }}
                           </b-col>
-                          <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
+                          <!-- <b-col class="downloaded" :title="'Downloaded ' + (game.downloaded || 0) + ' times'">
                             <img src="../assets/icons/downloaded.svg" alt="Downloaded" />
                             {{ game.downloaded || 0 }}
-                          </b-col>
+                          </b-col> -->
                         </b-row>
                       </b-card-sub-title>
                     </b-col>

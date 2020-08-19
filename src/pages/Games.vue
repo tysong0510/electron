@@ -64,7 +64,7 @@
 
       <b-row>
         <b-col>
-          <button class="btn btn-primary" @click="removeDownloadedGames()">Remove Downloaded Games</button>
+          <button class="btn btn-primary" @click="removeDownloadedGames()">Remove Downloaded Games Path</button>
         </b-col>
       </b-row>
     </b-row>
