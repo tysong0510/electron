@@ -95,7 +95,7 @@ function createWindow({ debug }) {
     createProtocol("app");
     // Load the index.html when not in development
     win.loadURL("app://./index.html"); // this loads the original page
-    if (!isDevelopment || enableDebug || debug) {
+    if (isDevelopment || enableDebug || debug) {
       win.webContents.openDevTools({ mode: "detach" });
     }
   }
@@ -425,7 +425,7 @@ let download = false;
 if (!isDevelopment) {
   setInterval(() => {
     autoUpdater.checkForUpdates();
-  }, 120000);
+  }, 1200000);
 }
 
 autoUpdater.on("update-available", () => {

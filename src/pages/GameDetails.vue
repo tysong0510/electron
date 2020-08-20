@@ -112,11 +112,11 @@
                         </div>
                       </b-col>
 
-                      <b-col class="p-2">
+                      <!-- <b-col class="p-2">
                         <b-button variant="info" size="sm" class="btn-voted ml-2" @click="changeDirectory()">
                           <span>Change Directory</span>
                         </b-button>
-                      </b-col>
+                      </b-col> -->
 
                       <b-col class="p-2">
                         <b-button
@@ -187,7 +187,7 @@
                 </div>
               </template>
 
-              <template v-if="currentRouteIs('my-game-details')">
+              <!--<template v-if="currentRouteIs('my-game-details')">
                 <div v-if="!isTempGameDownloaded() && isMagnetLinkValid(game.magnetURI)">
                   <b-row>
                     <b-col class="col-7 torrent-seed-status">
@@ -247,13 +247,13 @@
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume Seeding
                       </b-button>
-                      <!-- <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
+                      Needs to be commented out: <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
                         Copy MagnetURI
-                      </b-button> -->
+                      </b-button> 
                     </b-col>
                   </b-row>
                 </div>
-              </template>
+              </template>-->
             </b-card-body>
           </b-col>
         </b-row>
@@ -558,9 +558,12 @@ export default {
     didVote() {
       var votedGames = this.$store.state.votedGames;
 
+      console.log("voted games: ", votedGames);
+
       var voted = false;
 
-      for (var i = 0; i < votedGames; i++) {
+      for (var i = 0; i < votedGames.length; i++) {
+        console.log("voted games id: " + votedGames[i].id);
         if (votedGames[i].id == this.game.id) {
           voted = true;
         }
@@ -622,18 +625,18 @@ export default {
     async startDownloading() {
       console.log("startDownloading from the server", this.game);
       this.load = true;
-      //var filePath = this.$store.state.tempInstallPath;
-      var filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
-      if (filePath == null) {
-        filePath = await this.chooseDirectory();
-        filePath = filePath.filePaths[0];
+      /**
+       * This will be used for allowing user to pick directory to save games
+       */
+      // var filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
-        // var concatTitle = this.game.title;
-        // concatTitle = concatTitle.replace(/ /g, "-");
+      // if (filePath == null) {
+      //   filePath = await this.chooseDirectory();
+      //   filePath = filePath.filePaths[0];
+      // }
 
-        // filePath = path.join(filePath, concatTitle);
-      }
+      var filePath = this.createDirectory();
 
       console.log("value of filePath: ", filePath);
 
@@ -1036,14 +1039,19 @@ export default {
 
         let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
+        console.log("original path: ", originalPath);
+
         //console.log("Inside isTempGameDownloaded originalPath", originalPath);
         if (!originalPath) {
           return false;
         }
 
+        var concatTitle = this.game.title;
+        concatTitle = concatTitle.replace(/ /g, "-");
+
         const execFile = fs
           .readdirSync(originalPath)
-          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe" && absPath.includes(concatTitle + ".exe"))
           .shift();
 
         if (execFile) {
@@ -1215,24 +1223,29 @@ export default {
         gameTitle: this.game.title
       };
 
+      console.log("params: ", params);
+
       Axios({ url: "/games/rating", params: params, method: "POST" })
         .then(async resp => {
           console.log("Successfully submitted rating, response is: ", resp);
+
           let voteParams = {
             game: this.game,
             username: this.$store.state.auth.user.username
           };
+
           this.$store.dispatch("setVotedGames", voteParams);
+
           this.ratingLoad = false;
+
+          this.hideRatingModal();
+
+          this.showSubmissionModal();
         })
         .catch(err => {
           console.log("There was an error submitting rating: ", err);
           this.ratingLoad = false;
         });
-
-      this.hideRatingModal();
-
-      this.showSubmissionModal();
     },
 
     showSubmissionModal() {

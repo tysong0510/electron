@@ -84,7 +84,7 @@
 
         <b-dropdown variant="outline-secondary">
           <template v-slot:button-content><b-icon-box-arrow-down font-scale="2"></b-icon-box-arrow-down> External URL </template>
-          <b-dropdown-text>{{ url }}invite/{{ USER.username }}</b-dropdown-text>
+          <b-dropdown-text>{{ url }}invite/{{ username }}</b-dropdown-text>
         </b-dropdown>
         <br />
         <p class="border-bottom"></p>
@@ -1088,6 +1088,21 @@ export default {
       coins *= 100;
       //return coins.toFixed(2);
       return Math.floor(coins);
+    },
+    username() {
+      var username = this[USER].username;
+
+      console.log(username);
+
+      // if (username.contains(" ")) {
+      //   username = username.replace(/\s/g, "");
+
+      //   return username;
+      // }
+
+      username = username.replace(/\s/g, "");
+
+      return username;
     }
   },
   watch: {

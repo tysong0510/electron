@@ -21,7 +21,7 @@
 
     <div>
       <p v-if="!isLive">TEST ENV</p>
-      <p class="text-right pt-4">Dev 1.1.0</p>
+      <p class="text-right pt-4">Dev 1.1.9</p>
     </div>
   </b-container>
 </template>
