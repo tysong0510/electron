@@ -1282,10 +1282,8 @@ const demoData = {
         }
       });
 
-      const { torrentFileName, torrentURL } = torrent;
+      const { torrentFileName, torrentURL, path: downloadPath } = torrent;
       const torrentId = torrentFileName || torrentURL;
-
-      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
       if (!ipcRenderer) {
         ipcMain.emit(

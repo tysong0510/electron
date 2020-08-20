@@ -744,7 +744,7 @@ export default {
             this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
           });
 
-          reqM.on("end", () => {
+          reqM.on("end", async () => {
             let savedContent = {
               game: this.game,
               path: filePath
@@ -775,7 +775,9 @@ export default {
             console.log("==== Download FInished =====");
             const seedFilePath = filePath + "\\" + noSpaceTitleM + ".exe";
 
-            this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            await this.$store.dispatchPromise(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            await this.$store.dispatchPromise(PAUSE_DOWNLOAD_GAME, { gameId: this.game.id });
+            await this.$store.dispatchPromise(RESUME_DOWNLOAD_GAME, { gameId: this.game.id });
 
             console.log("START_SEEDING = ", seedFilePath);
           });
@@ -1068,7 +1070,7 @@ export default {
     },
     async tempPlayGame() {
       let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
-      if (originalPath) {
+      if (!originalPath) {
         const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
         if (torrent) {
           originalPath = torrent.path;
