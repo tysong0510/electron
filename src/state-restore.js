@@ -44,7 +44,7 @@ export async function restoreStoreFromSavedUserState(store, state) {
     if (t.downloaded || originalState !== "paused") {
       console.log("dispatching start download", torrent.gameId);
       // seed downloaded or download not paused
-      promises.push(dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId }));
+      promises.push(dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId, filePath: torrent.path }));
     }
   });
 

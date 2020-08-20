@@ -63,7 +63,7 @@
                     </div>
                     <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button
-                        v-if="!isTempGameDownloaded()"
+                        v-if="!isTempGameDownloaded"
                         :disabled="load"
                         variant="primary"
                         size="lg"
@@ -73,7 +73,7 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else-if="isTempGameDownloaded()" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button v-else-if="isTempGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
                         Play
                       </b-button>
 
@@ -87,18 +87,18 @@
                     <b-row>
                       <b-col class="game-buttons p-2">
                         <b-button
-                          v-if="!isTempGameDownloaded()"
+                          v-if="!isTempGameDownloaded"
                           :disabled="load"
                           variant="primary"
                           size="lg"
                           class="btn-buy"
-                          @click="startDownloading()"
+                          @click="startDownload()"
                         >
-                          <span v-if="!load">Download</span>
-                          <b-spinner v-if="load"></b-spinner>
+                          <span v-if="!load && !isSearchingPeer">Download</span>
+                          <b-spinner v-if="load || isSearchingPeer"></b-spinner>
                         </b-button>
                         <b-button
-                          v-else-if="isTempGameDownloaded() && !load"
+                          v-else-if="isTempGameDownloaded && !load && !isSearchingPeer"
                           variant="primary"
                           size="lg"
                           class="btn-buy"
@@ -106,7 +106,7 @@
                         >
                           Play
                         </b-button>
-                        <div v-if="load && !isTempGameDownloaded()" class="p-3">
+                        <div v-if="load && !isTempGameDownloaded" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -362,6 +362,7 @@ import {
   INSTALL_GAME
   //ADD_TO_CART
 } from "../store/actions-types";
+import { SEARCHING_PEER } from "../store/mutation-types";
 
 import { CAN_GAME_INSTALL, IS_GAME_INSTALLED } from "../store/modules/path";
 //import { baseURL } from "../apiConfig";
@@ -510,7 +511,6 @@ export default {
     },
 
     isGameRecommended() {
-      console.log("RECOMMENDED");
       var isGameRecommended = false;
       var recommendedGames = this.$store.state.recommendedGames;
       for (var i = 0; i < recommendedGames.length; i++) {
@@ -534,6 +534,40 @@ export default {
     /**
      * Functionality for this has been moved down to isTempGameDownloaded in methods below
      */
+    isTempGameDownloaded() {
+      try {
+        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          console.log("Inside isTempGameDownloaded torrent found");
+          return true;
+        }
+        //console.log("Inside isTempGameDownloaded game.id", this.game.id);
+
+        let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+
+        console.log("Inside isTempGameDownloaded originalPath", originalPath);
+        if (!originalPath) {
+          return false;
+        }
+
+        const execFile = fs
+          .readdirSync(originalPath)
+          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
+          .shift();
+
+        if (execFile) {
+          console.log("Inside isTempGameDownloaded", execFile);
+          //checks if file has been deleted or not
+          return true;
+        }
+
+        console.log("Inside isTempGameDownloaded not torrent found - final");
+
+        return false;
+      } catch (error) {
+        console.log("Inside isTempGameDownloaded", error);
+        return false;
+      }
+    },
 
     isGameDownloaded() {
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
@@ -548,13 +582,18 @@ export default {
         return true;
       }
 
+      return false;
+    },
+    isTorrentGameDownloaded() {
       if (this.$store.getters.findTorrentByGameId(this.game.id)) {
         return true;
       }
 
       return false;
     },
-
+    isSearchingPeer() {
+      return this.$store.state.searchingPeer;
+    },
     didVote() {
       var votedGames = this.$store.state.votedGames;
 
@@ -568,7 +607,6 @@ export default {
           voted = true;
         }
       }
-      console.log("Was this game voted on: ", voted);
       return voted;
     }
   },
@@ -587,7 +625,6 @@ export default {
   },
   updated() {
     this.isGameInstalled;
-    this.isTempGameDownloaded;
   },
 
   methods: {
@@ -596,7 +633,6 @@ export default {
       return route === this.$router.currentRoute.name;
     },
     isMagnetLinkValid(magnetLink) {
-      console.log(magnetLink);
       if (magnetLink === null || magnetLink.search("magnet:?") === -1) {
         return false;
       }
@@ -616,15 +652,50 @@ export default {
       }
       return "";
     },
-    startDownloadingForSeeding() {
+    async startDownloadingForSeeding() {
       console.log("startDownloading from the torrent");
+      //var filePath = this.$store.state.tempInstallPath;
+      let filePath = this.$store.state.tempDownloadedGames[this.game.id];
+
+      if (filePath == null) {
+        filePath = await this.chooseDirectory();
+        filePath = filePath.filePaths[0];
+      }
+
+      console.log("startDownloadingForSeeding - check before start downloading", filePath);
+
+      if (!filePath) {
+        return;
+      }
+
+      console.log("startDownloadingForSeeding - file path is valid and going to download from torrent", filePath);
+
       this[START_DOWNLOAD_GAME]({
-        gameId: this.game.id
+        gameId: this.game.id,
+        filePath
       });
+
+      setTimeout(async () => {
+        if (this.isSearchingPeer) {
+          await this.$store.dispatchPromise({
+            type: SEARCHING_PEER,
+            payload: false
+          });
+          console.log("still trying to find peers from the network! switching to server download afte 2 mins!");
+          const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+          console.log("torrent to be removed", torrent);
+          this.$store.dispatchPromise("removeTorrent", torrent).then(() => {
+            console.log("torrent removed !!!! Start downloading from server now!");
+            this.startDownloading();
+          });
+        }
+      }, 120000);
     },
     async startDownloading() {
       console.log("startDownloading from the server", this.game);
       this.load = true;
+      //var filePath = this.$store.state.tempInstallPath;
+      //let filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
       /**
        * This will be used for allowing user to pick directory to save games
@@ -637,6 +708,11 @@ export default {
       // }
 
       var filePath = this.createDirectory();
+
+      if (!filePath) {
+        console.log("startDownloading cannot start download since the path is not defined");
+        return;
+      }
 
       console.log("value of filePath: ", filePath);
 
@@ -708,7 +784,7 @@ export default {
             this.percentage = parseInt((recievedBytesM * 100) / totalBytesM);
           });
 
-          reqM.on("end", () => {
+          reqM.on("end", async () => {
             let savedContent = {
               game: this.game,
               path: filePath
@@ -737,9 +813,11 @@ export default {
               });
 
             console.log("==== Download FInished =====");
-            const seedFilePath = filePath + "/" + noSpaceTitleM + ".exe";
+            const seedFilePath = filePath + "\\" + noSpaceTitleM + ".exe";
 
-            this.$store.dispatch(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            await this.$store.dispatchPromise(START_SEEDING, { gameId: this.game.id, filePaths: [seedFilePath] });
+            await this.$store.dispatchPromise(PAUSE_DOWNLOAD_GAME, { gameId: this.game.id });
+            await this.$store.dispatchPromise(RESUME_DOWNLOAD_GAME, { gameId: this.game.id });
 
             console.log("START_SEEDING = ", seedFilePath);
           });
@@ -1018,21 +1096,19 @@ export default {
       }
     },
     startDownload() {
-      // if (this.isMagnetLinkValid(this.game.magnetURI)) {
-      //   if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-      //     return;
-      //   }
-      //   this.startDownloadingForSeeding();
-      // } else if (this.game.magnetURI !== null) {
-      //   this.startDownloading();
-      // }
-      if (this.game.magnetURI !== null) {
+      if (this.isMagnetLinkValid(this.game.magnetURI)) {
+        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+          return;
+        }
+        this.startDownloadingForSeeding();
+      } else if (!this.isMagnetLinkValid(this.game.magnetURI) && this.game.downloadURL !== null) {
         this.startDownloading();
       }
     },
     assignTorrent() {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
+    // eslint-disable-next-line vue/no-dupe-keys
     isTempGameDownloaded() {
       try {
         //console.log("Inside isTempGameDownloaded game.id", this.game.id);
@@ -1076,6 +1152,12 @@ export default {
 
     async tempPlayGame() {
       let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+      if (!originalPath) {
+        const torrent = this.$store.getters.findTorrentByGameId(this.game.id);
+        if (torrent) {
+          originalPath = torrent.path;
+        }
+      }
       console.log("origincalPath: ", originalPath);
 
       var concatTitle = this.game.title;
@@ -1165,7 +1247,6 @@ export default {
       const gameId = this.$route.params.id || 0;
       this.getGameStatus({ params: { id: gameId } });
       this.getGame({ params: { id: gameId } });
-      console.log("============ inside the fetch data ===============", gameId);
     },
     getImagePath(game, type = "main") {
       if (game.images) {

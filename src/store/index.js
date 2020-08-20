@@ -17,8 +17,11 @@ import {
 } from "./actions-types";
 import {
   ADD_TORRENT,
+  REMOVE_TORRENT,
   ADD_TORRENT_SEED,
   CLEAR_TORRENTS,
+  SEARCHING_PEER,
+  FOUND_PEER,
   NEXT_TORRENT_KEY_USED,
   STOP_TORRENTS,
   TORRENT_DOWNLOADED,
@@ -555,6 +558,8 @@ const demoData = {
         }
       }
     },
+    searchingPeer: false,
+    isDownloading: false,
     nextTorrentKey: 1, // identify torrents for IPC between the main and webtorrent windows
     torrents: [],
     cart: [], //savedData ? savedCart : [], //if there are any items saved in savedCart variable set cart equal to them, else new array
@@ -594,6 +599,11 @@ const demoData = {
     [CLEAR_TORRENTS](state) {
       state.torrents = [];
     },
+    [REMOVE_TORRENT](state, { payload }) {
+      const original = [...state.torrents];
+      const altered = original.filter(torrent => torrent.infoHash !== payload.infoHash);
+      state.torrents = altered;
+    },
     [UPDATE_TORRENT](state, { payload }) {
       const keys = ["torrentKey", "infoHash"];
       if (
@@ -616,6 +626,8 @@ const demoData = {
       );
     },
     [TORRENT_DOWNLOADING](state, { payload }) {
+      state.searchingPeer = false;
+      state.isDownloading = true;
       state.torrents = patchCollectionItemByKey(state.torrents, { state: "downloading", torrentKey: payload.torrentKey }, "torrentKey");
     },
     [UPDATE_TORRENT_PROGRESS](state, { payload }) {
@@ -626,10 +638,18 @@ const demoData = {
       );
     },
     [TORRENT_DOWNLOADED](state, { payload }) {
+      state.isDownloading = false;
+      state.searchingPeer = false;
       state.torrents = patchCollectionItemByKey(state.torrents, { downloaded: true, torrentKey: payload.torrentKey }, "torrentKey");
     },
     [NEXT_TORRENT_KEY_USED](state) {
       state.nextTorrentKey++;
+    },
+    [SEARCHING_PEER](state, { payload }) {
+      state.searchingPeer = payload;
+    },
+    [FOUND_PEER](state) {
+      state.searchingPeer = false;
     },
     [UNARCHIVE_START](state, { payload }) {
       const { gameId } = payload;
@@ -651,6 +671,20 @@ const demoData = {
         },
         "gameId"
       );
+    },
+
+    removeTorrent(state, torrent) {
+      if (!ipcRenderer) {
+        console.log("ipcMain!", torrent.infoHash);
+        ipcMain.emit("wt-remove-torrent", null, torrent.infoHash);
+      } else {
+        console.log("ipcRenderer!", torrent.infoHash);
+        ipcRenderer.emit("wt-remove-torrent", null, torrent.infoHash);
+      }
+      console.log("removing torrent from the state before downloading!", torrent);
+      const original = [...state.torrents];
+      const altered = original.filter(t => t.infoHash !== torrent.infoHash);
+      state.torrents = altered;
     },
 
     addToCart(state, data) {
@@ -884,6 +918,9 @@ const demoData = {
     removePath(context) {
       context.commit("removePath");
     },
+    removeTorrent(context, torrent) {
+      context.commit("removeTorrent", torrent);
+    },
     addDownloadedGame(context, savedContent) {
       context.commit("addDownloadedGame", savedContent);
     },
@@ -1088,6 +1125,18 @@ const demoData = {
       commit(NEXT_TORRENT_KEY_USED);
     },
 
+    [REMOVE_TORRENT]({ commit }, data) {
+      commit(REMOVE_TORRENT, data);
+    },
+
+    [SEARCHING_PEER]({ commit }, data) {
+      commit(SEARCHING_PEER, data);
+    },
+
+    [FOUND_PEER]({ commit }) {
+      commit(FOUND_PEER);
+    },
+
     [UPDATE_TORRENT_INFOHASH]({ commit }, data) {
       commit(UPDATE_TORRENT_INFOHASH, data);
     },
@@ -1129,7 +1178,11 @@ const demoData = {
       }
     },
 
-    async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId }) {
+    async [START_DOWNLOAD_GAME]({ state, commit, getters }, { gameId, filePath }) {
+      commit({
+        type: SEARCHING_PEER,
+        payload: true
+      });
       const { findTorrentByGameId } = getters;
       let torrent = findTorrentByGameId(gameId);
       let magnetURI;
@@ -1190,7 +1243,7 @@ const demoData = {
       const { torrentFileName, torrentURL } = torrent;
       const torrentId = torrentFileName || torrentURL;
 
-      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
+      const downloadPath = filePath;
 
       if (!ipcRenderer) {
         ipcMain.emit(
@@ -1229,10 +1282,8 @@ const demoData = {
         }
       });
 
-      const { torrentFileName, torrentURL } = torrent;
+      const { torrentFileName, torrentURL, path: downloadPath } = torrent;
       const torrentId = torrentFileName || torrentURL;
-
-      const downloadPath = getters[GAME_DOWNLOAD_PATH](gameId);
 
       if (!ipcRenderer) {
         ipcMain.emit(
@@ -1496,6 +1547,7 @@ const demoData = {
       }
       return torrent.progress && torrent.progress.done;
     },
+    isTorrentStarted: state => () => state.searchingPeer,
     getGameDownloadProgress: (state, getters) => gameId => {
       const torrent = getters.findTorrentByGameId(gameId);
       return torrent && torrent.progress ? torrent.progress.progress : 0;

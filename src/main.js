@@ -23,6 +23,7 @@ import {
   UNARCHIVE_FAIL,
   UNARCHIVE_OK,
   NEXT_TORRENT_KEY_USED,
+  SEARCHING_PEER,
   UPDATE_TORRENT,
   UPDATE_TORRENT_INFOHASH,
   UPDATE_TORRENT_PROGRESS
@@ -226,6 +227,7 @@ function setupIpc() {
     const existingTorrent = findTorrentByInfoHash(infoHash);
     if (existingTorrent && existingTorrent.torrentKey !== torrentKey) {
       ipcRenderer.send("wt-stop-torrenting", infoHash);
+      console.log("====== Existing Torrent =========", existingTorrent);
       return dispatch("error", "Cannot add duplicate torrent");
     }
     dispatch({
@@ -251,6 +253,11 @@ function setupIpc() {
           state: "downloading",
           path: torrentInfo.path
         }
+      });
+
+      dispatch({
+        type: SEARCHING_PEER,
+        payload: false
       });
 
       // Save the .torrent file, if it hasn't been saved already
@@ -451,7 +458,7 @@ ipcRenderer.once("wt-reset-ok", () => {
         if (t.downloaded || originalState !== "paused") {
           console.log("dispatching start download", torrent.gameId);
           // seed downloaded or download not paused
-          dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId });
+          dispatch(START_DOWNLOAD_GAME, { gameId: torrent.gameId, filePath: torrent.path });
         }
       });
     }
