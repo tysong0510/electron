@@ -63,7 +63,7 @@
                     </div>
                     <div v-else-if="gameStatus && !(showPauseBtn || showResumeBtn)">
                       <b-button
-                        v-if="!isTempGameDownloaded"
+                        v-if="!isTempGameDownloaded()"
                         :disabled="load"
                         variant="primary"
                         size="lg"
@@ -73,7 +73,7 @@
                         <span v-if="!load">Download</span>
                         <b-spinner v-if="load"></b-spinner>
                       </b-button>
-                      <b-button v-else-if="isTempGameDownloaded" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
+                      <b-button v-else-if="isTempGameDownloaded()" variant="primary" size="lg" class="btn-buy" @click="tempPlayGame()">
                         Play
                       </b-button>
 
@@ -87,7 +87,7 @@
                     <b-row>
                       <b-col class="game-buttons p-2">
                         <b-button
-                          v-if="!isTempGameDownloaded"
+                          v-if="!isTempGameDownloaded()"
                           :disabled="load"
                           variant="primary"
                           size="lg"
@@ -98,7 +98,7 @@
                           <b-spinner v-if="load || isSearchingPeer"></b-spinner>
                         </b-button>
                         <b-button
-                          v-else-if="isTempGameDownloaded && !load && !isSearchingPeer"
+                          v-else-if="isTempGameDownloaded() && !load && !isSearchingPeer"
                           variant="primary"
                           size="lg"
                           class="btn-buy"
@@ -106,7 +106,7 @@
                         >
                           Play
                         </b-button>
-                        <div v-if="load && !isTempGameDownloaded" class="p-3">
+                        <div v-if="load && !isTempGameDownloaded()" class="p-3">
                           <b-progress :value="percentage" :max="maxPercentage" animated></b-progress>
                           {{ percentage }}/100
                         </div>
@@ -187,7 +187,7 @@
                 </div>
               </template>
 
-              <!--<template v-if="currentRouteIs('my-game-details')">
+              <template v-if="currentRouteIs('my-game-details')">
                 <div v-if="!isTempGameDownloaded() && isMagnetLinkValid(game.magnetURI)">
                   <b-row>
                     <b-col class="col-7 torrent-seed-status">
@@ -247,13 +247,13 @@
                       <b-button v-if="showResumeBtn" variant="primary" size="lg" class="btn-buy" @click="resumeDownloading()">
                         Resume Seeding
                       </b-button>
-                      Needs to be commented out: <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
+                      <!-- Needs to be commented out: <b-button variant="primary" size="lg" class="btn-buy" @click="copyMagnetURI()">
                         Copy MagnetURI
-                      </b-button> 
+                      </b-button>  -->
                     </b-col>
                   </b-row>
                 </div>
-              </template>-->
+              </template>
             </b-card-body>
           </b-col>
         </b-row>
@@ -534,40 +534,43 @@ export default {
     /**
      * Functionality for this has been moved down to isTempGameDownloaded in methods below
      */
-    isTempGameDownloaded() {
-      try {
-        if (this.$store.getters.findTorrentByGameId(this.game.id)) {
-          console.log("Inside isTempGameDownloaded torrent found");
-          return true;
-        }
-        //console.log("Inside isTempGameDownloaded game.id", this.game.id);
+    // isTempGameDownloaded() {
+    //   try {
+    //     if (this.$store.getters.findTorrentByGameId(this.game.id)) {
+    //       console.log("Inside isTempGameDownloaded torrent found");
+    //       return true;
+    //     }
+    //     //console.log("Inside isTempGameDownloaded game.id", this.game.id);
 
-        let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
+    //     let originalPath = this.$store.state.tempDownloadedGames[this.game.id];
 
-        console.log("Inside isTempGameDownloaded originalPath", originalPath);
-        if (!originalPath) {
-          return false;
-        }
+    //     console.log("Inside isTempGameDownloaded originalPath", originalPath);
+    //     if (!originalPath) {
+    //       return false;
+    //     }
 
-        const execFile = fs
-          .readdirSync(originalPath)
-          .filter(absPath => path.extname(absPath).toLowerCase() === ".exe")
-          .shift();
+    //     var concatTitle = this.game.title;
+    //     concatTitle = concatTitle.replace(/ /g, "-");
 
-        if (execFile) {
-          console.log("Inside isTempGameDownloaded", execFile);
-          //checks if file has been deleted or not
-          return true;
-        }
+    //     const execFile = fs
+    //       .readdirSync(originalPath)
+    //       .filter(absPath => path.extname(absPath).toLowerCase() === ".exe" && absPath.includes(concatTitle + ".exe"))
+    //       .shift();
 
-        console.log("Inside isTempGameDownloaded not torrent found - final");
+    //     if (execFile) {
+    //       console.log("Inside isTempGameDownloaded", execFile);
+    //       //checks if file has been deleted or not
+    //       return true;
+    //     }
 
-        return false;
-      } catch (error) {
-        console.log("Inside isTempGameDownloaded", error);
-        return false;
-      }
-    },
+    //     console.log("Inside isTempGameDownloaded not torrent found - final");
+
+    //     return false;
+    //   } catch (error) {
+    //     console.log("Inside isTempGameDownloaded", error);
+    //     return false;
+    //   }
+    // },
 
     isGameDownloaded() {
       var originalPath = this.$store.state.tempDownloadedGames[this.game.id];
@@ -694,20 +697,18 @@ export default {
     async startDownloading() {
       console.log("startDownloading from the server", this.game);
       this.load = true;
-      //var filePath = this.$store.state.tempInstallPath;
-      //let filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
       /**
        * This will be used for allowing user to pick directory to save games
        */
-      // var filePath = this.$store.state.tempDownloadedGames[this.game.id];
+      var filePath = this.$store.state.tempDownloadedGames[this.game.id];
 
-      // if (filePath == null) {
-      //   filePath = await this.chooseDirectory();
-      //   filePath = filePath.filePaths[0];
-      // }
+      if (filePath == null) {
+        filePath = await this.chooseDirectory();
+        filePath = filePath.filePaths[0];
+      }
 
-      var filePath = this.createDirectory();
+      //var filePath = this.createDirectory();
 
       if (!filePath) {
         console.log("startDownloading cannot start download since the path is not defined");
@@ -1108,7 +1109,7 @@ export default {
     assignTorrent() {
       this.$store.dispatch(START_SEEDING, { gameId: this.game.id });
     },
-    // eslint-disable-next-line vue/no-dupe-keys
+
     isTempGameDownloaded() {
       try {
         //console.log("Inside isTempGameDownloaded game.id", this.game.id);
@@ -1158,7 +1159,7 @@ export default {
           originalPath = torrent.path;
         }
       }
-      console.log("origincalPath: ", originalPath);
+      console.log("originalPath: ", originalPath);
 
       var concatTitle = this.game.title;
       concatTitle = concatTitle.replace(/ /g, "-");
